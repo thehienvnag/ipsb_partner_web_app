@@ -18,7 +18,15 @@ const profile = (
 const DashboardHeader = () => {
   return (
     <header className="navbar navbar-expand-md navbar-light d-print-none">
-      <div className="container-xl">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: "0 5px",
+          alignItems: "center",
+        }}
+      >
         <button
           className="navbar-toggler"
           type="button"
@@ -27,21 +35,19 @@ const DashboardHeader = () => {
         >
           <span className="navbar-toggler-icon" />
         </button>
-        <h1 className="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-          <a href="." className="d-flex">
-            <img
-              src="https://images-eu.ssl-images-amazon.com/images/I/41HOM2pyLfL.jpg"
-              width={110}
-              height={32}
-              alt="Tabler"
-              className="navbar-brand-image"
-            />
-            <h1 style={{ marginLeft: 10 }}>iLocation</h1>
-          </a>
-        </h1>
-        <div className="navbar-nav flex-row order-md-last">
+        <div style={{ display: "flex", padding: "12px" }}>
+          <img
+            src="https://images-eu.ssl-images-amazon.com/images/I/41HOM2pyLfL.jpg"
+            width={50}
+            alt="Tabler"
+            className="navbar-brand-image"
+          />
+          <h1 style={{ margin: 0, marginLeft: 10 }}>iLocation</h1>
+        </div>
+
+        <div className="navbar-nav flex-row" style={{ marginRight: 15 }}>
           <div className="nav-item d-none d-md-flex me-3">
-            <div className="btn-list"></div>
+            {/* <div className="btn-list"></div> */}
           </div>
           <div className="nav-item dropdown d-none d-md-flex me-3">
             <Dropdown

@@ -1,0 +1,19 @@
+.responsive-sidebar {
+    height: 100vh;
+    
+}
+.button-toggle {
+    display: none;
+    position: absolute;
+}
+
+@media (max-width: 768px) {
+    .responsive-sidebar {
+        display: none;
+    }
+    .button-toggle {
+        display: block;
+        position: absolute;
+    }
+}
+  

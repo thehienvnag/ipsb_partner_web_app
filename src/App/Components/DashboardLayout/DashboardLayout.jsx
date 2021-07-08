@@ -1,18 +1,25 @@
+import { Col, Row, Layout } from "antd";
+
 import React from "react";
-import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 import DashboardHeader from "./DashboardHeader";
-import DashboardMenu from "./DashboardMenu";
+import DashboardSidebar from "./DashboardSidebar";
+const { Footer, Content } = Layout;
+// import DashboardMenu from "./DashboardMenu";
 
 const DashboardLayout = () => {
   return (
     <>
-      <Helmet>
-        <style>{"body { background-color: #F4F6FA; }"}</style>
-      </Helmet>
-      <DashboardHeader />
-      <DashboardMenu />
-      <Outlet />
+      <Layout style={{ backgroundColor: "#F4F6FA" }}>
+        <DashboardHeader />
+        <Layout>
+          <DashboardSidebar />
+          <Content>
+            <Outlet />
+            <Footer style={{ height: 50 }}>Footer</Footer>
+          </Content>
+        </Layout>
+      </Layout>
     </>
   );
 };
