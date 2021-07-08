@@ -65,6 +65,13 @@ const routes = [
   },
 ];
 
+/**
+ * Page wrapper for new page
+ * @param {object} [params] parameters for get request
+ * @param {PropTypes.func} [params.handleCreate] current page of get request
+ * @param {PropTypes.func} [params.handleDelete] current page size of get request
+ * @param {PropTypes.func} [params.handleRefresh] building id which contains floor plans
+ */
 const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
   <PageHeader
     title="FLOOR PLANS"
