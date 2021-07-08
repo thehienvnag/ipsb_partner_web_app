@@ -23,20 +23,7 @@ const BmHomePage = () => {
     <PageWrapper>
       <PageHeader title="Overview" subTitle="Building Manager" />
       <PageBody>
-        <Card className="col-md-6" title="Card">
-          <List
-            loading={isLoading}
-            header={<div>Header</div>}
-            footer={<div>Footer</div>}
-            bordered
-            dataSource={listFloor}
-            renderItem={(item) => (
-              <List.Item>
-                <Typography.Text mark>{item.floorCode}</Typography.Text>
-              </List.Item>
-            )}
-          />
-        </Card>
+        <Card title="Card"></Card>
       </PageBody>
     </PageWrapper>
   );

@@ -2,6 +2,7 @@ import React from "react";
 import "./DashboardSidebar.scss";
 import { Menu, Col, Layout } from "antd";
 import { MailOutlined, CalendarOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 const { Sider } = Layout;
 
 const DashboardSidebar = ({ isCollapsed }) => {
@@ -55,10 +56,10 @@ const DashboardSidebar = ({ isCollapsed }) => {
           </Col>
 
           <Menu.Item key="1" icon={<MailOutlined />}>
-            Navigation One
+            Home
           </Menu.Item>
           <Menu.Item key="2" icon={<CalendarOutlined />}>
-            Navigation Two
+            Floor plan
           </Menu.Item>
         </Menu>
       </Sider>
