@@ -1,46 +1,54 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Card, Menu, Table, Tag, Image, Typography } from "antd";
 import { Link } from "react-router-dom";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-import { getFloorPlans } from "App/Services/floorPlan.service";
+import {
+  selectIsLoading,
+  selectListFloor,
+  selectPageSize,
+  selectTotalCount,
+  loadFloorPlans,
+} from "App/Stores/floorPlan.slice";
 import { GlobalOutlined, SettingOutlined } from "@ant-design/icons";
 import "./index.scss";
 import Header from "./Header";
 
 const FloorPlanPage = () => {
-  const [listFloor, setListFloor] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  useEffect(() => {
-    //#region function fetch data
-    const fetchData = async () => {
-      setIsLoading(true);
-      const floors = await getFloorPlans();
-      setIsLoading(false);
-      setListFloor(
-        floors?.content?.map((item, index) =>
-          Object.assign(
-            {
-              status: index % 2 === 0 ? "Active" : "Inactive",
-              key: "col-" + index,
-            },
-            item
-          )
-        )
-      );
-    };
-    //#endregion
-    fetchData();
-  }, []);
-  const handleRows = (values) => {
-    console.log(values);
-    setSelectedItems(values);
+  //#endregion
+  //#region handle event functions
+  const handleRows = (values) => setSelectedItems(values);
+  const handlePaging = (number) => {
+    dispatch(loadFloorPlans({ pageIndex: number }));
+    setCurrentPage(number);
   };
-  const handlePaging = (number, pageSize) => setCurrentPage(number);
+  const handleRefresh = () => {
+    dispatch(loadFloorPlans({ pageIndex: currentPage }));
+  };
+  const handleDelete = () => {};
+  const handleCreate = () => {};
+  //#endregion
+  //#region Store dispatch & selector of [listFloor, isLoading]
+  const dispatch = useDispatch();
+  const listFloor = useSelector(selectListFloor);
+  const isLoading = useSelector(selectIsLoading);
+  const pageSize = useSelector(selectPageSize);
+  const totalCount = useSelector(selectTotalCount);
+  //#endregion
+
+  useEffect(() => {
+    dispatch(loadFloorPlans());
+  }, [dispatch]);
   return (
     <PageWrapper>
-      <Header />
+      <Header
+        handleRefresh={handleRefresh}
+        handleCreate={handleCreate}
+        handleDelete={handleDelete}
+      />
       <PageBody>
         <Card>
           <Menu defaultSelectedKeys={["mail"]} mode="horizontal">
@@ -62,8 +70,8 @@ const FloorPlanPage = () => {
               pagination={{
                 size: "small",
                 current: currentPage,
-                pageSize: 5,
-                total: listFloor?.content ?? 0,
+                pageSize: pageSize,
+                total: totalCount,
                 onChange: handlePaging,
               }}
             >
@@ -75,7 +83,7 @@ const FloorPlanPage = () => {
               />
 
               <Table.Column
-                title="Floor code"
+                title="Floor"
                 key="floorCode"
                 render={(item) => (
                   <Link to={`${item.id}`}>Tầng {item.floorCode}</Link>
@@ -106,9 +114,19 @@ const FloorPlanPage = () => {
                 title="Status"
                 dataIndex="status"
                 key="status"
-                render={(item) => (
-                  <Tag color={item === "Active" ? "blue" : "red"}>{item}</Tag>
-                )}
+                render={(value) => {
+                  if (!value) {
+                    value =
+                      Math.floor(Math.random() * 2) % 2 === 0
+                        ? "Active"
+                        : "Inactive";
+                  }
+                  return (
+                    <Tag color={value === "Active" ? "blue" : "red"}>
+                      {value}
+                    </Tag>
+                  );
+                }}
               />
               <Table.Column
                 title="Image"
@@ -116,7 +134,6 @@ const FloorPlanPage = () => {
                 render={(item) => (
                   <Image
                     className="image-button"
-                    width={100}
                     src={item.imageUrl}
                     preview={{ mask: "View image" }}
                   />
