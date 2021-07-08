@@ -13,12 +13,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
         collapsed={isCollapsed}
         className="responsive-sidebar"
       >
-        <Menu
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="vertical"
-          theme="light"
-        >
+        <Menu defaultSelectedKeys={["1"]} mode="vertical">
           <Col
             type="flex"
             justify="center"
@@ -49,7 +44,6 @@ const DashboardSidebar = ({ isCollapsed }) => {
                 type="text"
                 className="form-control"
                 placeholder="Search…"
-                aria-label="Search in website"
               />
             </div>
           </Col>

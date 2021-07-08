@@ -7,7 +7,7 @@ import {
   loadFloorPlans,
   selectIsLoading,
   selectListFloor,
-} from "App/Stores/floorPlanSlice";
+} from "App/Stores/floorPlan.slice";
 
 const AdHomePage = () => {
   const dispatch = useDispatch();
