@@ -134,6 +134,7 @@ const FloorPlanPage = () => {
                 render={(item) => (
                   <Image
                     className="image-button"
+                    width={80}
                     src={item.imageUrl}
                     preview={{ mask: "View image" }}
                   />
