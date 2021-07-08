@@ -2,7 +2,6 @@ import React from "react";
 import "./DashboardSidebar.scss";
 import { Menu, Col, Layout } from "antd";
 import { MailOutlined, CalendarOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 const { Sider } = Layout;
 
 const DashboardSidebar = ({ isCollapsed }) => {

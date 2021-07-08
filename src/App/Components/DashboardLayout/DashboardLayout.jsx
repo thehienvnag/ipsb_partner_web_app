@@ -15,7 +15,7 @@ const DashboardLayout = () => {
   };
   return (
     <>
-      <Layout style={{ backgroundColor: "#F4F6FA" }}>
+      <Layout style={{ backgroundColor: "#F7F8FB" }}>
         <DashboardHeader handleCollapsed={handleCollapsed} />
         <Layout>
           <DashboardSidebar isCollapsed={isCollapsed} />

@@ -10,7 +10,7 @@ import "./DashboardLayout/DashboardLayout.scss";
 export const PageWrapper = ({ type = "container-xl", children }) => {
   return (
     <div className={type + " page"}>
-      {children && children.find((item) => item.type === PageHeader)}
+      {children && children.find((item) => item.type !== PageBody)}
       {children && children.find((item) => item.type === PageBody)}
     </div>
   );
@@ -21,7 +21,7 @@ export const PageWrapper = ({ type = "container-xl", children }) => {
  * @param {React.ReactElement[] | React.ReactElement} [props.children = []] Elements inside
  */
 export const PageBody = ({ children }) => (
-  <div className="page-body" style={{ marginTop: 6 }}>
+  <div className="page-body" style={{ marginTop: 25 }}>
     <div className="row row-deck row-cards">{children}</div>
   </div>
 );

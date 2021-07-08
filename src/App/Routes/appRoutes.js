@@ -1,4 +1,4 @@
-import TestPage from "App/Containers/Admin/TestPage";
+import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
 import BmHomePage from "../Containers/BuildingManager/HomePage/index";
@@ -10,7 +10,7 @@ const appRoutes = [
     children: [
       { path: "/test", element: <BmHomePage /> },
       { path: "/test2", element: <BmHomePage /> },
-      { path: "/testPage", element: <TestPage /> },
+      { path: "/floor-plans", element: <FloorPlanPage /> },
     ],
   },
   {

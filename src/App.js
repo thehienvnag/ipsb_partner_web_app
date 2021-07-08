@@ -1,9 +1,7 @@
 import appRoutes from "./App/Routes/appRoutes";
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
-import "./App.css";
+import "./App.scss";
 import "antd/dist/antd.css";
-import "App/Styles/Lib/demo.min.css";
-import "App/Styles/Lib/tabler.min.css";
 
 function App() {
   const routes = useRoutes(appRoutes);

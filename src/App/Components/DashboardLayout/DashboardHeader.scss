@@ -1,0 +1,16 @@
+@import "App/Styles/Lib/tabler.min.css";
+
+.header {
+    height: 50px;
+    &:after{
+        background: linear-gradient(to right, #8ECDEA, #dfedf3);
+        content: '';
+        width: 100%;
+        /* top: var(--glostick-total-height); */
+        top: 53px;
+        position: absolute;
+        height: 2px;
+        left: 0;
+    }
+    
+}

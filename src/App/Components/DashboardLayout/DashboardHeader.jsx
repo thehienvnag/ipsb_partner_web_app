@@ -1,6 +1,7 @@
 import { Dropdown, Menu, Button } from "antd";
 import Link from "antd/lib/typography/Link";
 import React from "react";
+import "./DashboardHeader.scss";
 const notifications = (
   <Menu>
     <Menu.Item key="0">1st menu item</Menu.Item>
@@ -17,7 +18,7 @@ const profile = (
 );
 const DashboardHeader = ({ handleCollapsed }) => {
   return (
-    <header className="navbar navbar-expand-md navbar-light d-print-none">
+    <header className="navbar navbar-expand-md navbar-light d-print-none header">
       <div
         style={{
           display: "flex",
