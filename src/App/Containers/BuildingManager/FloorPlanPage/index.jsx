@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Menu, Table, Tag, Image, Typography } from "antd";
+import { Link } from "react-router-dom";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import { getFloorPlans } from "App/Services/floorPlan.service";
 import { GlobalOutlined, SettingOutlined } from "@ant-design/icons";
@@ -20,7 +21,10 @@ const FloorPlanPage = () => {
       setListFloor(
         floors?.content?.map((item, index) =>
           Object.assign(
-            { status: index % 2 === 0 ? "Active" : "Inactive", key: index },
+            {
+              status: index % 2 === 0 ? "Active" : "Inactive",
+              key: "col-" + index,
+            },
             item
           )
         )
@@ -64,7 +68,7 @@ const FloorPlanPage = () => {
               }}
             >
               <Table.Column
-                title="#Position"
+                title="Position"
                 dataIndex="floorNumber"
                 key="floorNumber"
                 render={(item) => <Typography.Text>#{item}</Typography.Text>}
@@ -72,9 +76,10 @@ const FloorPlanPage = () => {
 
               <Table.Column
                 title="Floor code"
-                dataIndex="floorCode"
                 key="floorCode"
-                render={(item) => <Tag color="default">Tầng {item}</Tag>}
+                render={(item) => (
+                  <Link to={`${item.id}`}>Tầng {item.floorCode}</Link>
+                )}
               />
               <Table.Column
                 title="Floor type"
@@ -107,13 +112,12 @@ const FloorPlanPage = () => {
               />
               <Table.Column
                 title="Image"
-                dataIndex="imageUrl"
                 key="imageUrl"
                 render={(item) => (
                   <Image
                     className="image-button"
                     width={100}
-                    src={item}
+                    src={item.imageUrl}
                     preview={{ mask: "View image" }}
                   />
                 )}

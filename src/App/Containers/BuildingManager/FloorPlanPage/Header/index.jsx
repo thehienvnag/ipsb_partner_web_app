@@ -1,5 +1,10 @@
 import { PageHeader, Menu, Dropdown, Button, Tag } from "antd";
-import { EllipsisOutlined } from "@ant-design/icons";
+import {
+  EllipsisOutlined,
+  ReloadOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import "./index.scss";
 
 const menu = (
@@ -66,13 +71,13 @@ const Header = () => (
     subTitle="Manages floor plans inside your building"
     tags={<Tag color="blue">Running</Tag>}
     extra={[
-      <Button key="2" type="dashed">
+      <Button key="2" type="dashed" icon={<ReloadOutlined />}>
         Refresh
       </Button>,
-      <Button key="3" type="primary">
+      <Button key="3" type="primary" icon={<PlusOutlined />}>
         Create
       </Button>,
-      <Button key="2" danger>
+      <Button key="2" danger icon={<DeleteOutlined />}>
         Delete
       </Button>,
       <DropdownMenu key="more" />,
