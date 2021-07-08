@@ -1,19 +1,24 @@
-import { Col, Row, Layout } from "antd";
+import { Layout } from "antd";
 
-import React from "react";
+import React, { useState } from "react";
+
 import { Outlet } from "react-router-dom";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 const { Footer, Content } = Layout;
-// import DashboardMenu from "./DashboardMenu";
 
 const DashboardLayout = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleCollapsed = () => {
+    setIsCollapsed(!isCollapsed);
+  };
   return (
     <>
       <Layout style={{ backgroundColor: "#F4F6FA" }}>
-        <DashboardHeader />
+        <DashboardHeader handleCollapsed={handleCollapsed} />
         <Layout>
-          <DashboardSidebar />
+          <DashboardSidebar isCollapsed={isCollapsed} />
           <Content>
             <Outlet />
             <Footer style={{ height: 50 }}>Footer</Footer>

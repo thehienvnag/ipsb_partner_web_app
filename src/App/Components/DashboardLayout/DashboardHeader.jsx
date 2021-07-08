@@ -1,4 +1,4 @@
-import { Dropdown, Menu } from "antd";
+import { Dropdown, Menu, Button } from "antd";
 import Link from "antd/lib/typography/Link";
 import React from "react";
 const notifications = (
@@ -15,7 +15,7 @@ const profile = (
     <Menu.Item key="3">Logout</Menu.Item>
   </Menu>
 );
-const DashboardHeader = () => {
+const DashboardHeader = ({ handleCollapsed }) => {
   return (
     <header className="navbar navbar-expand-md navbar-light d-print-none">
       <div
@@ -27,14 +27,15 @@ const DashboardHeader = () => {
           alignItems: "center",
         }}
       >
-        <button
+        <Button
+          onClick={handleCollapsed}
           className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbar-menu"
         >
           <span className="navbar-toggler-icon" />
-        </button>
+        </Button>
         <div style={{ display: "flex", padding: "12px" }}>
           <img
             src="https://images-eu.ssl-images-amazon.com/images/I/41HOM2pyLfL.jpg"

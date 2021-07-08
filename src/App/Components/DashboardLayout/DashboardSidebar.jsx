@@ -4,13 +4,13 @@ import { Menu, Col, Layout } from "antd";
 import { MailOutlined, CalendarOutlined } from "@ant-design/icons";
 const { Sider } = Layout;
 
-const DashboardSidebar = ({ changeCollapse }) => {
+const DashboardSidebar = ({ isCollapsed }) => {
   return (
     <>
       <Sider
         theme="light"
         collapsedWidth={0}
-        collapsed={false}
+        collapsed={isCollapsed}
         className="responsive-sidebar"
       >
         <Menu
