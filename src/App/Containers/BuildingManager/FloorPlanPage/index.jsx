@@ -17,7 +17,7 @@ const FloorPlanPage = () => {
   //#endregion
   //#region handle event functions
   const handleRefresh = () => {
-    setCurrentPage(currentPage);
+    dispatch(loadFloorPlans({ pageIndex: currentPage }));
   };
   const handleDelete = () => {};
   const handleCreate = () => {};
