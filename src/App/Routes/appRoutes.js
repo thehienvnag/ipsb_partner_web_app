@@ -10,7 +10,11 @@ const appRoutes = [
     children: [
       { path: "/test", element: <BmHomePage /> },
       { path: "/test2", element: <BmHomePage /> },
-      { path: "/floor-plans", element: <FloorPlanPage /> },
+      {
+        path: "/floor-plans",
+        element: <FloorPlanPage />,
+        children: [{ path: "/test", element: <BmHomePage /> }],
+      },
     ],
   },
   {
