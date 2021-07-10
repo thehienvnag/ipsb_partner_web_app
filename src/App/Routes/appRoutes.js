@@ -1,3 +1,5 @@
+import TestPage from "App/Containers/Admin/TestPage";
+import UploadImage from "App/Containers/Admin/TestPage/uploadImage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
@@ -19,6 +21,8 @@ const appRoutes = [
     children: [
       { path: "/test", element: <AdHomePage /> },
       { path: "/test2", element: <AdHomePage /> },
+      { path: "/createBuilding", element: <TestPage /> },
+      { path: "/upload", element: <UploadImage /> },
     ],
   },
 ];
