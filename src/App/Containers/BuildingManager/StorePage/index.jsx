@@ -14,25 +14,7 @@ const StorePage = () => {
           <StoreTable />
         </Card>
       </PageBody>
-
-      {/* <DataArr list={dataArr} /> */}
     </PageWrapper>
   );
 };
-
-// const dataArr = [
-//   { name: "A San Mập địt", homeTown: "Long Xuyên" },
-//   { name: "E San cute", homeTown: "Long Xuyên" },
-// ];
-
-// const DataArr = ({ list }) => {
-//   return list.map((item) => {
-//     return (
-//       <li>
-//         {item.name}-{item.homeTown}
-//       </li>
-//     );
-//   });
-// };
-
 export default StorePage;
