@@ -1,6 +1,5 @@
 import React, {useState} from "react";
-import { Table, Tag, Image, Modal,
-  Button,
+import { Table, Tag, Modal,
   Row,
   Col,Input,
   Form,
@@ -32,14 +31,7 @@ const LocatorTagTable = ({
   const { Option } = Select;
   const [visible, setVisible] = useState(false);
   const [model, setModel] = useState(null);
-  const [input, setInput] = useState({
-    buildName: null,
-    address: null,
-    numberFloor: null,
-    managerPhone: null,
-    managerName: null,
-    managerEmail: null,
-  });
+  
 
   const showModal = (value) => {setVisible(true);
   setModel(value)} 
@@ -117,6 +109,7 @@ const LocatorTagTable = ({
               title={`Chi tiết của thẻ định vị ID${model?.id}`}
               visible={visible}
               //visible={true}
+              back
               onOk={hideModal}
               onCancel={hideModal}
               okText="Lưu"
@@ -157,7 +150,7 @@ const LocatorTagTable = ({
                         <Option value="L3">Tầng 3</Option>
                         <Option value="L4">Tầng 4 </Option>
                         <Option value="L5">Tầng 5 </Option>
-                        <Option value="L6">Tầng 7</Option>
+                        <Option value="L6">Tầng 6</Option>
                         <Option value="L7">Tầng 7 </Option>
                         <Option value="L8">Tầng 8</Option>
                         <Option value="L9">Tầng 9</Option>
@@ -223,7 +216,7 @@ const LocatorTagTable = ({
                   </Col>
                 </Row>
               </div>
-            </Modal>
+            </Modal> 
     </>
   );
 };
