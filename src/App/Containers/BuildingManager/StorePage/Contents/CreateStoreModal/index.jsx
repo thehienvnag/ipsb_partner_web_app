@@ -1,10 +1,29 @@
 import React, { useState } from "react";
-import { Modal, Row, Col, Upload, Image, Button } from "antd";
+import { Modal, Row, Col, Upload, Form, Input, Select, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { getBase64 } from "App/Utils/utils";
 import "./index.scss";
+import FormItem from "antd/lib/form/FormItem";
+import { GrLocation } from "react-icons/gr";
+
+const { TextArea } = Input;
+const { Option } = Select;
 
 const CreateStoreModal = ({ visible, handleCancel }) => {
+  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewTitle, setPreviewTitle] = useState("Preview upload image");
+  const [previewImage, setPreviewImage] = useState("");
+  const handleChangeSelect = (value) => {
+    console.log(`selected ${value}`);
+  };
+  const onFloorChange = () => {};
+
+  const onFinish = (values) => {
+    console.log(values);
+  };
+
   const handleCancelPreview = () => setPreviewVisible(false);
   const handlePreview = (file) => {
     getBase64(file.originFileObj, (fileSrc) => {
@@ -19,10 +38,7 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
   const handleChange = ({ fileList }) => {
     setFileList(fileList);
   };
-  const [fileList, setFileList] = useState([]);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewTitle, setPreviewTitle] = useState("Preview upload image");
-  const [previewImage, setPreviewImage] = useState("");
+
   return (
     <>
       <Modal
@@ -33,7 +49,7 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
         onCancel={handleCancel}
       >
         <Row>
-          <Col>
+          <Col className="col-md-7">
             <Upload
               className="upload-wrapper"
               listType="picture-card"
@@ -51,8 +67,78 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
             >
               <img alt="example" style={{ width: "100%" }} src={previewImage} />
             </Modal>
+            <FormItem
+              label="Position of store"
+              rules={[{ required: true }]}
+              required
+            >
+              <Button icon={<GrLocation />}> Location</Button>
+            </FormItem>
           </Col>
-          <Col></Col>
+          <Col className="col-md-5">
+            <Form
+              layout="vertical"
+              form={form}
+              name="control-hooks"
+              onFinish={onFinish}
+            >
+              <Form.Item
+                name="storeName"
+                label="Store name"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder="Input store name" />
+              </Form.Item>
+              <Form.Item
+                label="Floor plan"
+                rules={[{ required: true }]}
+                required
+              >
+                <Select
+                  placeholder="Select a floor plan"
+                  onChange={onFloorChange}
+                  allowClear
+                >
+                  <Option value="id">Floor L1</Option>
+                  <Option value="id">Floor L2</Option>
+                  <Option value="id">Floor L3</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="phone"
+                label="Phone number"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder="Input phone number" />
+              </Form.Item>
+
+              <FormItem
+                label="Product Category"
+                rules={[{ required: true }]}
+                required
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Select product categorys"
+                  onChange={handleChangeSelect}
+                  optionLabelProp="label"
+                >
+                  <Option value="Cà phê" label="Cà phê" />
+                  <Option value="Bánh mì" label="Bánh mì" />
+                  <Option value="Trà sữa" label="Trà sữa" />
+                  <Option value="Nước cam" label="Nước cam" />
+                </Select>
+              </FormItem>
+              <FormItem
+                label="Description"
+                rules={[{ required: true }]}
+                required
+              >
+                <TextArea rows={4} placeholder="Description..." />
+              </FormItem>
+            </Form>
+          </Col>
         </Row>
       </Modal>
     </>
