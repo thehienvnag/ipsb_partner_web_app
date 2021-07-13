@@ -21,6 +21,7 @@ const Slice = createSlice({
   initialState: {
     data: null,
     isLoading: false,
+    currentFloorPlan: {id : 12}
   },
   reducers: {},
   extraReducers: {

@@ -54,6 +54,9 @@ const DashboardSidebar = ({ isCollapsed }) => {
           <Menu.Item key="2" icon={<CalendarOutlined />}>
             Floor plan
           </Menu.Item>
+          <Menu.Item key="3" icon={<CalendarOutlined />}>
+            Locator tag
+          </Menu.Item>
         </Menu>
       </Sider>
     </>
