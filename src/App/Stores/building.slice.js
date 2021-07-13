@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const Slice = createSlice({
   name: "building",
   initialState: {
-    inChargeBuilding: { id: 1 },
+    inChargeBuilding: { id: 12 },
   },
   reducers: {
     initBuildingIdLoggin: (state, { payload }) => {

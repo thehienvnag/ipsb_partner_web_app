@@ -43,7 +43,7 @@ const FloorPlanTable = ({
           title="Position"
           dataIndex="floorNumber"
           key="floorNumber"
-          render={(item) => <Typography.Text>#{item}</Typography.Text>}
+          render={(item) => <Tag># {item}</Tag>}
         />
 
         <Table.Column
@@ -63,7 +63,6 @@ const FloorPlanTable = ({
             </Typography.Text>
           )}
         />
-
         <Table.Column
           title="Create date"
           dataIndex="createDate"
