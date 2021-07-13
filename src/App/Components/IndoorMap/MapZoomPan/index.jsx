@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button, Modal, Row, Divider, Radio, Typography } from "antd";
 import { Svg, Circle, Polyline } from "react-svg-path";
@@ -143,31 +143,39 @@ const ImageRealSize = ({ src, rotate, scale, enabled }) => {
     edges: [],
     selected: null,
   });
-  const selectedChanged = (location, selected) => {
+  const selectedChanged = (location, selected, isDelete) => {
     if (selected === location) return null;
-    return location;
+    return isDelete ? null : location;
   };
 
   //#region onMapClick handle functions
-  const initLocation = ({ left, top, right, bottom }, clientX, clientY) => {
+  const initLocation = (
+    { left, top, right, bottom },
+    markers,
+    clientX,
+    clientY
+  ) => {
+    let location;
     if (rotate === 180 || rotate === -180) {
-      return {
+      location = {
         x: (right - clientX) / scale,
         y: (bottom - clientY) / scale,
       };
     } else if (rotate === 90) {
-      return {
+      location = {
         x: (clientY - top) / scale,
         y: (right - clientX) / scale,
       };
     } else if (rotate === -90) {
-      return {
+      location = {
         x: (bottom - clientY) / scale,
         y: (clientX - left) / scale,
       };
     } else if (rotate === 0) {
-      return { x: (clientX - left) / scale, y: (clientY - top) / scale };
+      location = { x: (clientX - left) / scale, y: (clientY - top) / scale };
     }
+
+    return duplicateLocation(location, markers) ?? location;
   };
 
   const duplicateEdge = (edge, edges) => {
@@ -182,13 +190,19 @@ const ImageRealSize = ({ src, rotate, scale, enabled }) => {
     );
   };
   const createMarkers = (location, markers) => {
-    const duplicate = duplicateLocation(location, markers);
-    if (duplicate) return markers;
-    return [...markers, duplicate ?? location];
+    if (markers.includes(location)) return markers;
+    return [...markers, location];
   };
-  const edgesIntersect = (location, edges, edgeIntersect) => {
+
+  /////////////THiếu chỗ này
+
+  const edgesIntersect = (selected, location, edges, edgeIntersect) => {
     return [
       ...edges.filter((edge) => edgeIntersect !== edge),
+      {
+        fromLocation: selected,
+        toLocation: location,
+      },
       {
         fromLocation: location,
         toLocation: edgeIntersect.fromLocation,
@@ -196,14 +210,19 @@ const ImageRealSize = ({ src, rotate, scale, enabled }) => {
       { fromLocation: edgeIntersect.toLocation, toLocation: location },
     ];
   };
-  const createEdges = (location, edges, selected) => {
+  const createEdges = (location, markers, edges, selected) => {
     if (selected) {
       const edge = { fromLocation: selected, toLocation: location };
-      const edgeIntersect = edges.find((edge) => pointInRect(edge, location));
-      // Case of intersect
-      if (edgeIntersect) return edgesIntersect(location, edges, edgeIntersect);
+      if (!markers.includes(location)) {
+        // Intersect edge
+        const edgeIntersect = edges.find((edge) => pointInRect(edge, location));
+        // Case of intersect exist
+        if (edgeIntersect)
+          return edgesIntersect(selected, location, edges, edgeIntersect);
+      }
       // Case of duplicate edge
-      if (!duplicateEdge(edge, edges)) return [...edges, edge];
+      if (duplicateEdge(edge, edges)) return edges;
+      return [...edges, edge];
     }
     return edges;
   };
@@ -212,12 +231,11 @@ const ImageRealSize = ({ src, rotate, scale, enabled }) => {
     const { clientX, clientY, shiftKey } = evt;
     if (shiftKey) {
       const rect = wrapperRef.current.getBoundingClientRect();
-      const raw = initLocation(rect, clientX, clientY);
       const { selected, markers, edges } = mapState;
-      console.log(selectedChanged(raw, selected));
+      const raw = initLocation(rect, markers, clientX, clientY);
       setMapState({
         markers: createMarkers(raw, markers),
-        edges: createEdges(raw, edges, selected),
+        edges: createEdges(raw, markers, edges, selected),
         selected: selectedChanged(raw, selected),
       });
     }
@@ -241,15 +259,14 @@ const ImageRealSize = ({ src, rotate, scale, enabled }) => {
       setMapState({
         markers: markersAfterDelete(location, markers),
         edges: edgesAfterDelete(location, edges),
-        selected: selectedChanged(location, selected),
+        selected: selectedChanged(location, selected, true),
       });
     } else if (type === "click") {
       const { selected } = mapState;
       setMapState({
-        ...mapState,
-        ...{
-          selected: selectedChanged(location, selected),
-        },
+        edges: mapState.edges,
+        markers: mapState.markers,
+        selected: selectedChanged(location, selected),
       });
     }
   };
