@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import { Modal, Row, Col, Upload, Image, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { getBase64 } from "App/Utils/utils";
+import "./index.scss";
 
 const CreateStoreModal = ({ visible, handleCancel }) => {
-  const handleCancelPreview = () => {};
+  const handleCancelPreview = () => setPreviewVisible(false);
   const handlePreview = (file) => {
     getBase64(file.originFileObj, (fileSrc) => {
-      file.preview = fileSrc;
+      setPreviewImage(fileSrc);
     });
 
-    setPreviewImage(file.preview);
     setPreviewVisible(true);
     setPreviewTitle(
       file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
@@ -35,23 +35,21 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
         <Row>
           <Col>
             <Upload
+              className="upload-wrapper"
               listType="picture-card"
-              //fileList={fileList}
               onPreview={handlePreview}
               onChange={handleChange}
+              beforeUpload={() => false}
             >
               {fileList.length === 0 && <UploadButton />}
             </Upload>
             <Modal
+              width="800px"
               visible={previewVisible}
-              //title={previewTitle}
+              title={previewTitle}
               onCancel={handleCancelPreview}
             >
-              <img
-                alt="example"
-                style={{ width: "100%" }}
-                // src={previewImage}
-              />
+              <img alt="example" style={{ width: "100%" }} src={previewImage} />
             </Modal>
           </Col>
           <Col></Col>
@@ -60,7 +58,7 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
     </>
   );
 };
-const UploadButton = (
+const UploadButton = () => (
   <div>
     <PlusOutlined />
     <div style={{ marginTop: 8 }}>Upload</div>
