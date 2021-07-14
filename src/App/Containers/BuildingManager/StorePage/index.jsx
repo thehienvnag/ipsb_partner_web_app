@@ -8,20 +8,29 @@ import CreateStoreModal from "./Contents/CreateStoreModal";
 
 const StorePage = () => {
   const [visible, setVisible] = useState(false);
+  const [store, setStore] = useState(null);
   const handleCreate = () => {
     setVisible(true);
   };
   const handleCancel = () => {
     setVisible(false);
   };
+  const onRowClick = (store) => {
+    setStore(store);
+    setVisible(true);
+  };
   return (
     <PageWrapper>
       <Header handleCreate={handleCreate} />
       <PageBody>
         <Card>
-          <StoreTable />
+          <StoreTable onRowClick={onRowClick} />
         </Card>
-        <CreateStoreModal visible={visible} handleCancel={handleCancel} />
+        <CreateStoreModal
+          visible={visible}
+          handleCancel={handleCancel}
+          store={store}
+        />
       </PageBody>
     </PageWrapper>
   );
