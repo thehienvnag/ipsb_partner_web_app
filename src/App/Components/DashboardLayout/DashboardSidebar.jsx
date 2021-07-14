@@ -38,7 +38,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
               <img
                 src={process.env.PUBLIC_URL + "/logo-text.png"}
                 style={{
-                  transform: "scale(1.6) translate(28px, 2px)",
+                  transform: "scale(1.8) translate(26px, 0px)",
                 }}
                 alt="Tabler"
                 className="navbar-brand-image"

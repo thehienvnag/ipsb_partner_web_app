@@ -1,4 +1,4 @@
-import axiosClient from "../Utils/axiosClient";
+import axiosClient, { postFormData } from "../Utils/axiosClient";
 import { floorPlans } from "../Constants/endpoints";
 /**
  * Page wrapper for new page
@@ -20,4 +20,30 @@ export const getAll = async ({ pageIndex = 1, pageSize = 5, buildingId }) => {
 export const getById = async (id) => {
   const response = await axiosClient.get(`${floorPlans}/${id}`);
   return response.data;
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] values post
+ */
+export const postFloorPlan = async (data) => {
+  try {
+    const dataPost = await postFormData(floorPlans, data);
+    return dataPost;
+  } catch (error) {
+    console.log(error?.message);
+  }
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] values post
+ */
+export const testPoseWithoutFile = async (data) => {
+  try {
+    const response = await axiosClient.post(floorPlans, data);
+    return response.data;
+  } catch (error) {
+    console.log(error?.message);
+  }
 };

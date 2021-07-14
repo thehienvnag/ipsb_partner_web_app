@@ -1,22 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Menu } from "antd";
+import { Card } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-import { GlobalOutlined } from "@ant-design/icons";
-import { GrMapLocation } from "react-icons/gr";
-import { FaRoute } from "react-icons/fa";
 import { loadById, selectOne } from "App/Stores/floorPlan.slice";
 import "./index.scss";
 import Header from "./Header";
 
 import { useSelector } from "react-redux";
-import ServiceTable from "./Contents/ServiceTable/index";
-import RouteDetails from "./Contents/RouteDetails/index";
 import Overview from "./Contents/Overview/index";
 const FloorPlanDetailPage = ({ match }) => {
   //#region state includes: [selectedItems: array]
-  const [selectedMenu, setSelectedMenu] = useState("overview");
   const { id } = useParams();
   //#endregion
   //#region selector of [listFloor, isLoading]
@@ -45,44 +39,13 @@ const FloorPlanDetailPage = ({ match }) => {
       />
       <PageBody>
         <Card>
-          <Menu
-            selectedKeys={[selectedMenu]}
-            onSelect={(value) => setSelectedMenu(value.key)}
-            mode="horizontal"
-          >
-            <Menu.Item key="overview" icon={<GlobalOutlined />}>
-              Overview
-            </Menu.Item>
-            <Menu.Item key="places" icon={<GrMapLocation />}>
-              Places
-            </Menu.Item>
-            <Menu.Item key="routes" icon={<FaRoute />}>
-              Routes
-            </Menu.Item>
-          </Menu>
           <div style={{ padding: 10 }}>
-            <MenuChanged
-              selectedMenu={selectedMenu}
-              overview={<Overview floor={floor} />}
-              places={<ServiceTable />}
-              routes={<RouteDetails />}
-            />
+            <Overview floor={floor} />
           </div>
         </Card>
       </PageBody>
     </PageWrapper>
   );
-};
-
-const MenuChanged = ({ selectedMenu, overview, places, routes }) => {
-  switch (selectedMenu) {
-    case "places":
-      return places;
-    case "routes":
-      return routes;
-    default:
-      return overview;
-  }
 };
 
 export default FloorPlanDetailPage;

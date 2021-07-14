@@ -12,4 +12,17 @@ const axiosClient = axios.create({
   paramsSerializer: (params) => queryString.stringify(params),
 });
 
+export const postFormData = async (endpoint, values) => {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(values)) {
+    formData.append(key, value);
+  }
+  // post config
+  const config = {
+    headers: { "Content-Type": "multipart/form-data" },
+  };
+  const response = await axiosClient.post(endpoint, formData, config);
+  return response.data;
+};
+
 export default axiosClient;

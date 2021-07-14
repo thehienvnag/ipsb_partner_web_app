@@ -1,4 +1,5 @@
 @mixin modal-wrapper-rotate($deg) {
+  
   .ant-modal {
     width: 96% !important;
     top: 20px !important;
@@ -22,8 +23,8 @@
             top: 0;
             left: 0;
             path,
-            circle {
-              cursor: pointer;
+            circle, rect, g {
+              cursor: pointer !important;
             }
           }
           @if $deg == 90deg {
@@ -55,8 +56,9 @@
   @include modal-wrapper-rotate(180deg);
 }
 
-@mixin rotate-cropper($deg) {
-  height: 400px;
+.preview-wrapper {
+  height: 340px;
+  background-color: #F6F6F6;
   position: relative;
   display: flex;
   justify-content: center;
@@ -65,7 +67,7 @@
   border-radius: 8px;
 
   .react-transform-wrapper {
-    width: 95%;
+    width: 96.2%;
     height: 93%;
     overflow: hidden;
   }
@@ -78,6 +80,9 @@
       font-size: 25px;
     }
   }
+  .without-preview-btn{
+    transform:  translate(-3px,-1.5px)
+  }
   .image-wrapper {
     position: relative;
     svg {
@@ -85,15 +90,15 @@
       top: 0;
       left: 0;
       path,
-      circle {
+      circle, g, rect {
         cursor: pointer;
       }
     }
   }
 }
 
-.cropper-rotate {
-  @include rotate-cropper(0);
+.without-preview{
+  display: inline-block;
 }
 
 .off-switch {
