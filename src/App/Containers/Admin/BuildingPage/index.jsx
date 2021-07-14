@@ -428,7 +428,7 @@ const BuildingPage = () => {
   function FooterCreate() {
     if (currentStep != "3")
       return (
-        <Row>
+        <Row justify="end">
           <Space>
             <Form.Item>
               <Button
@@ -455,7 +455,7 @@ const BuildingPage = () => {
 
   function FooterDetail() {
     return (
-      <Row>
+      <Row justify="end">
         <Space>
           <Form.Item>
             <Button

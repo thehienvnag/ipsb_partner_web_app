@@ -40,7 +40,7 @@ const Overview = ({ floor }) => {
 
   const onSave = async () => {
     const values = form.getFieldsValue();
-    console.log(file);
+
     const data = await postFloorPlan({
       ...values,
       ...{ imageUrl: file },

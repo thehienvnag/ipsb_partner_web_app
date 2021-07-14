@@ -1,64 +1,67 @@
-.ant-image-custom {
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='gray' stroke-width='2' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-  .ant-image {
-    overflow: hidden;
-    height: 240px;
-  }
-  .ant-image-mask {
-    height: 300px !important;
-  }
-  padding: 10px;
-}
 .image-button {
   display: none !important;
   ~ .ant-image-mask {
-    opacity: 1;
-    color: #1890ff;
+    opacity:1;
+    color: #1890FF;
     transform: translateY(-6px);
-    &:hover {
-      text-decoration: underline;
+    &:hover{
+        text-decoration: underline;
     }
   }
 }
-.ant-upload.ant-upload-select-picture-card {
-  height: 30px !important;
-  width: 0px;
-}
-.modal-building {
 
+.modal-building{
+  .ant-col-12{
+    height: 400px;
+  }
+  .ant-modal-body{
+    height: 400px;
+  }
   
-  .ant-modal-body {
-    height: 400px;
-  }
-  .ant-col-12 {
-    height: 400px;
-  }
-  .ant-form-item-control-input-content {
-    .test {
-      margin-left: 30px;
-    }
-  }
-  .ant-modal-content {
+  .ant-modal-content{
     height: 510px;
   }
-  .form-input {
-    margin-left: 12px;
-  }
-  .ant-row {
-    justify-content: flex-end;
-  }
-  .form-input {
-    width: 312px;
-    margin-left: 17px;
-  }
-  .ant-form-item-control-input {
-    .ant-form-item-control-input-content {
-      .ant-select ant-select-single ant-select-show-arrow {
-        margin-left: 7px;
-      }
-    }
+  
+  .ant-upload.ant-upload-select-picture-card{
+    height: 30px !important;
   }
 }
+.ant-form-item-control-input-content{
+  .test{
+      margin-left: 30px;
+  }
+}
+
+// .ant-row{
+//   justify-content: flex-end;
+// }
+.ant-image-custom{
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='gray' stroke-width='2' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  .ant-image{
+      overflow: hidden;
+      height: 240px;
+
+  }
+  .ant-image-mask{
+      height: 300px !important;
+  }
+  padding: 10px;
+}
+
+
+
+
+
+
+
+.form-input{
+  margin-left: 12px;
+}
+.form-input{
+  width: 312px;
+  margin-left: 17px;
+}
+
 
 // start css create building
 
@@ -71,8 +74,18 @@
   border-radius: 4px;
 }
 
-#register_email {
+
+#register_email{
   margin-left: 6px;
+}
+
+
+.ant-form-item-control-input{
+  .ant-form-item-control-input-content{
+  .ant-select ant-select-single ant-select-show-arrow{
+      margin-left: 7px;
+  }
+}
 }
 
 // end css create building
