@@ -2,11 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, Menu, Table, Tag, Typography } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-import {
-  GlobalOutlined,
-  SettingOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { getBase64 } from "App/Utils/utils";
+import { loadAccounts, selectListAccount } from "App/Stores/account.slice";
 import "./index.scss";
 import Header from "./Header";
 import {
@@ -16,7 +13,11 @@ import {
   selectPageSize,
   selectTotalCount,
 } from "App/Stores/building.slice";
-import { getBase64 } from "App/Utils/utils";
+import {
+  GlobalOutlined,
+  SettingOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Row,
@@ -32,7 +33,6 @@ import {
   Steps,
   Spin,
 } from "antd";
-import { loadAccounts, selectListAccount } from "App/Stores/account.slice";
 
 const BuildingPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
@@ -56,9 +56,9 @@ const BuildingPage = () => {
   };
   //#endregion
   //#region Store dispatch & selector of [listBuilding, isLoading]
-  const listAccount = useSelector(selectListAccount);
-
+  //#region Store dispatch & selector of [listAccount, isLoading]
   const dispatch = useDispatch();
+  const listAccount = useSelector(selectListAccount);
   const listBuilding = useSelector(selectListBuilding);
   const isLoading = useSelector(selectIsLoading);
   const pageSize = useSelector(selectPageSize);
@@ -73,7 +73,7 @@ const BuildingPage = () => {
   const [visibleDetail, setVisibleDetail] = useState(false);
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [currentStep, setStep] = useState(0);
-
+  const [visibleManagerId, setVisibleManagerId] = useState(false);
   const [model, setModel] = useState(null);
   const { Step } = Steps;
   const { TextArea } = Input;
@@ -91,10 +91,10 @@ const BuildingPage = () => {
     form.resetFields();
     setStep(0);
     setImageUrl(null);
-    // setModel(null);
   };
   const hideModalDetail = () => {
     setVisibleDetail(false);
+    setVisibleManagerId(false);
     form.resetFields();
     setImageUrl(null);
   };
@@ -102,6 +102,7 @@ const BuildingPage = () => {
   const showModalDetail = (value) => {
     setImageUrl(value);
     setVisibleDetail(true);
+    setVisibleManagerId(true);
     setModel(value);
   };
 
@@ -114,13 +115,7 @@ const BuildingPage = () => {
   };
 
   const onFinishCreateAccount = (values) => {
-    console.log(
-      "Account nè: " + values.name,
-      values.email,
-      values.phone,
-      values.role,
-      file
-    );
+    console.log(values.name, values.email, values.phone, values.role, file);
     if (values != null) {
       message
         .loading("Action in progress...", 3)
@@ -419,7 +414,7 @@ const BuildingPage = () => {
         </h1>
         <h2 style={{ color: "Highlight" }}>
           <a
-            href="http://localhost:3000/admin/building"
+            href="http://localhost:3000/admin/buildings"
             // target="_blank"
             rel="noreferrer"
           >
@@ -607,7 +602,6 @@ const BuildingPage = () => {
                       <Image
                         style={{
                           width: "380px",
-                          //transform: "translateY(-10%)",
                         }}
                         src={imageUrl}
                         preview={true}
@@ -685,10 +679,9 @@ const BuildingPage = () => {
                     <Form.Item
                       name="managerId"
                       label="Quản lý tòa nhà"
-                      required
                       rules={[
                         {
-                          required: true,
+                          required: { visibleManagerId },
                           message: "Chọn quản lý tòa nhà",
                         },
                       ]}
