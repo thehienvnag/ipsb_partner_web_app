@@ -37,10 +37,6 @@ const Slice = createSlice({
   },
 });
 
-<<<<<<< HEAD
-
-=======
->>>>>>> BIPSW-4-code-create-building
 //Building selector to observe data
 //#region [buildings, totalBuilding, pageSize, isLoading]
 export const selectInChargeBuildingId = (state) => state.inChargeBuilding?.id;

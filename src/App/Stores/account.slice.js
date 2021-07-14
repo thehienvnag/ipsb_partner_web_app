@@ -5,17 +5,7 @@ import { getAccounts } from "App/Services/account.service";
 const loadAccounts = createAsyncThunk(
   "account/loadAccounts",
   async (params = {}, thunkAPI) => {
-<<<<<<< HEAD
     const data = await getAccounts(params);
-=======
-    // const { building } = thunkAPI.getState();
-
-    // if (building.inChargeBuilding) {
-    //   Object.assign(params, { buildingId: building.inChargeBuilding.id });
-    // }
-    const data = await getAccounts(params);
-    console.log("nè nè " + data);
->>>>>>> BIPSW-4-code-create-building
     return data;
   }
 );

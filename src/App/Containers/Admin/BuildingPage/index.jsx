@@ -95,7 +95,7 @@ const BuildingPage = () => {
   };
   const hideModalDetail = () => {
     setVisibleDetail(false);
-    // form.resetFields();
+    form.resetFields();
     setImageUrl(null);
   };
 
