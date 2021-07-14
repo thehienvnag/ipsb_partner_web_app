@@ -25,4 +25,17 @@ export const postFormData = async (endpoint, values) => {
   return response.data;
 };
 
+export const putFormData = async (endpoint, values) => {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(values)) {
+    formData.append(key, value);
+  }
+  // put config
+  const config = {
+    headers: { "Content-Type": "multipart/form-data" },
+  };
+  const response = await axiosClient.put(endpoint, formData, config);
+  return response.data;
+};
+
 export default axiosClient;

@@ -42,14 +42,3 @@ export const selectLocationLoading = (state) => state.location.isLoading;
 /// Export reducer
 export { loadLocationByFloor };
 export default Slice.reducer;
-
-// const listTest = [
-//   {
-//     id: 13,
-//     locationType: {
-//       name: "Restroom",
-//       description: "Đây là khu vực nhà vệ sinh",
-//       imageUrl: "[Bỏ giúp anh link hình]",
-//     },
-//   },
-// ];

@@ -39,8 +39,8 @@ const Overview = ({ floor }) => {
   const [form] = Form.useForm();
 
   const onSave = async () => {
+    form.validateFields();
     const values = form.getFieldsValue();
-
     const data = await postFloorPlan({
       ...values,
       ...{ imageUrl: file },
@@ -56,11 +56,9 @@ const Overview = ({ floor }) => {
     <>
       <Row justify="space-between" align="middle">
         <Row>
-          <Form.Item className="form-item-header">
-            <Button icon={<SaveOutlined />} onClick={onSave}>
-              Save
-            </Button>
-          </Form.Item>
+          <Button icon={<SaveOutlined />} onClick={onSave}>
+            Save
+          </Button>
         </Row>
         <Row>
           <Divider
@@ -109,7 +107,12 @@ const Overview = ({ floor }) => {
             <Form.Item label="Floor status">
               <Switch />
             </Form.Item>
-            <Form.Item label="Floor code" required name="floorCode">
+            <Form.Item
+              label="Floor code"
+              required
+              name="floorCode"
+              rules={[{ required: true, message: "Please input your !" }]}
+            >
               <Input value={floor?.floorCode} />
             </Form.Item>
             <Form.Item label="Floor type" required>
