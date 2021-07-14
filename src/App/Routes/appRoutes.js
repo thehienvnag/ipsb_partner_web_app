@@ -6,6 +6,7 @@ import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
 import BmHomePage from "../Containers/BuildingManager/HomePage/index";
 import StorePage from "../Containers/BuildingManager/StorePage/index";
+import LocationTypePage from "../Containers/BuildingManager/LocationTypePage/index";
 const appRoutes = [
   {
     path: "building-manager",
@@ -28,7 +29,10 @@ const appRoutes = [
       {
         path: "/locator-tags",
         element: <LocatorTagPage />,
-        children: [{ path: "/test", element: <BmHomePage /> }],
+      },
+      {
+        path: "/location-type",
+        element: <LocationTypePage />,
       },
     ],
   },
