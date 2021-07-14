@@ -1,0 +1,79 @@
+.image-button {
+  display: none !important;
+  ~ .ant-image-mask {
+    opacity:1;
+    color: #1890FF;
+    transform: translateY(-6px);
+    &:hover{
+        text-decoration: underline;
+    }
+  }
+}
+.ant-image-custom{
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='gray' stroke-width='2' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  .ant-image{
+      overflow: hidden;
+      height: 240px;
+
+  }
+  .ant-image-mask{
+      height: 300px !important;
+  }
+  padding: 10px;
+}
+
+.ant-upload.ant-upload-select-picture-card{
+  height: 30px !important;
+  width: 0px;
+}
+.ant-modal-body{
+  height: 400px;
+}
+.ant-col-12{
+  height: 400px;
+}
+.ant-form-item-control-input-content{
+  .test{
+      margin-left: 30px;
+  }
+}
+.ant-modal-content{
+  height: 510px;
+}
+.form-input{
+  margin-left: 12px;
+}
+.ant-row{
+  justify-content: flex-end;
+
+}
+
+// start css create building
+
+.example {
+  margin: 20px 0;
+  height: 150px;
+  padding: 30px 50px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+.form-input{
+  width: 312px;
+  margin-left: 17px;
+}
+
+#register_email{
+  margin-left: 6px;
+}
+
+
+.ant-form-item-control-input{
+  .ant-form-item-control-input-content{
+  .ant-select ant-select-single ant-select-show-arrow{
+      margin-left: 7px;
+  }
+}
+}
+
+// end css create building

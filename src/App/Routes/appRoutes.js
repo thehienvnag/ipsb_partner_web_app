@@ -1,4 +1,5 @@
 import FloorPlanDetailPage from "App/Containers/BuildingManager/FloorPlanDetailPage";
+import BuildingPage from "App/Containers/Admin/BuildingPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
@@ -31,6 +32,7 @@ const appRoutes = [
     children: [
       { path: "/test", element: <AdHomePage /> },
       { path: "/test2", element: <AdHomePage /> },
+      { path: "/buildings", element: <BuildingPage /> },
     ],
   },
 ];
