@@ -1,3 +1,4 @@
+import FloorPlanDetailPage from "App/Containers/BuildingManager/FloorPlanDetailPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
@@ -13,7 +14,10 @@ const appRoutes = [
       {
         path: "/floor-plans",
         element: <FloorPlanPage />,
-        children: [{ path: "/test", element: <BmHomePage /> }],
+      },
+      {
+        path: "/floor-plans/:id",
+        element: <FloorPlanDetailPage />,
       },
     ],
   },

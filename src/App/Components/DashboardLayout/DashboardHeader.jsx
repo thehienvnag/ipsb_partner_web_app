@@ -37,15 +37,7 @@ const DashboardHeader = ({ handleCollapsed }) => {
         >
           <span className="navbar-toggler-icon" />
         </Button>
-        <div style={{ display: "flex", padding: "12px" }}>
-          <img
-            src="https://images-eu.ssl-images-amazon.com/images/I/41HOM2pyLfL.jpg"
-            width={50}
-            alt="Tabler"
-            className="navbar-brand-image"
-          />
-          <h1 style={{ margin: 0, marginLeft: 10 }}>iLocation</h1>
-        </div>
+        <div></div>
 
         <div className="navbar-nav flex-row" style={{ marginRight: 15 }}>
           <div className="nav-item d-none d-md-flex me-3">

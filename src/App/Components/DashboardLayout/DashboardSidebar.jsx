@@ -12,6 +12,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
         collapsedWidth={0}
         collapsed={isCollapsed}
         className="responsive-sidebar"
+        style={{ paddingTop: 0 }}
       >
         <Menu defaultSelectedKeys={["1"]} mode="vertical">
           <Col
@@ -20,6 +21,29 @@ const DashboardSidebar = ({ isCollapsed }) => {
             align="middle"
             style={{ margin: "10px 0" }}
           >
+            <div
+              style={{
+                display: "flex",
+                marginLeft: 28,
+                marginTop: 50,
+                marginBottom: 45,
+              }}
+            >
+              <img
+                src={process.env.PUBLIC_URL + "/logo.svg"}
+                style={{ transform: "scale(4.5)" }}
+                alt="Tabler"
+                className="navbar-brand-image"
+              />
+              <img
+                src={process.env.PUBLIC_URL + "/logo-text.png"}
+                style={{
+                  transform: "scale(1.8) translate(26px, 0px)",
+                }}
+                alt="Tabler"
+                className="navbar-brand-image"
+              />
+            </div>
             <div className="input-icon" style={{ padding: "0 10px" }}>
               <span className="input-icon-addon" style={{ marginLeft: 10 }}>
                 {/* Download SVG icon from http://tabler-icons.io/i/search */}

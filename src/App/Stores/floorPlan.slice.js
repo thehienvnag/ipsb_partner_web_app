@@ -1,38 +1,58 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getFloorPlans } from "../Services/floorPlan.service";
+import { getAll, getById } from "../Services/floorPlan.service";
 
 //#region Async thunks floor plans
-const loadFloorPlans = createAsyncThunk(
-  "floorPlan/loadFloorPlans",
+const loadAll = createAsyncThunk(
+  "floorPlan/loadAll",
   async (params = {}, thunkAPI) => {
     const { building } = thunkAPI.getState();
 
     if (building.inChargeBuilding) {
       Object.assign(params, { buildingId: building.inChargeBuilding.id });
     }
-    const data = await getFloorPlans(params);
+    const data = await getAll(params);
     return data;
   }
 );
+const loadById = createAsyncThunk(
+  "floorPlan/loadById",
+  async (id, thunkAPI) => {
+    return await getById(id);
+  }
+);
+
 //#endregion
 
 const Slice = createSlice({
   name: "floorPlan",
   initialState: {
-    data: null,
+    list: null,
+    one: null,
     isLoading: false,
   },
   reducers: {},
   extraReducers: {
-    //#region Load floor plan state
-    [loadFloorPlans.pending]: (state, action) => {
+    //#region Load floor plans by buildingId state
+    [loadAll.pending]: (state, action) => {
       state.isLoading = true;
     },
-    [loadFloorPlans.fulfilled]: (state, { payload }) => {
-      state.data = payload;
+    [loadAll.fulfilled]: (state, { payload }) => {
+      state.list = payload;
       state.isLoading = false;
     },
-    [loadFloorPlans.rejected]: (state, action) => {
+    [loadAll.rejected]: (state, action) => {
+      state.isLoading = false;
+    },
+    //#endregion
+    //#region Load floor plan by id state
+    [loadById.pending]: (state, action) => {
+      state.isLoading = true;
+    },
+    [loadById.fulfilled]: (state, { payload }) => {
+      state.one = payload;
+      state.isLoading = false;
+    },
+    [loadById.rejected]: (state, action) => {
       state.isLoading = false;
     },
     //#endregion
@@ -42,15 +62,16 @@ const Slice = createSlice({
 //Floor plan selector to observe data
 //#region [floors, totalFloor, pageSize, isLoading]
 export const selectListFloor = (state) =>
-  state.floorPlan.data?.content.map((item, index) => ({
+  state.floorPlan.list?.content.map((item, index) => ({
     ...{ key: index },
     ...item,
   }));
-export const selectTotalCount = (state) => state.floorPlan.data?.totalCount;
-export const selectPageSize = (state) => state.floorPlan.data?.pageSize;
+export const selectOne = (state) => state.floorPlan.one;
+export const selectTotalCount = (state) => state.floorPlan.list?.totalCount;
+export const selectPageSize = (state) => state.floorPlan.list?.pageSize;
 export const selectIsLoading = (state) => state.floorPlan.isLoading;
 //#endregion
 
 /// Export reducer
-export { loadFloorPlans };
+export { loadAll, loadById };
 export default Slice.reducer;

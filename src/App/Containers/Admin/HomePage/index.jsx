@@ -4,7 +4,7 @@ import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import "./index.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  loadFloorPlans,
+  loadAll,
   selectIsLoading,
   selectListFloor,
 } from "App/Stores/floorPlan.slice";
@@ -15,7 +15,7 @@ const AdHomePage = () => {
   const isLoading = useSelector(selectIsLoading);
 
   useEffect(() => {
-    dispatch(loadFloorPlans());
+    dispatch(loadAll());
   }, [dispatch]);
   return (
     <PageWrapper>

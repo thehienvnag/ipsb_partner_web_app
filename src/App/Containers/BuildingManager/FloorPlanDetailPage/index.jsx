@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Card } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-
-import { loadAll } from "App/Stores/floorPlan.slice";
+import { loadById, selectOne } from "App/Stores/floorPlan.slice";
 import "./index.scss";
 import Header from "./Header";
-import FloorPlanTable from "./FloorPlanTable/index";
 
-const FloorPlanPage = () => {
+import { useSelector } from "react-redux";
+import Overview from "./Contents/Overview/index";
+const FloorPlanDetailPage = ({ match }) => {
   //#region state includes: [selectedItems: array]
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-
+  const { id } = useParams();
+  //#endregion
+  //#region selector of [listFloor, isLoading]
+  const floor = useSelector(selectOne);
   //#endregion
   //#region handle event functions
-  const handleRefresh = () => dispatch(loadAll({ pageIndex: currentPage }));
+  const handleRefresh = () => {};
   const handleDelete = () => {};
   const handleCreate = () => {};
   //#endregion
@@ -23,12 +25,14 @@ const FloorPlanPage = () => {
   const dispatch = useDispatch();
   // Init function
   useEffect(() => {
-    dispatch(loadAll({ pageIndex: currentPage }));
-  }, [dispatch, currentPage]);
+    dispatch(loadById(id));
+  }, [dispatch, id]);
   //#endregion
+
   return (
     <PageWrapper>
       <Header
+        floor={floor}
         handleRefresh={handleRefresh}
         handleCreate={handleCreate}
         handleDelete={handleDelete}
@@ -36,12 +40,7 @@ const FloorPlanPage = () => {
       <PageBody>
         <Card>
           <div style={{ padding: 10 }}>
-            <FloorPlanTable
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              selectedItems={selectedItems}
-              setSelectedItems={setSelectedItems}
-            />
+            <Overview floor={floor} />
           </div>
         </Card>
       </PageBody>
@@ -49,4 +48,4 @@ const FloorPlanPage = () => {
   );
 };
 
-export default FloorPlanPage;
+export default FloorPlanDetailPage;

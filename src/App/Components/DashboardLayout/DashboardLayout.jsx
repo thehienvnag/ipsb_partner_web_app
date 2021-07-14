@@ -16,9 +16,10 @@ const DashboardLayout = () => {
   return (
     <>
       <Layout style={{ backgroundColor: "#F7F8FB" }}>
-        <DashboardHeader handleCollapsed={handleCollapsed} />
+        <DashboardSidebar isCollapsed={isCollapsed} />
+
         <Layout>
-          <DashboardSidebar isCollapsed={isCollapsed} />
+          <DashboardHeader handleCollapsed={handleCollapsed} />
           <Content>
             <Outlet />
             <Footer style={{ height: 50 }}>Footer</Footer>
