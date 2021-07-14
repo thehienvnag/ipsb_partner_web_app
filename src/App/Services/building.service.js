@@ -6,10 +6,14 @@ import { buildings } from "../Constants/endpoints";
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  */
+<<<<<<< HEAD
 export const getBuildings = async ({
   pageIndex = 1,
   pageSize = 5,
 }) => {
+=======
+export const getBuildings = async ({ pageIndex = 1, pageSize = 5 }) => {
+>>>>>>> BIPSW-4-code-create-building
   const params = { pageIndex, pageSize };
   console.log(params);
   const response = await axiosClient.get(buildings, { params });
