@@ -1,6 +1,7 @@
 import FloorPlanDetailPage from "App/Containers/BuildingManager/FloorPlanDetailPage";
 import BuildingPage from "App/Containers/Admin/BuildingPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
+import LocatorTagPage from "App/Containers/BuildingManager/LocatorTagPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
 import BmHomePage from "../Containers/BuildingManager/HomePage/index";
@@ -23,6 +24,11 @@ const appRoutes = [
       {
         path: "/stores",
         element: <StorePage />,
+      },
+      {
+        path: "/locator-tags",
+        element: <LocatorTagPage />,
+        children: [{ path: "/test", element: <BmHomePage /> }],
       },
     ],
   },
