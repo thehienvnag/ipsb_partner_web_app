@@ -1,5 +1,4 @@
-import CreateBuildingPage from "App/Containers/Admin/CreateBuildingPage/createBuilding";
-import CreateAccountPage from "App/Containers/Admin/CreateManagerAccount/createAccount";
+import CreateBuildingPage from "App/Containers/Admin/CreateBuildingPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
 import AdHomePage from "../Containers/Admin/HomePage/index";
@@ -26,7 +25,6 @@ const appRoutes = [
       { path: "/test", element: <AdHomePage /> },
       { path: "/test2", element: <AdHomePage /> },
       { path: "/createBuilding", element: <CreateBuildingPage /> },
-      { path: "/createAccount", element: <CreateAccountPage /> },
     ],
   },
 ];

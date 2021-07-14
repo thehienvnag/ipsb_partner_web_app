@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./createBuilding.scss";
+import "./index.scss";
 import { PageWrapper } from "App/Components/PageWrapper";
 import { PageBody } from "App/Components/PageWrapper";
 import { UploadOutlined } from "@ant-design/icons";
@@ -39,7 +39,9 @@ const CreateBuildingPage = () => {
   const { Option } = Select;
   const [visible, setVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
-  const [currentStep, setStep] = useState(1);
+  const [currentStep, setStep] = useState(0);
+  const [model, setModel] = useState(null);
+  const [file, setFile] = useState(null);
 
   const showModal = () => {
     setVisible(true);
@@ -50,28 +52,61 @@ const CreateBuildingPage = () => {
     form.resetFields();
     setStep(0);
     setImageUrl(null);
+    // setModel(null);
   };
   const handleChange = (info) => {
-    getBase64(info.fileList[0]?.originFileObj, (imageUrl) =>
-      setImageUrl(imageUrl)
+    getBase64(
+      info.fileList[0]?.originFileObj,
+      (imageUrl) => setImageUrl(imageUrl),
+      setFile(info.fileList[0])
     );
   };
 
   const onFinishCreateAccount = (values) => {
+    console.log(
+      "Account nè: " + values.name,
+      values.email,
+      values.phone,
+      values.role,
+      file
+    );
     if (values != null) {
       message
         .loading("Action in progress...", 3)
-        .then(() => message.success("Tạo mới tài khoản thành công", 2.5))
+        .then(() =>
+          message.success("Tạo mới tài khoản quản lý thành công", 2.5)
+        )
         .then(() => setStep(currentStep + 1), setImageUrl(null));
     }
+    //console.log("name nè: " + model.name);
   };
 
   const onFinishCreateBuilding = (values) => {
-    if (values != null) {
+    console.log(
+      "Building nè: " + values.name,
+      values.address,
+      values.numberOfFloor,
+      file
+    );
+    if (values != null && values.imageUrl != null) {
       message
         .loading("Action in progress...", 3)
         .then(() => message.success("Tạo mới tòa nhà thành công", 3))
         .then(() => setStep(currentStep + 1), setImageUrl(null));
+
+      setModel(values.name); // lưu thông tin tạo mới của tòa nhà
+    }
+    if (values.imageUrl == null) {
+      message.error("Thêm ảnh cho tòa nhà", 4);
+    }
+  };
+
+  const onFinishAssignBuilding = (values) => {
+    if (values != null) {
+      message
+        .loading("Action in progress...", 3)
+        .then(() => message.success("Thêm mới quản lý tòa nhà thành công", 3))
+        .then(() => setStep(currentStep + 1));
     }
   };
 
@@ -79,26 +114,40 @@ const CreateBuildingPage = () => {
     return (
       <Form
         form={form}
+        layout="vertical"
         name="register"
         onFinish={onFinishCreateBuilding}
         scrollToFirstError
         id="myForm"
       >
         <Row justify="space-between">
-          <Col span={11}>
+          <Col span={13}>
             <div className="ant-image-custom">
               <Image
                 style={{
-                  width: "280px",
-                  transform: "translateY(-10%)",
+                  width: "380px",
                 }}
                 src={imageUrl}
                 preview={true}
               />
             </div>
+
+            <Form.Item name="imageUrl" label="Thêm ảnh tòa nhà:" required>
+              <Upload
+                name="avatar"
+                listType="picture-card"
+                className="avatar-uploader"
+                showUploadList={false}
+                maxCount={1}
+                beforeUpload={() => false}
+                onChange={handleChange}
+              >
+                <Button icon={<UploadOutlined />}>Upload</Button>
+              </Upload>
+            </Form.Item>
           </Col>
           ,
-          <Col span={12}>
+          <Col span={10}>
             <Form.Item
               name="name"
               label="Tên tòa nhà: "
@@ -126,9 +175,7 @@ const CreateBuildingPage = () => {
                 },
               ]}
             >
-              <div className="test">
-                <TextArea rows={2} placeholder="Nhập địa chỉ tòa nhà" />
-              </div>
+              <TextArea rows={3} placeholder="Nhập địa chỉ tòa nhà" />
             </Form.Item>
 
             <Form.Item
@@ -142,54 +189,11 @@ const CreateBuildingPage = () => {
                 },
               ]}
             >
-              <Select placeholder="Chọn số tầng">
-                <Option value="1">1 tầng</Option>
-                <Option value="2">2 tầng</Option>
-                <Option value="3">3 tầng</Option>
-                <Option value="4">4 tầng</Option>
-                <Option value="5">5 tầng</Option>
-                <Option value="6">6 tầng</Option>
-                <Option value="7">7 tầng</Option>
-                <Option value="8">8 tầng</Option>
-                <Option value="9">9 tầng</Option>
-                <Option value="10">10 tầng</Option>
-                <Option value="11">11 tầng</Option>
-                <Option value="12">12 tầng</Option>
-                <Option value="13">13 tầng</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="managerId"
-              label="Quản lý tòa nhà"
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Chọn quản lý tòa nhà",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn quản lý">
-                {listAccount &&
-                  listAccount.map((item) => (
-                    <Option value={item.id}>{item.name}</Option>
-                  ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="imageUrl" label="Thêm ảnh tòa nhà:" required>
-              <Upload
-                name="avatar"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                maxCount={1}
-                beforeUpload={() => false}
-                onChange={handleChange}
-              >
-                <Button icon={<UploadOutlined />}>Upload</Button>
-              </Upload>
+              <Input
+                placeholder="Nhập số tầng tòa nhà"
+                type="number"
+                maxLength={3}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -202,16 +206,17 @@ const CreateBuildingPage = () => {
       <Form
         id="myForm"
         form={form}
+        // layout="vertical"
         name="register"
         onFinish={onFinishCreateAccount}
         scrollToFirstError
       >
         <Row justify="space-between">
-          <Col span={11}>
+          <Col span={10}>
             <div className="ant-image-custom">
               <Image
                 style={{
-                  width: "260px",
+                  width: "270px",
                 }}
                 src={imageUrl}
                 preview={true}
@@ -222,12 +227,12 @@ const CreateBuildingPage = () => {
           <Col span={12}>
             <Form.Item
               name="name"
-              label="Tên: "
+              label="Tên:"
               rules={[
                 {
                   required: true,
                   message: "Nhập đầy đủ tên của người dùng ",
-                  whitespace: true,
+                  whitespace: false,
                 },
               ]}
             >
@@ -251,13 +256,14 @@ const CreateBuildingPage = () => {
                 },
               ]}
             >
-              <Input placeholder="Nhập email liên lạc" type="email" />
+              <div className="form-input">
+                <Input placeholder="Nhập email liên lạc" type="email" />
+              </div>
             </Form.Item>
 
             <Form.Item
               name="role"
-              label="Role"
-              // required
+              label="Quyền"
               rules={[
                 {
                   required: true,
@@ -310,6 +316,51 @@ const CreateBuildingPage = () => {
     );
   }
 
+  function AssignManagerForm() {
+    return (
+      <Form
+        form={form}
+        layout="vertical"
+        name="register"
+        onFinish={onFinishAssignBuilding}
+        scrollToFirstError
+        id="myForm"
+      >
+        <Row justify="space-around">
+          <Col span={10}>
+            <Form.Item name="name" label="Tên tòa nhà: ">
+              <Input
+                placeholder="Nhập tên tòa nhà"
+                value={model?.name}
+                disabled={true}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={10}>
+            <Form.Item
+              name="managerId"
+              label="Quản lý tòa nhà"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "Chọn quản lý tòa nhà",
+                },
+              ]}
+            >
+              <Select placeholder="Chọn quản lý cho tòa nhà">
+                {listAccount &&
+                  listAccount.map((item) => (
+                    <Option value={item.id}>{item.name}</Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    );
+  }
+
   function DoneForm() {
     return (
       <div className="example">
@@ -329,7 +380,7 @@ const CreateBuildingPage = () => {
     );
   }
   function Footer() {
-    if (currentStep != "2")
+    if (currentStep != "3")
       return (
         <Row>
           <Space>
@@ -366,7 +417,7 @@ const CreateBuildingPage = () => {
               Thêm mới tòa nhà
             </Button>
             <Modal
-              width={700}
+              width={800}
               title="Thêm mới tòa nhà"
               visible={visible}
               //visible={true}
@@ -374,14 +425,15 @@ const CreateBuildingPage = () => {
               footer={[<Footer />]}
             >
               <Steps current={currentStep}>
-                <Step title="Đăng ký tài khoản" />
                 <Step title="Đăng ký tòa nhà" />
-                <Step title="Hoàn thành" />
+                <Step title="Đăng ký tài khoản" />
+                <Step title="Thêm quản lý tòa nhà" />
               </Steps>
               <Space> </Space>
-              {currentStep == "0" ? <CreateAccountForm /> : null}
-              {currentStep == "1" ? <CreateBuildingForm /> : null}
-              {currentStep == "2" ? <DoneForm /> : null}
+              {currentStep == "0" ? <CreateBuildingForm /> : null}
+              {currentStep == "1" ? <CreateAccountForm /> : null}
+              {currentStep == "2" ? <AssignManagerForm /> : null}
+              {currentStep == "3" ? <DoneForm /> : null}
             </Modal>
           </Card>
         </PageBody>
