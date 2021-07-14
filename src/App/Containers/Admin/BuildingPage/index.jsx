@@ -488,7 +488,7 @@ const BuildingPage = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper className="building-page">
       <Header
         handleRefresh={handleRefresh}
         handleCreate={handleCreate}
@@ -582,6 +582,7 @@ const BuildingPage = () => {
               />
             </Table>
             <Modal
+              className="modal-building"
               width={800}
               title="Chia tiết của tòa nhà"
               visible={visibleDetail}
@@ -601,7 +602,7 @@ const BuildingPage = () => {
                     <div className="ant-image-custom">
                       <Image
                         style={{
-                          width: "380px",
+                          width: "350px",
                         }}
                         src={imageUrl}
                         preview={true}
@@ -626,7 +627,7 @@ const BuildingPage = () => {
                       </Upload>
                     </Form.Item>
                   </Col>
-                  ,
+
                   <Col span={10}>
                     <Form.Item
                       name="name"
@@ -698,6 +699,7 @@ const BuildingPage = () => {
               </Form>
             </Modal>
             <Modal
+              className="modal-building"
               width={800}
               title="Thêm mới tòa nhà"
               visible={visibleCreate}
