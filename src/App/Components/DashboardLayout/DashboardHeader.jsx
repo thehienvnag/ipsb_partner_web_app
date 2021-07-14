@@ -1,6 +1,7 @@
-import { Dropdown, Menu } from "antd";
+import { Dropdown, Menu, Button } from "antd";
 import Link from "antd/lib/typography/Link";
 import React from "react";
+import "./DashboardHeader.scss";
 const notifications = (
   <Menu>
     <Menu.Item key="0">1st menu item</Menu.Item>
@@ -15,33 +16,32 @@ const profile = (
     <Menu.Item key="3">Logout</Menu.Item>
   </Menu>
 );
-const DashboardHeader = () => {
+const DashboardHeader = ({ handleCollapsed }) => {
   return (
-    <header className="navbar navbar-expand-md navbar-light d-print-none">
-      <div className="container-xl">
-        <button
+    <header className="navbar navbar-expand-md navbar-light d-print-none header">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: "0 5px",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          onClick={handleCollapsed}
           className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbar-menu"
         >
           <span className="navbar-toggler-icon" />
-        </button>
-        <h1 className="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-          <a href="." className="d-flex">
-            <img
-              src="https://images-eu.ssl-images-amazon.com/images/I/41HOM2pyLfL.jpg"
-              width={110}
-              height={32}
-              alt="Tabler"
-              className="navbar-brand-image"
-            />
-            <h1 style={{ marginLeft: 10 }}>iLocation</h1>
-          </a>
-        </h1>
-        <div className="navbar-nav flex-row order-md-last">
+        </Button>
+        <div></div>
+
+        <div className="navbar-nav flex-row" style={{ marginRight: 15 }}>
           <div className="nav-item d-none d-md-flex me-3">
-            <div className="btn-list"></div>
+            {/* <div className="btn-list"></div> */}
           </div>
           <div className="nav-item dropdown d-none d-md-flex me-3">
             <Dropdown

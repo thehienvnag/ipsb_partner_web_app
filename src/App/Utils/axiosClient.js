@@ -1,7 +1,8 @@
 import axios from "axios";
 import queryString from "query-string";
+
 // import { getFirebase } from "react-redux-firebase";
-console.log(process.env.REACT_APP_API_URL);
+
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
@@ -10,13 +11,31 @@ const axiosClient = axios.create({
   },
   paramsSerializer: (params) => queryString.stringify(params),
 });
-//#region Future firebase auth
-// axiosClient.interceptors.request.use(async (config) => {
-//   const firebase = getFirebase();
-//   const currentUser = firebase.auth().currentUser;
-//   let idTokenResult = await currentUser.getIdTokenResult();
-//   config.headers["Authorization"] = "Bearer " + idTokenResult.token;
-//   return config;
-// });
-//#endregion
+
+export const postFormData = async (endpoint, values) => {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(values)) {
+    formData.append(key, value);
+  }
+  // post config
+  const config = {
+    headers: { "Content-Type": "multipart/form-data" },
+  };
+  const response = await axiosClient.post(endpoint, formData, config);
+  return response.data;
+};
+
+export const putFormData = async (endpoint, values) => {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(values)) {
+    formData.append(key, value);
+  }
+  // put config
+  const config = {
+    headers: { "Content-Type": "multipart/form-data" },
+  };
+  const response = await axiosClient.put(endpoint, formData, config);
+  return response.data;
+};
+
 export default axiosClient;

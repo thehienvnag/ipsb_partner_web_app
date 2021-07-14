@@ -1,0 +1,11 @@
+.image-button {
+  display: none !important;
+  ~ .ant-image-mask {
+    opacity:1;
+    color: #1890FF;
+    transform: translateY(-6px);
+    &:hover{
+        text-decoration: underline;
+    }
+  }
+}

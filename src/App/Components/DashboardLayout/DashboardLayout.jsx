@@ -1,18 +1,31 @@
-import React from "react";
-import { Helmet } from "react-helmet";
+import { Layout } from "antd";
+
+import React, { useState } from "react";
+
 import { Outlet } from "react-router-dom";
 import DashboardHeader from "./DashboardHeader";
-import DashboardMenu from "./DashboardMenu";
+import DashboardSidebar from "./DashboardSidebar";
+const { Footer, Content } = Layout;
 
 const DashboardLayout = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleCollapsed = () => {
+    setIsCollapsed(!isCollapsed);
+  };
   return (
     <>
-      <Helmet>
-        <style>{"body { background-color: #F4F6FA; }"}</style>
-      </Helmet>
-      <DashboardHeader />
-      <DashboardMenu />
-      <Outlet />
+      <Layout style={{ backgroundColor: "#F7F8FB" }}>
+        <DashboardSidebar isCollapsed={isCollapsed} />
+
+        <Layout>
+          <DashboardHeader handleCollapsed={handleCollapsed} />
+          <Content>
+            <Outlet />
+            <Footer style={{ height: 50 }}>Footer</Footer>
+          </Content>
+        </Layout>
+      </Layout>
     </>
   );
 };
