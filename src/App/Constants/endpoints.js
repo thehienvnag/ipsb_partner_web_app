@@ -5,4 +5,5 @@ export const edges = "/edges";
 export const locations = "/locations";
 export const buildings = "/buildings";
 export const accounts = "/accounts";
-export const locationType = "/location-type";
+export const locationTypes = "/location-types";
+export const productCategories = "/product-categories";

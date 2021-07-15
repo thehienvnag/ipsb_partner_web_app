@@ -29,7 +29,7 @@ const Slice = createSlice({
     list: null,
     one: null,
     isLoading: false,
-    currentFloorPlan: {id : 12}
+    currentFloorPlan: { id: 12 },
   },
   reducers: {},
   extraReducers: {
@@ -66,6 +66,11 @@ export const selectListFloor = (state) =>
   state.floorPlan.list?.content.map((item, index) => ({
     ...{ key: index },
     ...item,
+  }));
+export const selectListFloorCode = (state) =>
+  state.floorPlan.list?.content.map(({ id, floorCode }) => ({
+    id,
+    floorCode,
   }));
 export const selectOne = (state) => state.floorPlan.one;
 export const selectTotalCount = (state) => state.floorPlan.list?.totalCount;

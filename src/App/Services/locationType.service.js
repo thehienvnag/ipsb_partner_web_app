@@ -1,5 +1,5 @@
 import axiosClient from "../Utils/axiosClient";
-import { locationType } from "../Constants/endpoints";
+import { locationTypes } from "../Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
@@ -14,6 +14,6 @@ export const getAllLoctionType = async ({
 }) => {
   const params = { pageIndex, pageSize, buildingId };
   console.log(params);
-  const response = await axiosClient.get(locationType, { params });
+  const response = await axiosClient.get(locationTypes, { params });
   return response.data;
 };
