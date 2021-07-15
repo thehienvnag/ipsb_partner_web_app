@@ -217,9 +217,9 @@ const BuildingPage = () => {
         ...{ address: values.address },
         ...{ numberOfFloor: values.numberOfFloor },
       });
-      if (data.id != null) {
+      if (data?.id != null) {
         setModel(data); // set data vừa thêm của building
-        console.log("id đây nè: " + model.id, model.name);
+        // console.log("id đây nè: " + model.id, model.name);
         message
           .loading("Action in progress...", 3)
           .then(() => message.success("Tạo mới tòa nhà thành công", 3))
