@@ -4,13 +4,13 @@ import { Menu, Col, Layout } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { HomeOutlined } from "@ant-design/icons";
 import { GrMap } from "react-icons/gr";
+import { BsBuilding } from "react-icons/bs";
 import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
 const { Sider } = Layout;
 const logo = process.env.PUBLIC_URL + "/logo.svg";
 const logoText = process.env.PUBLIC_URL + "/logo-text.png";
 const DashboardSidebar = ({ isCollapsed }) => {
-  const location = useLocation();
-  console.log(location.pathname);
+  const { pathname } = useLocation();
   return (
     <>
       <Sider
@@ -20,7 +20,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
         className="responsive-sidebar"
         style={{ paddingTop: 0 }}
       >
-        <Menu defaultSelectedKeys={["1"]} mode="vertical">
+        <Menu defaultSelectedKeys={["2"]} mode="vertical">
           <Col
             type="flex"
             justify="center"
@@ -78,27 +78,39 @@ const DashboardSidebar = ({ isCollapsed }) => {
             </div>
           </Col>
 
-          <Menu.Item key="1" icon={<HomeOutlined />}>
+          {/* <Menu.Item key="1" icon={<HomeOutlined />}>
             <Link to={{ pathname: "home" }} replace>
               Home
             </Link>
-          </Menu.Item>
-
-          <Menu.Item key="2" icon={<IoStorefrontOutline />}>
-            <Link to={{ pathname: "stores" }} replace>
-              Stores
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="3" icon={<GrMap />}>
-            <Link to={{ pathname: "floor-plans" }} replace>
-              Floor plan
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="4" icon={<IoWifi />}>
-            <Link to={{ pathname: "locator-tags" }} replace>
-              Locator tag
-            </Link>
-          </Menu.Item>
+          </Menu.Item> */}
+          {pathname.includes("admin") && (
+            <>
+              <Menu.Item key="2" icon={<BsBuilding />}>
+                <Link to={{ pathname: "buildings" }} replace>
+                  Buildings
+                </Link>
+              </Menu.Item>
+            </>
+          )}
+          {pathname.includes("building-manager") && (
+            <>
+              <Menu.Item key="2" icon={<IoStorefrontOutline />}>
+                <Link to={{ pathname: "stores" }} replace>
+                  Stores
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="3" icon={<GrMap />}>
+                <Link to={{ pathname: "floor-plans" }} replace>
+                  Floor plan
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="4" icon={<IoWifi />}>
+                <Link to={{ pathname: "locator-tags" }} replace>
+                  Locator tag
+                </Link>
+              </Menu.Item>
+            </>
+          )}
         </Menu>
       </Sider>
     </>
