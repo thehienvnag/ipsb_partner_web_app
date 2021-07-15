@@ -12,8 +12,7 @@ const appRoutes = [
     path: "building-manager",
     element: <DashboardLayout />,
     children: [
-      { path: "/test", element: <BmHomePage /> },
-      { path: "/test2", element: <BmHomePage /> },
+      { path: "/", element: <BmHomePage /> },
       {
         path: "/floor-plans",
         element: <FloorPlanPage />,

@@ -31,7 +31,11 @@ const Slice = createSlice({
     isLoading: false,
     currentFloorPlan: { id: 12 },
   },
-  reducers: {},
+  reducers: {
+    removeCurrentFloor: (state, action) => {
+      state.one = null;
+    },
+  },
   extraReducers: {
     //#region Load floor plans by buildingId state
     [loadAll.pending]: (state, action) => {
@@ -79,5 +83,6 @@ export const selectIsLoading = (state) => state.floorPlan.isLoading;
 //#endregion
 
 /// Export reducer
-export { loadAll, loadById };
+const { removeCurrentFloor } = Slice.actions;
+export { loadAll, loadById, removeCurrentFloor };
 export default Slice.reducer;
