@@ -74,7 +74,7 @@ const BuildingPage = () => {
 
   const [visibleDetail, setVisibleDetail] = useState(false);
   const [visibleCreate, setVisibleCreate] = useState(false);
-  const [currentStep, setStep] = useState(2);
+  const [currentStep, setStep] = useState(0);
   // const [visibleManagerId, setVisibleManagerId] = useState(false);
   const [model, setModel] = useState(null);
   const { Step } = Steps;
