@@ -24,6 +24,7 @@ import { pointInRect, duplicateLocation } from "App/Utils/utils";
 const stairSvg = process.env.PUBLIC_URL + "/stairs.svg";
 const restroom = process.env.PUBLIC_URL + "/restroom.svg";
 const elevator = process.env.PUBLIC_URL + "/elevator.svg";
+const stores = process.env.PUBLIC_URL + "/stores.svg";
 const equal = (one, that) =>
   ((one?.id || that?.id) && one?.id === that?.id) || one === that;
 const MapZoomPan = ({ disabledPreview, mode, types, src, floorPlanId }) => {
@@ -421,7 +422,8 @@ const PathWrapper = ({ key, rotate, selected, location, onPathClick }) => {
   const { x, y, locationTypeId } = location;
   if (locationTypeId === 1) {
     return (
-      <StoreMarker
+      <PlaceMarker
+        src={stores}
         location={location}
         selected={selected}
         onPathClick={onPathClick}
@@ -433,6 +435,7 @@ const PathWrapper = ({ key, rotate, selected, location, onPathClick }) => {
       <PlaceMarker
         src={stairSvg}
         location={location}
+        selected={selected}
         onPathClick={onPathClick}
       />
     );
@@ -442,6 +445,7 @@ const PathWrapper = ({ key, rotate, selected, location, onPathClick }) => {
       <PlaceMarker
         src={restroom}
         location={location}
+        selected={selected}
         onPathClick={onPathClick}
       />
     );
@@ -451,6 +455,7 @@ const PathWrapper = ({ key, rotate, selected, location, onPathClick }) => {
       <PlaceMarker
         src={elevator}
         location={location}
+        selected={selected}
         onPathClick={onPathClick}
       />
     );
@@ -460,6 +465,7 @@ const PathWrapper = ({ key, rotate, selected, location, onPathClick }) => {
       {equal(location, selected) ? (
         <SelectedMarker
           location={location}
+          selected={selected}
           onPathClick={onPathClick}
           rotate={rotate}
         />
@@ -505,34 +511,6 @@ const SelectedMarker = ({ location, onPathClick, rotate }) => {
   );
 };
 
-const StoreMarker = ({ location, selected, onPathClick }) => {
-  const { x, y, store } = location;
-
-  return (
-    <g
-      transform={`translate(${x - 16}, ${y - 22})`}
-      onClick={(evt) => onPathClick(location, evt)}
-      onContextMenu={(evt) => onPathClick(location, evt)}
-    >
-      <rect width="22" height="22" fill="white"></rect>
-      <g fill={equal(location, selected) ? "#ef5350" : "black"}>
-        <path d="m19 24c-.115 0-.229-.039-.322-.118-.191-.161-4.678-3.988-4.678-7.882 0-2.757 2.243-5 5-5s5 2.243 5 5c0 3.894-4.487 7.721-4.678 7.882-.093.079-.207.118-.322.118zm0-12c-2.206 0-4 1.794-4 4 0 2.869 2.997 5.895 4 6.828 1.003-.933 4-3.959 4-6.828 0-2.206-1.794-4-4-4z" />
-        <path d="m19 18c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2zm0-3c-.551 0-1 .449-1 1s.449 1 1 1 1-.449 1-1-.449-1-1-1z" />
-        <path d="m23.5 9h-23c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h23c.276 0 .5.224.5.5s-.224.5-.5.5z" />
-        <path d="m22.5 9h-21c-.144 0-.28-.062-.375-.169-.095-.108-.139-.251-.121-.393l.891-7.124c.093-.749.733-1.314 1.488-1.314h17.234c.755 0 1.395.565 1.488 1.314l.891 7.124c.018.142-.026.285-.121.393-.095.107-.231.169-.375.169zm-20.434-1h19.867l-.82-6.562c-.031-.25-.244-.438-.496-.438h-17.234c-.252 0-.465.188-.496.438z" />
-        <path d="m6.5 9c-.02 0-.041-.001-.062-.004-.274-.034-.468-.284-.434-.558l1-8c.035-.274.28-.465.558-.434.274.034.468.284.434.558l-1 8c-.032.253-.247.438-.496.438z" />
-        <path d="m12 9c-.276 0-.5-.224-.5-.5v-8c0-.276.224-.5.5-.5s.5.224.5.5v8c0 .276-.224.5-.5.5z" />
-        <path d="m17.5 9c-.249 0-.464-.185-.496-.438l-1-8c-.034-.274.16-.524.434-.558.275-.031.524.16.558.434l1 8c.034.274-.16.524-.434.558-.021.003-.042.004-.062.004z" />
-        <path d="m13.5 22h-9c-1.378 0-2.5-1.122-2.5-2.5v-11c0-.276.224-.5.5-.5h19c.276 0 .5.224.5.5v1c0 .276-.224.5-.5.5s-.5-.224-.5-.5v-.5h-18v10.5c0 .827.673 1.5 1.5 1.5h9c.276 0 .5.224.5.5s-.224.5-.5.5z" />
-        <path d="m9.5 18h-3c-.827 0-1.5-.673-1.5-1.5v-3c0-.827.673-1.5 1.5-1.5h3c.827 0 1.5.673 1.5 1.5v3c0 .827-.673 1.5-1.5 1.5zm-3-5c-.276 0-.5.224-.5.5v3c0 .276.224.5.5.5h3c.276 0 .5-.224.5-.5v-3c0-.276-.224-.5-.5-.5z" />
-      </g>
-      <text y="38" class="small">
-        {store?.name}
-      </text>
-    </g>
-  );
-};
-
 const PlaceMarker = ({ src, location, selected, onPathClick }) => {
   const { x, y } = location;
   return (
@@ -547,7 +525,11 @@ const PlaceMarker = ({ src, location, selected, onPathClick }) => {
         fill="white"
         transform="translate(0, 5)"
       ></rect>
-      <image href={src} height="25" />
+      <image
+        className={equal(location, selected) ? "img-red" : ""}
+        href={src}
+        height="25"
+      />
     </g>
   );
 };

@@ -1,10 +1,16 @@
 import React from "react";
 import "./DashboardSidebar.scss";
 import { Menu, Col, Layout } from "antd";
-import { MailOutlined, CalendarOutlined } from "@ant-design/icons";
+import { Link, useLocation } from "react-router-dom";
+import { HomeOutlined } from "@ant-design/icons";
+import { GrMap } from "react-icons/gr";
+import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
 const { Sider } = Layout;
-
+const logo = process.env.PUBLIC_URL + "/logo.svg";
+const logoText = process.env.PUBLIC_URL + "/logo-text.png";
 const DashboardSidebar = ({ isCollapsed }) => {
+  const location = useLocation();
+  console.log(location.pathname);
   return (
     <>
       <Sider
@@ -30,13 +36,13 @@ const DashboardSidebar = ({ isCollapsed }) => {
               }}
             >
               <img
-                src={process.env.PUBLIC_URL + "/logo.svg"}
+                src={logo}
                 style={{ transform: "scale(4.5)" }}
                 alt="Tabler"
                 className="navbar-brand-image"
               />
               <img
-                src={process.env.PUBLIC_URL + "/logo-text.png"}
+                src={logoText}
                 style={{
                   transform: "scale(1.8) translate(26px, 0px)",
                 }}
@@ -72,14 +78,26 @@ const DashboardSidebar = ({ isCollapsed }) => {
             </div>
           </Col>
 
-          <Menu.Item key="1" icon={<MailOutlined />}>
-            Home
+          <Menu.Item key="1" icon={<HomeOutlined />}>
+            <Link to={{ pathname: "home" }} replace>
+              Home
+            </Link>
           </Menu.Item>
-          <Menu.Item key="2" icon={<CalendarOutlined />}>
-            Floor plan
+
+          <Menu.Item key="2" icon={<IoStorefrontOutline />}>
+            <Link to={{ pathname: "stores" }} replace>
+              Stores
+            </Link>
           </Menu.Item>
-          <Menu.Item key="3" icon={<CalendarOutlined />}>
-            Locator tag
+          <Menu.Item key="3" icon={<GrMap />}>
+            <Link to={{ pathname: "floor-plans" }} replace>
+              Floor plan
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="4" icon={<IoWifi />}>
+            <Link to={{ pathname: "locator-tags" }} replace>
+              Locator tag
+            </Link>
           </Menu.Item>
         </Menu>
       </Sider>

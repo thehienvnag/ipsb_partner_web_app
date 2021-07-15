@@ -3,19 +3,19 @@ import { getAllStore } from "App/Services/store.service";
 import { Table, Image, Tag, Typography, Avatar } from "antd";
 
 const StoreTable = () => {
-  const [listStore, setListStore] = useState(null);
+  const [data, setData] = useState({ list: null, isLoading: false });
   useEffect(() => {
+    const fetchApi = async () => {
+      setData({ isLoading: true });
+      const data = await getAllStore({ buildingId: 1 });
+      setData({ list: data.content, isLoading: false });
+    };
     fetchApi();
   }, []);
-  const fetchApi = async () => {
-    const data = await getAllStore({ buildingId: 1 });
 
-    setListStore(data.content);
-    console.log(data.content);
-  };
   return (
     <>
-      <Table dataSource={listStore}>
+      <Table dataSource={data.list} loading={data.isLoading}>
         <Table.Column
           title="#No"
           key="id"

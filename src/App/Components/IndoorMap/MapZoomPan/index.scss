@@ -107,3 +107,7 @@
     border-color: #c5c0c0;
   }
 }
+
+.img-red{
+  filter: invert(62%) sepia(59%) saturate(5304%) hue-rotate(328deg) brightness(95%) contrast(97%);
+}

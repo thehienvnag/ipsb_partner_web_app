@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.scss";
 import {
   Form,
@@ -38,14 +38,20 @@ const Overview = ({ floor }) => {
   const buildingIdFromStore = useSelector(selectInChargeBuildingId);
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    if (floor) {
+      form.setFieldsValue(floor);
+    }
+  }, [floor]);
+
   const onSave = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    console.log(values);
     const data = await postFloorPlan({
       ...values,
       ...{ imageUrl: file },
       ...{ buildingId: buildingIdFromStore },
-      ...{ floorNumber: 10 },
     });
     console.log(data);
   };
@@ -104,22 +110,40 @@ const Overview = ({ floor }) => {
             onValuesChange={onFormLayoutChange}
             size={componentSize}
           >
-            <Form.Item label="Floor status">
-              <Switch />
+            <Form.Item
+              // name="status"
+              label="Floor status"
+            >
+              <Switch checked={floor?.status === "Active"} />
+            </Form.Item>
+            <Form.Item
+              label="Floor position"
+              required
+              name="floorNumber"
+              rules={[
+                { required: true, message: "Please input floor number!" },
+              ]}
+            >
+              <Input />
             </Form.Item>
             <Form.Item
               label="Floor code"
               required
               name="floorCode"
+              rules={[{ required: true, message: "Please input floor code!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="floorType"
+              label="Floor type"
+              required
               rules={[{ required: true, message: "Please input your !" }]}
             >
-              <Input value={floor?.floorCode} />
-            </Form.Item>
-            <Form.Item label="Floor type" required>
               <Select>
-                <Select.Option value="upper">Upper</Select.Option>
-                <Select.Option value="ground">Ground</Select.Option>
-                <Select.Option value="basement">Basement</Select.Option>
+                <Select.Option value="Upper">Upper</Select.Option>
+                <Select.Option value="Ground">Ground</Select.Option>
+                <Select.Option value="Basement">Basement</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item label="Floor map image" required>

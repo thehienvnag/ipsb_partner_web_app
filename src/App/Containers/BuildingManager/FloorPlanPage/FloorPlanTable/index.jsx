@@ -7,6 +7,7 @@ import {
   selectPageSize,
   selectTotalCount,
 } from "App/Stores/floorPlan.slice";
+import Moment from "moment";
 import { useSelector } from "react-redux";
 
 const FloorPlanTable = ({
@@ -57,31 +58,23 @@ const FloorPlanTable = ({
           title="Floor type"
           dataIndex="floorType"
           key="floorType"
-          render={(item) => (
-            <Typography.Text>
-              {Math.floor(Math.random() * 2) % 2 === 0 ? "Basement" : "Ground"}
-            </Typography.Text>
-          )}
+          render={(value) => <Typography.Text>{value}</Typography.Text>}
         />
         <Table.Column
           title="Create date"
           dataIndex="createDate"
           key="createDate"
-          render={(item) => <Typography.Text>June 13th, 2021</Typography.Text>}
+          render={(value) => (
+            <Typography.Text>{Moment(value).format("LLL")}</Typography.Text>
+          )}
         />
         <Table.Column
           title="Status"
           dataIndex="status"
           key="status"
-          render={(value) => {
-            if (!value) {
-              value =
-                Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
-            }
-            return (
-              <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
-            );
-          }}
+          render={(value) => (
+            <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
+          )}
         />
         <Table.Column
           title="Image"
