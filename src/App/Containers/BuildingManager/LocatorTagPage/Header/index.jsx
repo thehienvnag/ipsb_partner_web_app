@@ -12,6 +12,7 @@ import {
   Input,
   Form,
   Select,
+  message,
 } from "antd";
 import { UnorderedListOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
@@ -22,6 +23,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import "./index.scss";
+import { postLocatorTag } from "App/Services/locatorTag.service";
 
 const { Option } = Select;
 
@@ -170,65 +172,129 @@ const Header = ({ handleDelete, handleRefresh }) => {
  * @param {PropTypes.func} [props.hideModal] dispose create model
  */
 const CreateLocatorTag = ({ hideModal, visible }) => {
+  const [form1] = Form.useForm();
+
+  const onSave = async () => {
+    // console.log(values);
+    try {
+      const values = await form1.validateFields();
+      const data = await postLocatorTag({
+        ...values,
+      });
+      if (data?.status.valueOf(201)) {
+        onFinishCreateLocatorTag(data);
+      } else {
+        onErrorCreateLocatorTag();
+      }
+    } catch {}
+  };
+
+  const onFinishCreateLocatorTag = (values) => {
+    if (values != null) {
+      message
+        .loading("Action in progress...", 3)
+        .then(() => message.success("Thêm mới thẻ định vị thành công", 2))
+        .then(() => hideModal());
+    }
+  };
+
+  const onErrorCreateLocatorTag = () => {
+    message
+      .loading("Action in progress...", 3)
+      .then(() =>
+        message.error("Có lỗi xảy ra trong quá trình tạo mới thẻ định vị", 2)
+      )
+      .then(() => hideModal());
+  };
+
   return (
     <Modal
       width={700}
       title={`Tạo mới thẻ định vị`}
       visible={visible}
-      //visible={true}
       back
-      onOk={hideModal}
+      onOk={onSave}
       onCancel={hideModal}
       okText="Lưu"
       cancelText="Hủy"
     >
-      <Row justify="space-between">
-        <Col span={12}>
-          <Col span={21}>
-            <Form.Item
-              label="Địa chỉ MAC: "
-              required
-              tooltip="Đây là địa chỉ MAC của thẻ định vị"
-            >
-              <Input
-                placeholder="Nhập địa chỉ MAC của thẻ định vị"
-                onChange={() => {
-                  // setInput(!input);
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col>
-            <Form.Item
-              label="Tầng trong tòa nhà:"
-              required
-              tooltip="Đây là vị trí của thẻ định vị nằm ở tầng nào trong tòa nhà"
-            >
-              <Select
-                defaultValue="Chọn tầng"
-                style={{ width: 145 }}
-                onChange={() => {
-                  // setInput(!input);
-                }}
+      <Form layout="vertical" form={form1}>
+        <Row justify="space-between">
+          <Col span={12}>
+            <Col span={21}>
+              <Form.Item
+                name="macAddress"
+                label="Địa chỉ MAC: "
+                tooltip="Đây là địa chỉ MAC của thẻ định vị"
+                rules={[
+                  {
+                    required: true,
+                    message: "Nhập địa chỉ MAC của thẻ định vị",
+                    whitespace: false,
+                  },
+                ]}
               >
-                <Option value="L1">Tầng 1</Option>
-                <Option value="L2">Tầng 2</Option>
-                <Option value="L3">Tầng 3</Option>
-                <Option value="L4">Tầng 4 </Option>
-                <Option value="L5">Tầng 5 </Option>
-                <Option value="L6">Tầng 6</Option>
-                <Option value="L7">Tầng 7 </Option>
-                <Option value="L8">Tầng 8</Option>
-                <Option value="L9">Tầng 9</Option>
-                <Option value="L10">Tầng 10</Option>
-                <Option value="L11">Tầng 11</Option>
-                <Option value="L12">Tầng 12</Option>
-                <Option value="L13">Tầng 13</Option>
-              </Select>
-            </Form.Item>
+                <Input
+                  placeholder="Nhập địa chỉ MAC của thẻ định vị"
+                  onChange={() => {
+                    // setInput(!input);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={21}>
+              <Form.Item
+                name="locationId"
+                label="Vị trí ID của thẻ định vị: "
+                tooltip="Đây là vị trí của thẻ định vị trong tòa nhà"
+                rules={[
+                  {
+                    required: true,
+                    message: "Nhập vị trí của thẻ định vị trong tòa nhà",
+                    whitespace: false,
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập vị trí ID của thẻ định vị"
+                  onChange={() => {
+                    // setInput(!input);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col>
+              <Form.Item
+                name="floorPlanId"
+                label="Tầng trong tòa nhà:"
+                tooltip="Đây là vị trí của thẻ định vị nằm ở tầng nào trong tòa nhà"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chọn tầng của tòa nhà",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn tầng" style={{ width: 145 }}>
+                  <Option value="1">Tầng 1</Option>
+                  <Option value="2">Tầng 2</Option>
+                  <Option value="3">Tầng 3</Option>
+                  <Option value="4">Tầng 4 </Option>
+                  <Option value="5">Tầng 5 </Option>
+                  <Option value="6">Tầng 6</Option>
+                  <Option value="7">Tầng 7 </Option>
+                  <Option value="8">Tầng 8</Option>
+                  <Option value="9">Tầng 9</Option>
+                  <Option value="10">Tầng 10</Option>
+                  <Option value="11">Tầng 11</Option>
+                  <Option value="12">Tầng 12</Option>
+                  <Option value="13">Tầng 13</Option>
+                </Select>
+              </Form.Item>
+            </Col>
           </Col>
-        </Col>
-      </Row>
+        </Row>
+      </Form>
     </Modal>
   );
 };
