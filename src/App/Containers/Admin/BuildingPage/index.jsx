@@ -33,6 +33,8 @@ import {
   Steps,
   Spin,
 } from "antd";
+import { postBuilding, putBuilding } from "App/Services/building.service";
+import { postAccount } from "App/Services/account.service";
 
 const BuildingPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
@@ -73,17 +75,21 @@ const BuildingPage = () => {
   const [visibleDetail, setVisibleDetail] = useState(false);
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [currentStep, setStep] = useState(0);
-  const [visibleManagerId, setVisibleManagerId] = useState(false);
+  // const [visibleManagerId, setVisibleManagerId] = useState(false);
   const [model, setModel] = useState(null);
   const { Step } = Steps;
   const { TextArea } = Input;
   const { Option } = Select;
   const [form] = Form.useForm();
+  const [form1] = Form.useForm();
+  const [form2] = Form.useForm();
+  const [form3] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const [file, setFile] = useState(null);
 
   const showModalCreate = () => {
     setVisibleCreate(true);
+    // setVisibleManagerId(false);
   };
 
   const hideModalCreate = () => {
@@ -94,7 +100,7 @@ const BuildingPage = () => {
   };
   const hideModalDetail = () => {
     setVisibleDetail(false);
-    setVisibleManagerId(false);
+    // setVisibleManagerId(false);
     form.resetFields();
     setImageUrl(null);
   };
@@ -102,69 +108,20 @@ const BuildingPage = () => {
   const showModalDetail = (value) => {
     setImageUrl(value);
     setVisibleDetail(true);
-    setVisibleManagerId(true);
-    setModel(value);
+    // setVisibleManagerId(true);
   };
 
   const handleChange = (info) => {
     getBase64(
       info.fileList[0]?.originFileObj,
       (imageUrl) => setImageUrl(imageUrl),
-      setFile(info.fileList[0])
+      setFile(info.fileList[0]?.originFileObj)
     );
-  };
-
-  const onFinishCreateAccount = (values) => {
-    console.log(values.name, values.email, values.phone, values.role, file);
-    if (values != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() =>
-          message.success("Tạo mới tài khoản quản lý thành công", 2.5)
-        )
-        .then(() => setStep(currentStep + 1), setImageUrl(null));
-    }
-  };
-
-  const onFinishCreateBuilding = (values) => {
-    console.log(
-      "Building nè: " + values.name,
-      values.address,
-      values.numberOfFloor,
-      file
-    );
-    if (values != null && values.imageUrl != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() => message.success("Tạo mới tòa nhà thành công", 3))
-        .then(() => setStep(currentStep + 1), setImageUrl(null));
-
-      setModel(values.name); // lưu thông tin tạo mới của tòa nhà
-    }
-    if (values.imageUrl == null) {
-      message.error("Thêm ảnh cho tòa nhà", 4);
-    }
-  };
-
-  const onFinishAssignBuilding = (values) => {
-    if (values != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() => message.success("Thêm mới quản lý tòa nhà thành công", 3))
-        .then(() => setStep(currentStep + 1));
-    }
   };
 
   function CreateBuildingForm() {
     return (
-      <Form
-        form={form}
-        layout="vertical"
-        name="register"
-        onFinish={onFinishCreateBuilding}
-        scrollToFirstError
-        id="formCreate"
-      >
+      <Form form={form1} layout="vertical" name="register" scrollToFirstError>
         <Row justify="space-between">
           <Col span={13}>
             <div className="ant-image-custom">
@@ -245,17 +202,35 @@ const BuildingPage = () => {
       </Form>
     );
   }
+  const saveBuilding = async () => {
+    form1.validateFields();
+    const values = form1.getFieldsValue();
+    if (values.imageUrl == null) {
+      message.error("Thêm ảnh cho tòa nhà", 4);
+    } else if (values != null && values.imageUrl != null) {
+      const data = await postBuilding({
+        ...values,
+        ...{ imageUrl: file },
+        ...{ managerId: 3 }, // nà đang set cứng
+        ...{ adminId: 2 },
+        ...{ name: values.name },
+        ...{ address: values.address },
+        ...{ numberOfFloor: values.numberOfFloor },
+      });
+      if (data.id != null) {
+        setModel(data); // set data vừa thêm của building
+        console.log("id đây nè: " + model.id, model.name);
+        message
+          .loading("Action in progress...", 3)
+          .then(() => message.success("Tạo mới tòa nhà thành công", 3))
+          .then(() => setStep(currentStep + 1), setImageUrl(null));
+      }
+    }
+  };
 
   function CreateAccountForm() {
     return (
-      <Form
-        id="formCreate"
-        form={form}
-        // layout="vertical"
-        name="register"
-        onFinish={onFinishCreateAccount}
-        scrollToFirstError
-      >
+      <Form form={form2} name="register" scrollToFirstError>
         <Row justify="space-between">
           <Col span={10}>
             <div className="ant-image-custom">
@@ -317,9 +292,9 @@ const BuildingPage = () => {
               ]}
             >
               <Select placeholder="Chọn quyền">
-                <Option value="Store Owner">Chủ cửa hàng</Option>
                 <Option value="Building Manager">Quản lý tòa nhà</Option>
-                <Option value="Admin">Admin</Option>
+                {/* <Option value="Store Owner">Chủ cửa hàng</Option>
+                <Option value="Admin">Admin</Option> */}
               </Select>
             </Form.Item>
 
@@ -361,22 +336,42 @@ const BuildingPage = () => {
     );
   }
 
+  const saveAccount = async () => {
+    form2.validateFields();
+    const values = form2.getFieldsValue();
+    if (values.imageUrl == null) {
+      message.error("Thêm ảnh cho quản lý", 4);
+    } else if (values !== null && values.imageUrl != null) {
+      const data = await postAccount({
+        ...values,
+        ...{ imageUrl: file },
+        ...{ name: values.name },
+        ...{ phone: values.phone },
+        ...{ role: values.role },
+        ...{ email: values.email },
+      });
+      console.log(data);
+      if (data.id !== null) {
+        message
+          .loading("Action in progress...", 3)
+          .then(() =>
+            message.success("Tạo mới tài khoản quản lý thành công", 3)
+          )
+          .then(() => setStep(currentStep + 1), setImageUrl(null));
+      }
+    }
+  };
+
   function AssignManagerForm() {
     return (
-      <Form
-        form={form}
-        layout="vertical"
-        name="register"
-        onFinish={onFinishAssignBuilding}
-        scrollToFirstError
-        id="formCreate"
-      >
+      <Form form={form3} layout="vertical" name="register" scrollToFirstError>
         <Row justify="space-around">
           <Col span={10}>
-            <Form.Item name="name" label="Tên tòa nhà: ">
+            <Form.Item label="Tên tòa nhà: ">
               <Input
                 placeholder="Nhập tên tòa nhà"
                 value={model?.name}
+                //value="Vincom Q2"
                 disabled={true}
               />
             </Form.Item>
@@ -385,7 +380,6 @@ const BuildingPage = () => {
             <Form.Item
               name="managerId"
               label="Quản lý tòa nhà"
-              required
               rules={[
                 {
                   required: true,
@@ -405,6 +399,26 @@ const BuildingPage = () => {
       </Form>
     );
   }
+
+  const saveAssignManager = async () => {
+    form3.validateFields();
+    const values = form3.getFieldsValue();
+    // if (values.managerId != null) {
+    //   const data = await putBuilding({
+    //     ...values,
+    //     ...{ id: model.id }, // ID  của building
+    //     // ...{ id: 16 },
+    //     ...{ managerId: values.managerId }, // cập nhập  thành manager mình chọn
+    //   });
+    //   console.log(data);
+    //   if (data.id !== null) {
+    //     message
+    //       .loading("Action in progress...", 3)
+    //       .then(() => message.success("Thêm mới quản lý tòa nhà thành công", 3))
+    //       .then(() => setStep(currentStep + 1));
+    //   }
+    // }
+  };
 
   function DoneForm() {
     return (
@@ -426,7 +440,7 @@ const BuildingPage = () => {
   }
 
   function FooterCreate() {
-    if (currentStep != "3")
+    if (currentStep == "0") {
       return (
         <Row justify="end">
           <Space>
@@ -443,13 +457,62 @@ const BuildingPage = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button form="formCreate" type="primary" htmlType="submit">
+              <Button type="primary" onClick={saveBuilding}>
                 Đăng ký
               </Button>
             </Form.Item>
           </Space>
         </Row>
       );
+    } else if (currentStep == "1") {
+      return (
+        <Row justify="end">
+          <Space>
+            <Form.Item>
+              <Button
+                type="ghost"
+                onClick={() => {
+                  hideModalCreate();
+                  form.resetFields();
+                }}
+              >
+                Hủy
+              </Button>
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" onClick={saveAccount}>
+                Đăng ký
+              </Button>
+            </Form.Item>
+          </Space>
+        </Row>
+      );
+    } else if (currentStep == "2") {
+      return (
+        <Row justify="end">
+          <Space>
+            <Form.Item>
+              <Button
+                type="ghost"
+                onClick={() => {
+                  hideModalCreate();
+                  form.resetFields();
+                }}
+              >
+                Hủy
+              </Button>
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" onClick={saveAssignManager}>
+                Đăng ký
+              </Button>
+            </Form.Item>
+          </Space>
+        </Row>
+      );
+    }
     return null;
   }
 
@@ -682,7 +745,8 @@ const BuildingPage = () => {
                       label="Quản lý tòa nhà"
                       rules={[
                         {
-                          required: { visibleManagerId },
+                          // required: { visibleManagerId },
+                          required: true,
                           message: "Chọn quản lý tòa nhà",
                         },
                       ]}
@@ -702,7 +766,8 @@ const BuildingPage = () => {
               className="modal-building"
               width={800}
               title="Thêm mới tòa nhà"
-              visible={visibleCreate}
+              // visible={visibleCreate}
+              visible={true}
               onCancel={hideModalCreate}
               footer={[<FooterCreate />]}
             >
