@@ -2,9 +2,9 @@ import React from "react";
 import "./DashboardSidebar.scss";
 import { Menu, Col, Layout } from "antd";
 import { Link, useLocation } from "react-router-dom";
-import { HomeOutlined } from "@ant-design/icons";
 import { GrMap } from "react-icons/gr";
 import { BsBuilding } from "react-icons/bs";
+import { GoLocation } from "react-icons/go";
 import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
 const { Sider } = Layout;
 const logo = process.env.PUBLIC_URL + "/logo.svg";
@@ -104,7 +104,12 @@ const DashboardSidebar = ({ isCollapsed }) => {
                   Floor plan
                 </Link>
               </Menu.Item>
-              <Menu.Item key="4" icon={<IoWifi />}>
+              <Menu.Item key="4" icon={<GoLocation />}>
+                <Link to={{ pathname: "location-type" }} replace>
+                  Location type on map
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="5" icon={<IoWifi />}>
                 <Link to={{ pathname: "locator-tags" }} replace>
                   Locator tag
                 </Link>

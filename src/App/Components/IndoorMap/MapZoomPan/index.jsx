@@ -81,7 +81,7 @@ const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
 
   return (
     <div className={disabledPreview ? "without-preview" : "preview-wrapper"}>
-      {disabledPreview ? (
+      {disabledPreview && (
         <Button
           className="without-preview-btn"
           onClick={() => setModalVisible(true)}
@@ -89,7 +89,8 @@ const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
         >
           Pick location
         </Button>
-      ) : (
+      )}
+      {!disabledPreview && src && (
         <Button
           className="full-screen-btn"
           onClick={() => setModalVisible(true)}
@@ -155,11 +156,6 @@ const ModalTitle = ({ onRotateLeft, onRotateRight, onDrawModeChange }) => {
           }}
         />
       </Row>
-      <Button
-        icon={<RotateLeftOutlined />}
-        shape="circle"
-        onClick={onRotateLeft}
-      ></Button>
       <Divider
         type="vertical"
         style={{ borderColor: "#9AA0A6", borderWidth: "2px", height: "36px" }}
@@ -512,7 +508,7 @@ const SelectedMarker = ({ location, onPathClick, rotate }) => {
 };
 
 const PlaceMarker = ({ src, location, selected, onPathClick }) => {
-  const { x, y } = location;
+  const { x, y, store } = location;
   return (
     <g
       transform={`translate(${x - 17}, ${y - 17})`}
@@ -530,6 +526,7 @@ const PlaceMarker = ({ src, location, selected, onPathClick }) => {
         href={src}
         height="25"
       />
+      {store && <text transform="translate(0, 39)">{store.name}</text>}
     </g>
   );
 };

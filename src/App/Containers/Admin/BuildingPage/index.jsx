@@ -766,8 +766,8 @@ const BuildingPage = () => {
               className="modal-building"
               width={800}
               title="Thêm mới tòa nhà"
-              // visible={visibleCreate}
-              visible={true}
+              visible={visibleCreate}
+              // visible={true}
               onCancel={hideModalCreate}
               footer={[<FooterCreate />]}
             >
