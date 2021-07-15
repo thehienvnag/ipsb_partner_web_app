@@ -17,3 +17,16 @@ export const getLocatorTags = async ({
   const response = await axiosClient.get(locatorTags, { params });
   return response.data;
 };
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] values post
+ */
+export const postLocatorTag = async (data) => {
+  try {
+    const dataPost = await axiosClient.post(locatorTags, data);
+    return dataPost;
+  } catch (error) {
+    console.log(error?.message);
+  }
+};

@@ -10,6 +10,7 @@ import {
   Select,
   Typography,
 } from "antd";
+import { Link } from "react-router-dom";
 import {
   selectIsLoading,
   selectListLocatorTag,
@@ -131,6 +132,21 @@ const LocatorTagTable = ({
                 <Input
                   value={model?.macAddress}
                   placeholder="Nhập địa chỉ MAC của thẻ định vị"
+                  onChange={() => {
+                    // setInput(!input);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={21}>
+              <Form.Item
+                label="Vị trí ID của thẻ định vị: "
+                required
+                tooltip="Đây là vị trí của thẻ định vị trong tòa nhà"
+              >
+                <Input
+                  value={model?.location.id}
+                  placeholder="Nhập vị trí ID của thẻ định vị"
                   onChange={() => {
                     // setInput(!input);
                   }}
