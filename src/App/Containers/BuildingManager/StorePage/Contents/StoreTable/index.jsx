@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllStore } from "App/Services/store.service";
 import { Table, Image, Tag, Typography, Avatar } from "antd";
 
-const StoreTable = () => {
+const StoreTable = ({ onRowClick }) => {
   const [data, setData] = useState({ list: null, isLoading: false });
   useEffect(() => {
     const fetchApi = async () => {
@@ -15,7 +15,13 @@ const StoreTable = () => {
 
   return (
     <>
-      <Table dataSource={data.list} loading={data.isLoading}>
+      <Table
+        dataSource={data.list}
+        loading={data.isLoading}
+        onRow={(record) => ({
+          onClick: (evt) => onRowClick(record),
+        })}
+      >
         <Table.Column
           title="#No"
           key="id"

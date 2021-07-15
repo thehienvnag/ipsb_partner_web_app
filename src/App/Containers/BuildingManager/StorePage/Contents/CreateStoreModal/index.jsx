@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Row, Col, Upload, Form, Input, Select, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { getBase64 } from "App/Utils/utils";
@@ -9,12 +9,23 @@ import { GrLocation } from "react-icons/gr";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const CreateStoreModal = ({ visible, handleCancel }) => {
+const CreateStoreModal = ({ visible, handleCancel, store }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("Preview upload image");
   const [previewImage, setPreviewImage] = useState("");
+  useEffect(() => {
+    if (store) {
+      form.setFieldsValue(store);
+      setPreviewImage(store.imageUrl);
+      setFileList([{ thumbUrl: store.imageUrl }]);
+    } else {
+      setFileList([]);
+      setPreviewImage(null);
+      form.resetFields();
+    }
+  }, [store]);
   const handleChangeSelect = (value) => {
     console.log(`selected ${value}`);
   };
@@ -26,14 +37,15 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
 
   const handleCancelPreview = () => setPreviewVisible(false);
   const handlePreview = (file) => {
-    getBase64(file.originFileObj, (fileSrc) => {
-      setPreviewImage(fileSrc);
-    });
-
-    setPreviewVisible(true);
-    setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-    );
+    if (file.originFileObj) {
+      getBase64(file.originFileObj, (fileSrc) => {
+        setPreviewImage(fileSrc);
+      });
+      setPreviewVisible(true);
+      setPreviewTitle(
+        file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+      );
+    }
   };
   const handleChange = ({ fileList }) => {
     setFileList(fileList);
@@ -53,6 +65,7 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
             <Upload
               className="upload-wrapper"
               listType="picture-card"
+              fileList={fileList}
               onPreview={handlePreview}
               onChange={handleChange}
               beforeUpload={() => false}
@@ -83,7 +96,7 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
               onFinish={onFinish}
             >
               <Form.Item
-                name="storeName"
+                name="name"
                 label="Store name"
                 rules={[{ required: true }]}
               >
@@ -111,7 +124,6 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
               >
                 <Input placeholder="Input phone number" />
               </Form.Item>
-
               <FormItem
                 label="Product Category"
                 rules={[{ required: true }]}
@@ -131,6 +143,7 @@ const CreateStoreModal = ({ visible, handleCancel }) => {
                 </Select>
               </FormItem>
               <FormItem
+                name="description"
                 label="Description"
                 rules={[{ required: true }]}
                 required
