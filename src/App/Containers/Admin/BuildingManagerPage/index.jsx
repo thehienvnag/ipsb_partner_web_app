@@ -30,16 +30,24 @@ import {
   Modal,
   Space,
 } from "antd";
-import { postAccount, putAccount } from "App/Services/account.service";
+import {
+  postAccount,
+  putAccount,
+  deleteAccounts,
+} from "App/Services/account.service";
 
 const BuildingManagerPage = () => {
+  const [idsDelete, setIdsDelete] = useState([]);
+
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   //#endregion
   //#region handle event functions
   const { Option } = Select;
-  const handleRows = (values) => setSelectedItems(values);
+  const handleRows = (values) => {
+    setSelectedItems(values);
+  };
   const handlePaging = (number) => {
     dispatch(loadAccounts({ pageIndex: number }));
     setCurrentPage(number);
@@ -48,7 +56,10 @@ const BuildingManagerPage = () => {
     dispatch(loadAccounts({ pageIndex: currentPage }));
   };
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    //deleteAccounts(selectedItems);
+    console.log(selectedItems);
+  };
   const handleCreate = () => {
     showModalCreate();
   };
@@ -89,7 +100,7 @@ const BuildingManagerPage = () => {
   };
 
   const showModalDetail = (value) => {
-    setImageUrl(value);
+    setFile(null);
     setVisibleDetail(true);
   };
 
@@ -137,7 +148,6 @@ const BuildingManagerPage = () => {
         ...values,
         ...{ imageUrl: file },
         ...{ id: managerId },
-        // ...{ status: values.status },
         ...{ role: "Building Manager" },
       });
       if (data?.id !== null) {
@@ -226,7 +236,9 @@ const BuildingManagerPage = () => {
                 selectedRowKeys: selectedItems,
                 onChange: handleRows,
               }}
-              dataSource={listAccount}
+              dataSource={listAccount?.map((item) => {
+                return { ...item, ...{ key: item.id } };
+              })}
               pagination={{
                 size: "small",
                 current: currentPage,
@@ -387,7 +399,7 @@ const BuildingManagerPage = () => {
                       <Form.Item name="status" label="Choose status:">
                         <Select style={{ width: 150 }}>
                           <Option value="Active">Active</Option>
-                          <Option value="InActive">Inactive</Option>
+                          <Option value="Inactive">Inactive</Option>
                         </Select>
                       </Form.Item>
                     </Row>

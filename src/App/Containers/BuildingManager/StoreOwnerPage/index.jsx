@@ -46,7 +46,6 @@ const StoreOwnerPage = () => {
     setCurrentPage(number);
   };
   const handleRefresh = () => {
-    //   dispatch(loadAccounts({ pageIndex: currentPage }));
     dispatch(loadAccounts({ role: "Store Owner", pageIndex: currentPage }));
   };
 
@@ -388,7 +387,7 @@ const StoreOwnerPage = () => {
                       <Form.Item name="status" label="Choose status:">
                         <Select style={{ width: 150 }}>
                           <Option value="Active">Active</Option>
-                          <Option value="InActive">Inactive</Option>
+                          <Option value="Inactive">Inactive</Option>
                         </Select>
                       </Form.Item>
                     </Row>

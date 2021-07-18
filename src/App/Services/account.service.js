@@ -35,7 +35,6 @@ export const postAccount = async (data) => {
  * @param {object} [data] values post
  */
 export const putAccount = async (data) => {
-  console.log("ê ", data);
   const { id } = data;
   try {
     const dataPost = await putFormData(accounts + "/" + id, data);
@@ -54,6 +53,18 @@ export const testPoseWithoutFile = async (data) => {
   try {
     const response = await axiosClient.post(accounts, data);
     return response.data;
+  } catch (error) {
+    console.log(error?.message);
+  }
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] values post
+ */
+export const deleteAccounts = async (ids = []) => {
+  try {
+    await axiosClient.delete(accounts, { params: { ids } });
   } catch (error) {
     console.log(error?.message);
   }
