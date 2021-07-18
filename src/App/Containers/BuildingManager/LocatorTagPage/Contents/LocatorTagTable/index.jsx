@@ -10,7 +10,6 @@ import {
   Select,
   Typography,
 } from "antd";
-import { Link } from "react-router-dom";
 import {
   selectIsLoading,
   selectListLocatorTag,
@@ -31,7 +30,6 @@ const LocatorTagTable = ({
   const pageSize = useSelector(selectPageSize);
   const totalCount = useSelector(selectTotalCount);
 
-  const { TextArea } = Input;
   const { Option } = Select;
   const [visible, setVisible] = useState(false);
   const [model, setModel] = useState(null);

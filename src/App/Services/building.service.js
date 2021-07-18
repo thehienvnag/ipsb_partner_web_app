@@ -31,8 +31,10 @@ export const postBuilding = async (data) => {
  * @param {object} [data] values post
  */
 export const putBuilding = async (data) => {
+  const { id } = data;
+  console.log("hú", data);
   try {
-    const dataPost = await putFormData(buildings, data);
+    const dataPost = await putFormData(buildings + "/" + id, data);
     return dataPost;
   } catch (error) {
     console.log(error?.message);

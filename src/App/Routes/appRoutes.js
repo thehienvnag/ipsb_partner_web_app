@@ -7,6 +7,8 @@ import AdHomePage from "../Containers/Admin/HomePage/index";
 import BmHomePage from "../Containers/BuildingManager/HomePage/index";
 import StorePage from "../Containers/BuildingManager/StorePage/index";
 import LocationTypePage from "../Containers/BuildingManager/LocationTypePage/index";
+import BuildingManagerPage from "App/Containers/Admin/BuildingManagerPage";
+import StoreOwnerPage from "App/Containers/BuildingManager/StoreOwnerPage";
 const appRoutes = [
   {
     path: "building-manager",
@@ -33,6 +35,7 @@ const appRoutes = [
         path: "/location-type",
         element: <LocationTypePage />,
       },
+      { path: "/manager-accounts", element: <StoreOwnerPage /> },
     ],
   },
   {
@@ -42,6 +45,7 @@ const appRoutes = [
       { path: "/test", element: <AdHomePage /> },
       { path: "/test2", element: <AdHomePage /> },
       { path: "/buildings", element: <BuildingPage /> },
+      { path: "/manager-accounts", element: <BuildingManagerPage /> },
     ],
   },
 ];
