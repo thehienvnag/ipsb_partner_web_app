@@ -106,7 +106,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
               </Menu.Item>
               <Menu.Item key="4" icon={<GoLocation />}>
                 <Link to={{ pathname: "location-type" }} replace>
-                  Location type on map
+                  Locations
                 </Link>
               </Menu.Item>
               <Menu.Item key="5" icon={<IoWifi />}>

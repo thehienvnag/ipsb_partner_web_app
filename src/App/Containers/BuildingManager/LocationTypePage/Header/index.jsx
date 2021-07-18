@@ -74,9 +74,9 @@ const routes = [
  */
 const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
   <PageHeader
-    title="LOCATION TYPE"
+    title="LOCATIONS"
     className="site-page-header"
-    subTitle="Manages the services within the floor of the building"
+    subTitle="Manages the locations within the floor of the building"
     tags={<Tag color="blue">Running</Tag>}
     extra={[
       <Button
