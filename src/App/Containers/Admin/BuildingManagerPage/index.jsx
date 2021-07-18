@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, Menu, Table, Tag, Typography } from "antd";
+import { Card, Menu, Table, Tag, Typography, Avatar } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import { getBase64 } from "App/Utils/utils";
-import { loadAccounts, selectListAccount } from "App/Stores/account.slice";
-import "./index.scss";
-import Header from "./Header";
 import {
-  loadBuildings,
+  loadAccounts,
+  selectListAccount,
   selectIsLoading,
-  selectListBuilding,
   selectPageSize,
   selectTotalCount,
-} from "App/Stores/building.slice";
+} from "App/Stores/account.slice";
+import "./index.scss";
+import Header from "./Header";
 import {
   GlobalOutlined,
   SettingOutlined,
@@ -31,22 +30,22 @@ import {
   Modal,
   Space,
 } from "antd";
-import { postBuilding, putBuilding } from "App/Services/building.service";
+import { postAccount, putAccount } from "App/Services/account.service";
 
-const BuildingPage = () => {
+const BuildingManagerPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   //#endregion
   //#region handle event functions
-
+  const { Option } = Select;
   const handleRows = (values) => setSelectedItems(values);
   const handlePaging = (number) => {
-    dispatch(loadBuildings({ pageIndex: number }));
+    dispatch(loadAccounts({ pageIndex: number }));
     setCurrentPage(number);
   };
   const handleRefresh = () => {
-    dispatch(loadBuildings({ pageIndex: currentPage }));
+    dispatch(loadAccounts({ pageIndex: currentPage }));
   };
 
   const handleDelete = () => {};
@@ -54,29 +53,24 @@ const BuildingPage = () => {
     showModalCreate();
   };
   //#endregion
-  //#region Store dispatch & selector of [listBuilding, isLoading]
   //#region Store dispatch & selector of [listAccount, isLoading]
   const dispatch = useDispatch();
   const listAccount = useSelector(selectListAccount);
-  const listBuilding = useSelector(selectListBuilding);
   const isLoading = useSelector(selectIsLoading);
-  const pageSize = useSelector(selectPageSize);
   const totalCount = useSelector(selectTotalCount);
+  const pageSize = useSelector(selectPageSize);
   //#endregion
 
   useEffect(() => {
-    dispatch(loadBuildings());
-    dispatch(loadAccounts({ isAll: true }));
+    dispatch(loadAccounts());
   }, [dispatch]);
 
   const [visibleDetail, setVisibleDetail] = useState(false);
   const [visibleCreate, setVisibleCreate] = useState(false);
-  const { TextArea } = Input;
-  const { Option } = Select;
-  const [form] = Form.useForm();
-  const [form1] = Form.useForm();
+  const [formDetail] = Form.useForm();
+  const [formCreate] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
-  const [buildingId, setBuildingId] = useState(null);
+  const [managerId, setManager] = useState(null);
   const [file, setFile] = useState(null);
 
   const showModalCreate = () => {
@@ -85,71 +79,75 @@ const BuildingPage = () => {
 
   const hideModalCreate = () => {
     setVisibleCreate(false);
-    form.resetFields();
+    formCreate.resetFields();
     setImageUrl(null);
   };
   const hideModalDetail = () => {
     setVisibleDetail(false);
-    form.resetFields();
+    formDetail.resetFields();
     setImageUrl(null);
   };
 
   const showModalDetail = (value) => {
+    setImageUrl(value);
     setVisibleDetail(true);
   };
 
-  const saveBuilding = async () => {
-    form1.validateFields();
-    const values = form1.getFieldsValue();
-    if (values.imageUrl == null) {
-      message.error("Add image for building", 4);
-    } else if (values != null && values.imageUrl != null) {
-      const data = await postBuilding({
-        ...values,
-        ...{ imageUrl: file },
-      });
-      if (data?.id != null) {
-        message
-          .loading("Action in progress...", 3)
-          .then(() => message.success("Create building successfull", 3))
-          .then(
-            () => dispatch(loadBuildings({ pageIndex: currentPage })),
-            hideModalCreate(),
-            setImageUrl(null)
-          );
-      }
-    }
-  };
-
-  const updateBuilding = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    console.log(values);
-    if (values.imageUrl == null) {
-      message.error("Add image for building manager", 4);
-    } else if (values !== null && values.imageUrl != null) {
-      const data = await putBuilding({
-        ...values,
-        ...{ imageUrl: file },
-        ...{ id: buildingId },
-        ...{ adminId: 2 },
-        ...{ status: "Active" },
-      });
-      if (data?.id !== null) {
-        message
-          .loading("Action in progress...", 3)
-          .then(() => message.success("Update success", 3))
-          .then(() => hideModalDetail())
-          .then(() => dispatch(loadBuildings({ pageIndex: currentPage })));
-      }
-    }
-  };
   const handleChange = (info) => {
     getBase64(
       info.fileList[0]?.originFileObj,
       (imageUrl) => setImageUrl(imageUrl),
       setFile(info.fileList[0]?.originFileObj)
     );
+  };
+
+  const saveAccount = async () => {
+    formCreate.validateFields();
+    const values = formCreate.getFieldsValue();
+    if (values.imageUrl == null) {
+      message.error("Add image for building manager", 4);
+    } else if (values !== null && values.imageUrl != null) {
+      const data = await postAccount({
+        ...values,
+        ...{ imageUrl: file },
+        ...{ name: values.name },
+        ...{ phone: values.phone },
+        ...{ role: "Building Manager" },
+        ...{ email: values.email },
+      });
+      console.log(data);
+      if (data?.id !== null) {
+        message
+          .loading("Action in progress...", 3)
+          .then(() => message.success("Create success", 3))
+          .then(() => hideModalCreate())
+          .then(() => dispatch(loadAccounts()));
+      }
+    }
+  };
+
+  const updateAccount = async () => {
+    formDetail.validateFields();
+    const values = formDetail.getFieldsValue();
+    console.log(values);
+    if (values.imageUrl == null) {
+      message.error("Add image for manager", 4);
+    } else if (values !== null && values.imageUrl != null) {
+      const data = await putAccount({
+        ...values,
+        ...{ imageUrl: file },
+        ...{ id: managerId },
+        // ...{ status: values.status },
+        ...{ role: "Building Manager" },
+      });
+      if (data?.id !== null) {
+        message
+          .loading("Action in progress...", 3)
+          .then(() => message.success("Update success", 3))
+          .then(() => hideModalDetail())
+          .then(() => dispatch(loadAccounts({ pageIndex: currentPage })));
+      }
+    }
   };
 
   function FooterCreate() {
@@ -161,16 +159,16 @@ const BuildingPage = () => {
               type="ghost"
               onClick={() => {
                 hideModalCreate();
-                form.resetFields();
+                formCreate.resetFields();
               }}
             >
-              Hủy
+              Cancel
             </Button>
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" onClick={saveBuilding}>
-              Đăng ký
+            <Button type="primary" onClick={saveAccount}>
+              Save
             </Button>
           </Form.Item>
         </Space>
@@ -187,7 +185,7 @@ const BuildingPage = () => {
               type="ghost"
               onClick={() => {
                 hideModalDetail();
-                form.resetFields();
+                formDetail.resetFields();
               }}
             >
               Cancel
@@ -195,7 +193,7 @@ const BuildingPage = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" onClick={updateBuilding}>
+            <Button type="primary" htmlType="submit" onClick={updateAccount}>
               Save
             </Button>
           </Form.Item>
@@ -228,7 +226,7 @@ const BuildingPage = () => {
                 selectedRowKeys: selectedItems,
                 onChange: handleRows,
               }}
-              dataSource={listBuilding}
+              dataSource={listAccount}
               pagination={{
                 size: "small",
                 current: currentPage,
@@ -240,8 +238,8 @@ const BuildingPage = () => {
                 onClick: (event) => {
                   showModalDetail(record);
                   setImageUrl(record.imageUrl);
-                  setBuildingId(record.id);
-                  form.setFieldsValue(record);
+                  setManager(record.id);
+                  formDetail.setFieldsValue(record);
                 },
               })}
             >
@@ -249,37 +247,29 @@ const BuildingPage = () => {
                 title="Image"
                 dataIndex="imageUrl"
                 key="imageUrl"
-                render={(item) => <Image width={140} src={item} />}
+                render={(item) => <Avatar src={item} />}
               />
               <Table.Column
-                title="Building Name"
+                title="Name"
                 dataIndex="name"
                 key="name"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
 
               <Table.Column
-                title="Address"
-                dataIndex="address"
-                key="address"
+                title="Email"
+                dataIndex="email"
+                key="email"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
               <Table.Column
-                title="Manager Name"
-                dataIndex="manager"
-                key="manager"
-                render={(item) => (
-                  <Typography.Text>{item.name}</Typography.Text>
-                )}
-              />
-
-              <Table.Column
-                title="Num.Floor"
-                dataIndex="numberOfFloor"
-                key="numberOfFloor"
+                title="Phone"
+                dataIndex="phone"
+                key="phone"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
+
               <Table.Column
                 title="Status"
                 dataIndex="status"
@@ -300,226 +290,205 @@ const BuildingPage = () => {
               />
             </Table>
             <Modal
-              className="modal-building"
-              width={800}
-              title="Detail of building"
+              className="modal-building-manager"
+              width={700}
+              title="Buidling Manager detail"
               visible={visibleDetail}
               onCancel={hideModalDetail}
               footer={[<FooterDetail />]}
             >
               <Form
-                form={form}
-                layout="vertical"
+                form={formDetail}
                 name="register"
+                layout="vertical"
                 scrollToFirstError
               >
                 <Row justify="space-between">
-                  <Col span={13}>
+                  <Col span={11}>
                     <div className="ant-image-custom">
                       <Image
                         style={{
-                          width: "350px",
+                          width: "270px",
                         }}
                         src={imageUrl}
                         preview={true}
                       />
                     </div>
-                    <Space />
-                    <Form.Item name="imageUrl" label="Add image:" required>
-                      <Upload
-                        name="avatar"
-                        listType="picture-card"
-                        className="avatar-uploader"
-                        showUploadList={false}
-                        maxCount={1}
-                        beforeUpload={() => false}
-                        onChange={handleChange}
-                      >
-                        <Button icon={<UploadOutlined />}>Upload</Button>
-                      </Upload>
-                    </Form.Item>
                   </Col>
-
-                  <Col span={10}>
+                  ,
+                  <Col span={12}>
                     <Form.Item
                       name="name"
-                      label="Building name: "
-                      required
+                      label="Name:"
                       rules={[
                         {
                           required: true,
-                          message: "Input building name",
-                          whitespace: true,
+                          message: "Input name of manager",
+                          whitespace: false,
                         },
                       ]}
                     >
-                      <Input placeholder="Input building name" />
+                      <Input placeholder="Input name of manager" />
                     </Form.Item>
 
                     <Form.Item
-                      name="address"
-                      label="Address:"
-                      required
+                      name="email"
+                      label="Email:"
                       rules={[
                         {
-                          required: true,
-                          message: "Input address of building",
-                          whitespace: true,
+                          type: "email",
+                          message: "E-mail invalid !",
                         },
-                      ]}
-                    >
-                      <TextArea
-                        rows={3}
-                        placeholder="Input address of building"
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      name="numberOfFloor"
-                      label="Number of floor:"
-                      required
-                      rules={[
                         {
                           required: true,
-                          message: "Input number of floor",
+                          message: "Input email",
                         },
                       ]}
                     >
                       <Input
-                        placeholder="Input number of floor"
-                        type="number"
-                        maxLength={3}
+                        placeholder="Input email for contact"
+                        type="email"
+                        disabled={true}
                       />
                     </Form.Item>
 
                     <Form.Item
-                      name="managerId"
-                      label="Manager:"
+                      name="phone"
+                      label="Phone: "
+                      required
                       rules={[
                         {
                           required: true,
-                          message: "Please choose manager!",
+                          message: "Input phone number",
                         },
                       ]}
                     >
-                      <Select placeholder="Choose manager">
-                        {listAccount &&
-                          listAccount.map((item) => (
-                            <Option value={item.id}>{item.name}</Option>
-                          ))}
-                      </Select>
+                      <Input
+                        placeholder="Input phone number"
+                        type="number"
+                        maxLength={10}
+                      />
                     </Form.Item>
+                    <Row justify="space-between">
+                      <Form.Item name="imageUrl" label="Add Image:">
+                        <Upload
+                          name="avatar"
+                          listType="picture-card"
+                          className="avatar-uploader"
+                          showUploadList={false}
+                          maxCount={1}
+                          required
+                          beforeUpload={() => false}
+                          onChange={handleChange}
+                        >
+                          <Button icon={<UploadOutlined />}>Upload</Button>
+                        </Upload>
+                      </Form.Item>
+                      <Form.Item name="status" label="Choose status:">
+                        <Select style={{ width: 150 }}>
+                          <Option value="Active">Active</Option>
+                          <Option value="InActive">Inactive</Option>
+                        </Select>
+                      </Form.Item>
+                    </Row>
                   </Col>
                 </Row>
               </Form>
             </Modal>
+
             <Modal
               className="modal-building"
-              width={800}
-              title="Create building"
+              width={700}
+              title="Create buidling manager"
               visible={visibleCreate}
               onCancel={hideModalCreate}
               footer={[<FooterCreate />]}
             >
               <Form
-                form={form1}
-                layout="vertical"
+                form={formCreate}
                 name="register"
+                layout="vertical"
                 scrollToFirstError
               >
                 <Row justify="space-between">
-                  <Col span={13}>
+                  <Col span={11}>
                     <div className="ant-image-custom">
                       <Image
                         style={{
-                          width: "380px",
+                          width: "270px",
                         }}
                         src={imageUrl}
                         preview={true}
                       />
                     </div>
+                  </Col>
+                  ,
+                  <Col span={12}>
+                    <Form.Item
+                      name="name"
+                      label="Name:"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Input name of manager",
+                          whitespace: false,
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Input name of manager" />
+                    </Form.Item>
 
-                    <Form.Item name="imageUrl" label="Add image:" required>
+                    <Form.Item
+                      name="email"
+                      label="Email:"
+                      rules={[
+                        {
+                          type: "email",
+                          message: "E-mail invalid !",
+                        },
+                        {
+                          required: true,
+                          message: "Input email",
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Input email for contact"
+                        type="email"
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="phone"
+                      label="Phone: "
+                      required
+                      rules={[
+                        {
+                          required: true,
+                          message: "Input phone number",
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Input phone number"
+                        type="number"
+                        maxLength={10}
+                      />
+                    </Form.Item>
+
+                    <Form.Item name="imageUrl" label="Add Image:">
                       <Upload
                         name="avatar"
                         listType="picture-card"
                         className="avatar-uploader"
                         showUploadList={false}
                         maxCount={1}
+                        required
                         beforeUpload={() => false}
                         onChange={handleChange}
                       >
                         <Button icon={<UploadOutlined />}>Upload</Button>
                       </Upload>
-                    </Form.Item>
-                  </Col>
-                  ,
-                  <Col span={10}>
-                    <Form.Item
-                      name="name"
-                      label="Name of building: "
-                      rules={[
-                        {
-                          required: true,
-                          message: "Input name of building",
-                          whitespace: true,
-                        },
-                      ]}
-                    >
-                      <Input placeholder="Input name of building" />
-                    </Form.Item>
-
-                    <Form.Item
-                      name="address"
-                      label="Address:"
-                      required
-                      rules={[
-                        {
-                          required: true,
-                          message: "Input address of building",
-                          whitespace: true,
-                        },
-                      ]}
-                    >
-                      <TextArea
-                        rows={3}
-                        placeholder="Input address of building"
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      name="numberOfFloor"
-                      label="Number of floor:"
-                      required
-                      rules={[
-                        {
-                          required: true,
-                          message: "Input number floor of building",
-                        },
-                      ]}
-                    >
-                      <Input
-                        placeholder="Input number floor of building"
-                        type="number"
-                        maxLength={3}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      name="managerId"
-                      label="Building manager:"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Select manager",
-                        },
-                      ]}
-                    >
-                      <Select placeholder="Select manager">
-                        {listAccount &&
-                          listAccount.map((item) => (
-                            <Option value={item.id}>{item.name}</Option>
-                          ))}
-                      </Select>
                     </Form.Item>
                   </Col>
                 </Row>
@@ -532,4 +501,4 @@ const BuildingPage = () => {
   );
 };
 
-export default BuildingPage;
+export default BuildingManagerPage;

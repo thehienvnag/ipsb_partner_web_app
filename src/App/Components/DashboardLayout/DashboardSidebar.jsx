@@ -3,7 +3,7 @@ import "./DashboardSidebar.scss";
 import { Menu, Col, Layout } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { GrMap } from "react-icons/gr";
-import { BsBuilding } from "react-icons/bs";
+import { BsBuilding, BsFillPersonLinesFill } from "react-icons/bs";
 import { GoLocation } from "react-icons/go";
 import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
 const { Sider } = Layout;
@@ -90,6 +90,11 @@ const DashboardSidebar = ({ isCollapsed }) => {
                   Buildings
                 </Link>
               </Menu.Item>
+              <Menu.Item key="3" icon={<BsFillPersonLinesFill />}>
+                <Link to={{ pathname: "manager-accounts" }} replace>
+                  Building Manager
+                </Link>
+              </Menu.Item>
             </>
           )}
           {pathname.includes("building-manager") && (
@@ -112,6 +117,11 @@ const DashboardSidebar = ({ isCollapsed }) => {
               <Menu.Item key="5" icon={<IoWifi />}>
                 <Link to={{ pathname: "locator-tags" }} replace>
                   Locator tag
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="6" icon={<BsFillPersonLinesFill />}>
+                <Link to={{ pathname: "manager-accounts" }} replace>
+                  Store Owner
                 </Link>
               </Menu.Item>
             </>
