@@ -1,12 +1,39 @@
-import React, { useState } from "react";
-//import { getAllLoctionType } from "App/Services/locationType.service";
+import React, { useState, useEffect } from "react";
+import { getAllLoctionType } from "App/Services/location.service";
 import { Table, Image, Tag, Avatar, Button, Typography } from "antd";
 
 const LocationTypeTable = () => {
-  const [listLocationType, setListLocationType] = useState(listTest);
+  const [listLocationType, setListLocationType] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(0);
+  useEffect(() => {
+    fetchApi();
+  }, [currentPage]);
+  const fetchApi = async () => {
+    const data = await getAllLoctionType({
+      buildingId: 12,
+      pageIndex: currentPage,
+    });
+    setTotalCount(data.totalCount);
+    setPageSize(data.pageSize);
+    setListLocationType(data.content);
+    console.log(data.content);
+  };
+
   return (
     <>
-      <Table dataSource={listLocationType}>
+      <Table
+        dataSource={listLocationType}
+        pagination={{
+          size: "small",
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalCount,
+          onChange: (value) => setCurrentPage(value),
+          showSizeChanger: false,
+        }}
+      >
         <Table.Column
           title="#No"
           key="id"
@@ -45,54 +72,5 @@ const LocationTypeTable = () => {
     </>
   );
 };
-
-const listTest = [
-  {
-    id: 13,
-    status: "Active",
-    locationType: {
-      name: "Baby room",
-      description: "Đây là khu vực cho trẻ",
-      imageUrl: "https://image.flaticon.com/icons/png/512/2611/2611300.png",
-    },
-  },
-  {
-    id: 14,
-    status: "Active",
-    locationType: {
-      name: "Restroom",
-      description: "Đây là khu vực nhà vệ sinh",
-      imageUrl: "https://image.flaticon.com/icons/png/512/1647/1647794.png",
-    },
-  },
-  {
-    id: 15,
-    status: "Active",
-    locationType: {
-      name: "Information desk",
-      description: "Đây là khu vực thông tin",
-      imageUrl: "https://image.flaticon.com/icons/png/512/1533/1533202.png",
-    },
-  },
-  {
-    id: 16,
-    status: "Active",
-    locationType: {
-      name: "Goods lift",
-      description: "Đây là khu vực nhà vệ sinh",
-      imageUrl: "https://image.flaticon.com/icons/png/512/891/891462.png",
-    },
-  },
-
-  {
-    id: 16,
-    status: "Active",
-    locationType: {
-      name: "Locker",
-      description: "Đây là khu vực nhà vệ sinh",
-      imageUrl: "https://image.flaticon.com/icons/png/512/869/869012.png",
-    },
-  },
-];
 
 export default LocationTypeTable;
