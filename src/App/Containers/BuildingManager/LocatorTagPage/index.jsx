@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Card, Menu } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import { GlobalOutlined } from "@ant-design/icons";
@@ -7,12 +7,14 @@ import { loadLocatorTags } from "App/Stores/locatorTag.slice";
 import "./index.scss";
 import Header from "./Header";
 import LocatorTagTable from "./Contents/LocatorTagTable/index";
+import { selectCurrentFloorPlan } from "App/Stores/floorPlan.slice";
 
 const LocatorTagPage = () => {
   //#region state includes: [selectedItems: array]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMenu, setSelectedMenu] = useState("overview");
+  const currentFloorPlan = useSelector(selectCurrentFloorPlan);
   //#endregion
   //#region handle event functions
   const handleRefresh = () => {
@@ -26,7 +28,7 @@ const LocatorTagPage = () => {
   // Init function
   useEffect(() => {
     dispatch(loadLocatorTags({ pageIndex: currentPage }));
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, currentFloorPlan]);
   //#endregion
   return (
     <PageWrapper>

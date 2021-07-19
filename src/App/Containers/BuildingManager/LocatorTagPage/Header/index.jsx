@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   PageHeader,
   Menu,
@@ -24,22 +24,38 @@ import {
 } from "@ant-design/icons";
 import "./index.scss";
 import { postLocatorTag } from "App/Services/locatorTag.service";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectListFloor,
+  loadAll,
+  setCurrentFloor,
+} from "App/Stores/floorPlan.slice";
 
 const { Option } = Select;
 
-const floorPlanMenu = (
-  <Menu>
-    <Menu.Item key="1" icon={<UnorderedListOutlined />}>
-      Tầng 1
-    </Menu.Item>
-    <Menu.Item key="2" icon={<UnorderedListOutlined />}>
-      Tầng 2
-    </Menu.Item>
-    <Menu.Item key="3" icon={<UnorderedListOutlined />}>
-      Tầng 3
-    </Menu.Item>
-  </Menu>
-);
+const FloorPlanMenu = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(loadAll());
+  }, [dispatch]);
+  const listFloorPlan = useSelector(selectListFloor);
+
+  return (
+    <Menu>
+      {listFloorPlan?.map((item) => (
+        <Menu.Item
+          onClick={(value) => {
+            dispatch(setCurrentFloor(item));
+          }}
+          key={item.id}
+          icon={<UnorderedListOutlined />}
+        >
+          Tầng {item.floorCode}
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+};
 
 const menu = (
   <Menu>
@@ -69,17 +85,19 @@ const menu = (
   </Menu>
 );
 
-const FloorPlanDropdownMenu = () => (
-  <Space wrap>
-    <Dropdown.Button
-      overlay={floorPlanMenu}
-      placement="bottomCenter"
-      icon={<UnorderedListOutlined />}
-    >
-      Chọn tầng
-    </Dropdown.Button>
-  </Space>
-);
+const FloorPlanDropdownMenu = () => {
+  return (
+    <Space wrap>
+      <Dropdown.Button
+        overlay={<FloorPlanMenu></FloorPlanMenu>}
+        placement="bottomCenter"
+        icon={<UnorderedListOutlined />}
+      >
+        Chọn tầng
+      </Dropdown.Button>
+    </Space>
+  );
+};
 
 const DropdownMenu = () => (
   <Dropdown key="more" overlay={menu}>

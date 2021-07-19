@@ -35,6 +35,10 @@ const Slice = createSlice({
     removeCurrentFloor: (state, action) => {
       state.one = null;
     },
+    setCurrentFloor: (state, action) => {
+      state.currentFloorPlan = action.payload;
+      console.log("Action: ", action);
+    },
   },
   extraReducers: {
     //#region Load floor plans by buildingId state
@@ -76,6 +80,8 @@ export const selectListFloorCode = (state) =>
     id,
     floorCode,
   }));
+export const selectCurrentFloorPlan = (state) =>
+  state.floorPlan.currentFloorPlan;
 export const selectOne = (state) => state.floorPlan.one;
 export const selectTotalCount = (state) => state.floorPlan.list?.totalCount;
 export const selectPageSize = (state) => state.floorPlan.list?.pageSize;
@@ -83,6 +89,6 @@ export const selectIsLoading = (state) => state.floorPlan.isLoading;
 //#endregion
 
 /// Export reducer
-const { removeCurrentFloor } = Slice.actions;
-export { loadAll, loadById, removeCurrentFloor };
+const { removeCurrentFloor, setCurrentFloor } = Slice.actions;
+export { loadAll, loadById, removeCurrentFloor, setCurrentFloor };
 export default Slice.reducer;
