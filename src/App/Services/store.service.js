@@ -1,4 +1,4 @@
-import axiosClient from "../Utils/axiosClient";
+import axiosClient, { postFormData } from "../Utils/axiosClient";
 import { stores } from "../Constants/endpoints";
 /**
  * Page wrapper for new page
@@ -16,4 +16,17 @@ export const getAllStore = async ({
   console.log(params);
   const response = await axiosClient.get(stores, { params });
   return response.data;
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] values post
+ */
+export const postStore = async (data) => {
+  try {
+    const dataPost = await postFormData(stores, data);
+    return dataPost;
+  } catch (error) {
+    console.log(error?.message);
+  }
 };

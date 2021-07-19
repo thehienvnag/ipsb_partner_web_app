@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Row, Col, Upload, Form, Input, Select, Button } from "antd";
+import {
+  Modal,
+  Row,
+  Col,
+  Upload,
+  Form,
+  Input,
+  Select,
+  Button,
+  message,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import FormItem from "antd/lib/form/FormItem";
 import { getBase64 } from "App/Utils/utils";
 import "./index.scss";
 import { GrLocation } from "react-icons/gr";
 import { getAllProductCategories } from "App/Services/productCategory.service";
+import { postStore } from "App/Services/store.service";
 import {
   loadAll as LoadFloor,
   selectListFloorCode,
@@ -72,6 +83,28 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
     setFileList(fileList);
   };
 
+  const onSubmitForm = async () => {
+    try {
+      const value = await form.validateFields();
+      if (fileList.length) {
+        message.loading({
+          content: "loading...",
+          key: "createStore",
+        });
+        const result = await postStore({
+          ...value,
+          ...{ imageUrl: fileList[0] },
+        });
+        message.success({
+          content: "Create Success",
+          key: "createStore",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <Modal
@@ -80,6 +113,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
         visible={visible}
         // onOk={handleOk}
         onCancel={handleCancel}
+        onOk={onSubmitForm}
       >
         <Row>
           <Col className="col-md-7">
@@ -101,13 +135,21 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
             >
               <img alt="example" style={{ width: "100%" }} src={previewImage} />
             </Modal>
-            <FormItem
-              label="Position of store"
-              rules={[{ required: true }]}
-              required
-            >
-              <Button icon={<GrLocation />}> Location</Button>
-            </FormItem>
+
+            <Form layout="vertical">
+              <FormItem
+                name="description"
+                label="Description"
+                rules={[{ required: true }]}
+                required
+              >
+                <TextArea
+                  style={{ width: "88%" }}
+                  rows={4}
+                  placeholder="Description..."
+                />
+              </FormItem>
+            </Form>
           </Col>
           <Col className="col-md-5">
             <Form
@@ -124,6 +166,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
                 <Input placeholder="Input store name" />
               </Form.Item>
               <Form.Item
+                name="floorPlanId"
                 label="Floor plan"
                 rules={[{ required: true }]}
                 required
@@ -150,6 +193,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
                 <Input placeholder="Input phone number" />
               </Form.Item>
               <FormItem
+                name="productCategories"
                 label="Product Category"
                 rules={[{ required: true }]}
                 required
@@ -171,12 +215,11 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
                 </Select>
               </FormItem>
               <FormItem
-                name="description"
-                label="Description"
+                label="Position of store"
                 rules={[{ required: true }]}
                 required
               >
-                <TextArea rows={4} placeholder="Description..." />
+                <Button icon={<GrLocation />}> Location</Button>
               </FormItem>
             </Form>
           </Col>
