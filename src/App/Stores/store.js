@@ -5,7 +5,8 @@ import buildingReducer from "./building.slice";
 import edgeReducer from "./edge.slice";
 import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
-
+import locationTypeReducer from "./locationType.slice";
+import mapReducer from "./map.slice";
 export const Store = configureStore({
   reducer: {
     floorPlan: floorPlanReducer,
@@ -14,5 +15,7 @@ export const Store = configureStore({
     location: locationReducer,
     account: accountReducer,
     locatorTag: locatorTagReducer,
+    locationType: locationTypeReducer,
+    map: mapReducer,
   },
 });

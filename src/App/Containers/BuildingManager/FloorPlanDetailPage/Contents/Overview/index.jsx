@@ -10,17 +10,19 @@ import {
   Col,
   Button,
   Divider,
+  message,
 } from "antd";
 import { getBase64 } from "App/Utils/utils";
 import { SaveOutlined, UploadOutlined } from "@ant-design/icons";
 import MapZoomPan from "App/Components/IndoorMap/MapZoomPan";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { selectInChargeBuildingId } from "App/Stores/building.slice";
-import { postFloorPlan } from "App/Services/floorPlan.service";
 import { useDispatch } from "react-redux";
 import { removeLocations } from "App/Stores/location.slice";
 import { removeEdges } from "App/Stores/edge.slice";
+import {
+  postFloorPlanForm,
+  putFloorPlanForm,
+} from "App/Stores/floorPlan.slice";
 
 const types = [
   { id: 1, name: "Cửa hàng" },
@@ -36,12 +38,8 @@ const Overview = ({ floor }) => {
   const dispatch = useDispatch();
   const [src, setSrc] = useState(null);
   const [file, setFile] = useState(null);
-  const [locationType, setLocationType] = useState(types);
-  const [typesSelect, setTypesSelect] = useState([
-    locationType.reduce((acc, { id }) => acc + "," + id, ""),
-  ]);
+
   const { id } = useParams();
-  const buildingIdFromStore = useSelector(selectInChargeBuildingId);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -56,16 +54,19 @@ const Overview = ({ floor }) => {
   }, [floor]);
 
   const onSave = async () => {
-    if (id === "create-new") {
-      form.validateFields();
-      const values = form.getFieldsValue();
-      const data = await postFloorPlan({
-        ...values,
-        ...{ imageUrl: file },
-        ...{ buildingId: buildingIdFromStore },
-      });
-      console.log(data);
-    }
+    try {
+      const values = await form.validateFields();
+      if (file) {
+        Object.assign(values, { imageUrl: file });
+      }
+      message.loading("Loading...", "post/putFloor");
+      if (id === "create-new" && file) {
+        await dispatch(postFloorPlanForm(values));
+      } else {
+        await dispatch(putFloorPlanForm(values));
+      }
+      message.success("Success!", "post/putFloor");
+    } catch (error) {}
   };
   const onFormLayoutChange = ({ size }) => {
     setComponentSize(size);
@@ -77,31 +78,6 @@ const Overview = ({ floor }) => {
           <Button icon={<SaveOutlined />} onClick={onSave}>
             Save
           </Button>
-        </Row>
-        <Row>
-          <Divider
-            type="vertical"
-            style={{ height: 35, borderWidth: 2, marginRight: 20 }}
-          />
-          <Select
-            allowClear
-            onChange={(values) => setTypesSelect(values)}
-            defaultValue={[
-              locationType.reduce((acc, { id }) => acc + "," + id, ""),
-            ]}
-            style={{ width: 260 }}
-            placeholder="Elements to show on map"
-            mode="multiple"
-          >
-            <Select.Option
-              value={locationType.reduce((acc, { id }) => acc + "," + id, "")}
-            >
-              All
-            </Select.Option>
-            {locationType.map(({ id, name }) => (
-              <Select.Option value={id}>{name}</Select.Option>
-            ))}
-          </Select>
         </Row>
       </Row>
       <Divider style={{ margin: "10px 0 30px 0" }} />
@@ -123,12 +99,17 @@ const Overview = ({ floor }) => {
             size={componentSize}
           >
             {id !== "create-new" && (
-              <Form.Item
-                // name="status"
-                label="Floor status"
-              >
-                <Switch checked={floor?.status === "Active"} />
-              </Form.Item>
+              <>
+                <Form.Item name="status" label="Floor status">
+                  <Switch checked={floor?.status === "Active"} />
+                </Form.Item>
+                <Form.Item name="buildingId" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="id" hidden>
+                  <Input />
+                </Form.Item>
+              </>
             )}
 
             <Form.Item
@@ -186,7 +167,6 @@ const Overview = ({ floor }) => {
           <MapZoomPan
             src={src ?? floor?.imageUrl}
             floorPlanId={id !== "create-new" && floor?.id}
-            types={typesSelect.join(",")}
           />
         </Col>
       </Row>
