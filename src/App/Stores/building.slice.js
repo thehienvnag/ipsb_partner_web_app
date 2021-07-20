@@ -55,5 +55,6 @@ export const selectIsLoading = (state) => state.building.isLoading;
 //#endregion
 
 /// Export reducer
-export { loadBuildings };
+const { initBuildingIdLoggin } = Slice.actions;
+export { loadBuildings, initBuildingIdLoggin };
 export default Slice.reducer;

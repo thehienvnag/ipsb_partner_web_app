@@ -7,8 +7,11 @@ import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
 import locationTypeReducer from "./locationType.slice";
 import mapReducer from "./map.slice";
+import authReducer from "./auth.slice";
+
 export const Store = configureStore({
   reducer: {
+    auth: authReducer,
     floorPlan: floorPlanReducer,
     building: buildingReducer,
     edge: edgeReducer,

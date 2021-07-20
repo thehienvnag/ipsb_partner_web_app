@@ -9,6 +9,9 @@ import StorePage from "../Containers/BuildingManager/StorePage/index";
 import LocationTypePage from "../Containers/BuildingManager/LocationTypePage/index";
 import BuildingManagerPage from "App/Containers/Admin/BuildingManagerPage";
 import StoreOwnerPage from "App/Containers/BuildingManager/StoreOwnerPage";
+import LoginPage from "App/Containers/Auth/Login";
+import { element } from "prop-types";
+import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
 const appRoutes = [
   {
     path: "building-manager",
@@ -47,6 +50,16 @@ const appRoutes = [
       { path: "/buildings", element: <BuildingPage /> },
       { path: "/manager-accounts", element: <BuildingManagerPage /> },
     ],
+  },
+
+  {
+    path: "login",
+    element: <LoginPage />,
+  },
+
+  {
+    path: "change-password",
+    element: <ChangePasswordPage />,
   },
 ];
 
