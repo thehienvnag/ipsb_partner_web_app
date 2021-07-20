@@ -50,7 +50,7 @@ const LoginPage = () => {
 
   return (
     <Form
-      style={{ margin: "auto" }}
+      style={{ margin: "auto", transform: "translateY(100px)" }}
       name="normal_login"
       className="login-form"
       initialValues={{
@@ -58,6 +58,8 @@ const LoginPage = () => {
       }}
       onFinish={onFinish}
     >
+      <h1 style={{ marginLeft: "90px", paddingBottom: "60px" }}>Login Page</h1>
+      <h1></h1>
       <Form.Item
         name="email"
         rules={[

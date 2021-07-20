@@ -8,8 +8,10 @@ import { auth } from "../Constants/endpoints";
  */
 export const checkLogin = async ({ email, password }) => {
   const data = { email, password };
-  const response = await axiosClient.post(auth + "/login", data);
-  return response.data;
+  try {
+    const response = await axiosClient.post(auth + "/login", data);
+    return response.data;
+  } catch (e) {}
 };
 
 /**

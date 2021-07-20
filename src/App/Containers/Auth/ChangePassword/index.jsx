@@ -44,7 +44,7 @@ const ChangePasswordPage = () => {
 
   return (
     <Form
-      style={{ margin: "auto" }}
+      style={{ margin: "auto", transform: "translateY(200px)" }}
       name="normal_login"
       className="login-form"
       initialValues={{
