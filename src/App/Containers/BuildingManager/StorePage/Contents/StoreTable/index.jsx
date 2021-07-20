@@ -10,7 +10,10 @@ const StoreTable = ({ onRowClick }) => {
   useEffect(() => {
     const fetchApi = async () => {
       setData({ isLoading: true });
-      const data = await getAllStore({ buildingId: 1, pageIndex: currentPage });
+      const data = await getAllStore({
+        buildingId: 12,
+        pageIndex: currentPage,
+      });
       setData({ list: data.content, isLoading: false });
       setTotalCount(data.totalCount);
       setPageSize(data.pageSize);
