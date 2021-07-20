@@ -9,6 +9,7 @@ import CreateStoreModal from "./Contents/CreateStoreModal";
 const StorePage = () => {
   const [visible, setVisible] = useState(false);
   const [store, setStore] = useState(null);
+  const [call, setCall] = useState(0);
   const handleCreate = () => {
     setVisible(true);
     setStore(null);
@@ -20,17 +21,22 @@ const StorePage = () => {
     setStore(store);
     setVisible(true);
   };
+  const handleRefresh = () => {
+    setCall(call + 1);
+  };
+
   return (
     <PageWrapper>
       <Header handleCreate={handleCreate} />
       <PageBody>
         <Card>
-          <StoreTable onRowClick={onRowClick} />
+          <StoreTable onRowClick={onRowClick} call={call} />
         </Card>
         <CreateStoreModal
           visible={visible}
           handleCancel={handleCancel}
           store={store}
+          handleRefresh={handleRefresh}
         />
       </PageBody>
     </PageWrapper>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllStore } from "App/Services/store.service";
 import { Table, Image, Tag, Typography, Avatar } from "antd";
 
-const StoreTable = ({ onRowClick }) => {
+const StoreTable = ({ onRowClick, call }) => {
   const [data, setData] = useState({ list: null, isLoading: false });
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +20,7 @@ const StoreTable = ({ onRowClick }) => {
     };
 
     fetchApi();
-  }, [currentPage]);
+  }, [currentPage, call]);
 
   return (
     <>

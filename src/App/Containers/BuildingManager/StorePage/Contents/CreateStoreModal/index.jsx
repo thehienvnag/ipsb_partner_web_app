@@ -33,7 +33,7 @@ import { productCategories } from "App/Constants/endpoints";
 
 const { TextArea } = Input;
 const { Option } = Select;
-const CreateStoreModal = ({ visible, handleCancel, store }) => {
+const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const listFloor = useSelector(selectListFloorCode);
@@ -121,12 +121,13 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
           ...value,
           ...{ productCategoryIds: categoryList },
           ...{ buildingId: 12 },
-          ...{ imageUrl: [file] },
+          ...{ imageUrl: file },
         });
         message.success({
           content: "Create Success",
           key: "createStore",
         });
+        handleRefresh();
       }
     } catch (error) {
       console.log(error);
