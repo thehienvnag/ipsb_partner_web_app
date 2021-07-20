@@ -37,6 +37,8 @@ export const pointInRect = (edge, { x, y }) => {
   return pointInPolygon([x, y], [p1, p2, p3, p4]);
 };
 
-export const duplicateLocation = ({ x, y }, markers) =>
-  markers.find((e) => Math.hypot(e.x - x, e.y - y) <= 30);
+export const duplicateLocation = (p1, markers, radius = 30) =>
+  markers.find((p2) => distance(p1, p2) <= radius);
+
+export const distance = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
 //#endregion

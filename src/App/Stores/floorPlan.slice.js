@@ -1,12 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAll, getById } from "../Services/floorPlan.service";
+import {
+  getAll,
+  getById,
+  postFloorPlan,
+  postLocationsAndEdges,
+  putFloorPlan,
+} from "../Services/floorPlan.service";
 
 //#region Async thunks floor plans
 const loadAll = createAsyncThunk(
   "floorPlan/loadAll",
   async (params = {}, thunkAPI) => {
     const { building } = thunkAPI.getState();
-
     if (building.inChargeBuilding) {
       Object.assign(params, { buildingId: building.inChargeBuilding.id });
     }
@@ -20,7 +25,35 @@ const loadById = createAsyncThunk(
     return await getById(id);
   }
 );
-
+const postFloorPlanForm = createAsyncThunk(
+  "floorPlan/postForm",
+  async (data, thunkAPI) => {
+    const { map, location, edge, building } = thunkAPI.getState();
+    const buildingId = building.inChargeBuilding?.id;
+    const { id } = await postFloorPlan({ ...data, buildingId });
+    return await postLocationsAndEdges(
+      location.list,
+      edge.list,
+      map.markers,
+      map.edges,
+      id
+    );
+  }
+);
+const putFloorPlanForm = createAsyncThunk(
+  "floorPlan/putForm",
+  async (data, { getState, dispatch }) => {
+    const { map, location, edge } = getState();
+    await putFloorPlan(data);
+    return await postLocationsAndEdges(
+      location.list,
+      edge.list,
+      map.markers,
+      map.edges,
+      data.id
+    );
+  }
+);
 //#endregion
 
 const Slice = createSlice({
@@ -61,6 +94,28 @@ const Slice = createSlice({
       state.isLoading = false;
     },
     //#endregion
+    //#region Post floorplan
+    [postFloorPlanForm.pending]: (state, action) => {
+      state.isLoading = true;
+    },
+    [postFloorPlanForm.fulfilled]: (state, { payload }) => {
+      state.isLoading = false;
+    },
+    [postFloorPlanForm.rejected]: (state, action) => {
+      state.isLoading = false;
+    },
+    //#endregion
+    //#region Put floorplan
+    [putFloorPlanForm.pending]: (state, action) => {
+      state.isLoading = true;
+    },
+    [putFloorPlanForm.fulfilled]: (state, { payload }) => {
+      state.isLoading = false;
+    },
+    [putFloorPlanForm.rejected]: (state, action) => {
+      state.isLoading = false;
+    },
+    //#endregion
   },
 });
 
@@ -84,5 +139,11 @@ export const selectIsLoading = (state) => state.floorPlan.isLoading;
 
 /// Export reducer
 const { removeCurrentFloor } = Slice.actions;
-export { loadAll, loadById, removeCurrentFloor };
+export {
+  loadAll,
+  loadById,
+  removeCurrentFloor,
+  postFloorPlanForm,
+  putFloorPlanForm,
+};
 export default Slice.reducer;

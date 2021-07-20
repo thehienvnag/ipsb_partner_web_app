@@ -1,34 +1,98 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loadEdgesOnFloor,
-  selectEdgesByFloorPlan,
-  selectEdgeLoading,
-} from "App/Stores/edge.slice";
-import {
-  loadLocationByFloor,
-  selectLocationByFloorPlan,
-  selectLocationLoading,
-} from "App/Stores/location.slice";
+import { loadEdgesOnFloor } from "App/Stores/edge.slice";
+import { loadLocationByFloor } from "App/Stores/location.slice";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { Button, Modal, Row, Divider, Radio, Typography } from "antd";
+import {
+  Button,
+  Modal,
+  Row,
+  Divider,
+  Radio,
+  Typography,
+  Select,
+  Menu,
+  Dropdown,
+  Tag,
+} from "antd";
 import { Svg, Circle, Polyline } from "react-svg-path";
 import {
   FullscreenOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
+  DeleteOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import { MdMyLocation } from "react-icons/md";
 import "./index.scss";
 import { pointInRect, duplicateLocation } from "App/Utils/utils";
+import {
+  selectLocationTypes,
+  setTypesSelect,
+} from "App/Stores/locationType.slice";
+import {
+  selectEdges,
+  selectMarkers,
+  selectSelected,
+  setEdges,
+  setMarkers,
+  setSelected,
+  setSelectedFloorId,
+  selectNextFloorImg,
+  selectNextFloorMarker,
+  selectToCreate,
+  setToCreateMarkers,
+} from "App/Stores/map.slice";
+import { selectListFloorCode, loadAll } from "App/Stores/floorPlan.slice";
 const stairSvg = process.env.PUBLIC_URL + "/stairs.svg";
 const restroom = process.env.PUBLIC_URL + "/restroom.svg";
 const elevator = process.env.PUBLIC_URL + "/elevator.svg";
 const stores = process.env.PUBLIC_URL + "/stores.svg";
+
 const equal = (one, that) =>
   ((one?.id || that?.id) && one?.id === that?.id) || one === that;
-const MapZoomPan = ({ disabledPreview, mode, types, src, floorPlanId }) => {
+
+const FilterDropdown = ({ className }) => {
   const dispatch = useDispatch();
+  const locationType = useSelector(selectLocationTypes);
+  return (
+    <Select
+      className={className}
+      allowClear
+      onChange={(values) => dispatch(setTypesSelect(values))}
+      defaultValue={[locationType.reduce((acc, { id }) => acc + "," + id, "")]}
+      style={{ width: 260 }}
+      placeholder="Elements to show on map"
+      mode="multiple"
+    >
+      <Select.Option
+        key="All"
+        value={locationType.reduce((acc, { id }) => acc + "," + id, "")}
+      >
+        All
+      </Select.Option>
+      {locationType.map(({ id, name }) => (
+        <Select.Option key={id} value={id}>
+          {name}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+};
+
+const MapZoomPan = ({
+  disabledPreview,
+  mode = "floorPlan" || "Other",
+  typeId = 2,
+  // mode = "Other" || "floorPlan",
+  // typeId = [3],
+  src,
+  floorPlanId,
+}) => {
+  const dispatch = useDispatch();
+  const markers = useSelector(selectMarkers);
+  const edges = useSelector(selectEdges);
+  const selected = useSelector(selectSelected);
   useEffect(() => {
     if (floorPlanId) {
       dispatch(loadEdgesOnFloor({ floorPlanId }));
@@ -43,31 +107,55 @@ const MapZoomPan = ({ disabledPreview, mode, types, src, floorPlanId }) => {
     );
   }
   return (
-    <Wrapper
-      disabledPreview={disabledPreview}
-      mode={mode}
-      src={src}
-      types={types}
-    >
-      <TransformWrapper
-        doubleClick={{ disabled: true }}
-        pinch={{ disabled: true }}
-        minScale={0.3}
-        maxScale={4}
+    <div className="filter-wrapper">
+      <FilterDropdown className="filter-select" />
+      <Wrapper
+        disabledPreview={disabledPreview}
+        mode={mode}
+        typeId={typeId}
+        src={src}
+        markers={markers}
+        edges={edges}
+        selected={selected}
       >
-        <TransformComponent>
-          <ImageRealSize mode={mode} types={types} src={src} />
-        </TransformComponent>
-      </TransformWrapper>
-    </Wrapper>
+        <TransformWrapper
+          doubleClick={{ disabled: true }}
+          pinch={{ disabled: true }}
+          minScale={0.3}
+          maxScale={4}
+        >
+          <TransformComponent>
+            <ImageRealSize
+              markers={markers}
+              edges={edges}
+              selected={selected}
+              typeId={typeId}
+              src={src}
+              rotate={0}
+            />
+          </TransformComponent>
+        </TransformWrapper>
+      </Wrapper>
+    </div>
   );
 };
 
-const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
+const Wrapper = ({
+  disabledPreview,
+  markers,
+  edges,
+  selected,
+  mode,
+  typeId,
+  children,
+  src,
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [scale, setScale] = useState(1);
   const [enableDrawMode, setEnableDrawMode] = useState(false);
   const [rotate, setRotate] = useState(0);
+  const [isClearAll, setIsClearAll] = useState(false);
+
   // const [rotate, setRotate] = useState(0);
   const onRotateLeft = () => {
     if (rotate === -180) return;
@@ -76,6 +164,9 @@ const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
   const onRotateRight = () => {
     if (rotate === 180) return;
     setRotate(rotate + 90);
+  };
+  const onClearAll = () => {
+    setIsClearAll(true);
   };
   const onDrawModeChange = (isDrawModeOn) => setEnableDrawMode(isDrawModeOn);
 
@@ -104,6 +195,7 @@ const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
             onRotateLeft={onRotateLeft}
             onRotateRight={onRotateRight}
             onDrawModeChange={onDrawModeChange}
+            onClearAll={onClearAll}
           />
         }
         wrapClassName={`modal-wrapper${rotate}`}
@@ -123,12 +215,16 @@ const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
         >
           <TransformComponent>
             <ImageRealSize
-              types={types}
               src={src}
+              typeId={typeId}
               mode={mode}
+              clearAll={isClearAll}
               scale={scale ?? 1}
               enabled={enableDrawMode}
               rotate={rotate}
+              markers={markers}
+              edges={edges}
+              selected={selected}
             />
           </TransformComponent>
         </TransformWrapper>
@@ -137,7 +233,12 @@ const Wrapper = ({ disabledPreview, mode, types, children, src }) => {
   );
 };
 
-const ModalTitle = ({ onRotateLeft, onRotateRight, onDrawModeChange }) => {
+const ModalTitle = ({
+  onRotateLeft,
+  onRotateRight,
+  onDrawModeChange,
+  onClearAll,
+}) => {
   const [onOffSwitch, setOnOffSwitch] = useState("OFF");
   return (
     <Row align="middle">
@@ -160,8 +261,10 @@ const ModalTitle = ({ onRotateLeft, onRotateRight, onDrawModeChange }) => {
         type="vertical"
         style={{ borderColor: "#9AA0A6", borderWidth: "2px", height: "36px" }}
       ></Divider>
+
       <Button
         icon={<RotateLeftOutlined />}
+        // style={{ margin: "0 15px" }}
         shape="circle"
         onClick={onRotateLeft}
       ></Button>
@@ -171,168 +274,166 @@ const ModalTitle = ({ onRotateLeft, onRotateRight, onDrawModeChange }) => {
         style={{ margin: "0 15px" }}
         onClick={onRotateRight}
       ></Button>
+      <FilterDropdown />
     </Row>
   );
 };
 
+//#region onMapClick handle functions
+const initLocation = (
+  { left, top, right, bottom },
+  markers,
+  clientX,
+  clientY,
+  typeId,
+  rotate,
+  scale
+) => {
+  let location;
+  if (rotate === 180 || rotate === -180) {
+    location = {
+      x: (right - clientX) / scale,
+      y: (bottom - clientY) / scale,
+    };
+  } else if (rotate === 90) {
+    location = {
+      x: (clientY - top) / scale,
+      y: (right - clientX) / scale,
+    };
+  } else if (rotate === -90) {
+    location = {
+      x: (bottom - clientY) / scale,
+      y: (clientX - left) / scale,
+    };
+  } else if (rotate === 0) {
+    location = { x: (clientX - left) / scale, y: (clientY - top) / scale };
+  }
+  return (
+    duplicateLocation(location, markers) ?? {
+      ...location,
+      ...{ locationTypeId: typeId },
+    }
+  );
+};
+
+const duplicateEdge = (edge, edges) => {
+  return (
+    edges.findIndex(
+      (e) =>
+        (equal(e.fromLocation, edge.fromLocation) &&
+          equal(e.toLocation, edge.toLocation)) ||
+        (equal(e.toLocation, edge.fromLocation) &&
+          equal(e.fromLocation, edge.toLocation))
+    ) !== -1
+  );
+};
+const createMarkers = (location, markers, typeId = 2) => {
+  if (markers.findIndex((item) => equal(item, location)) !== -1)
+    return { markersNew: markers };
+  if (typeId === 2) {
+    return { markersNew: [...markers, location] };
+  }
+  return {
+    selectedNew: location,
+    markersNew: [...markers.filter(({ id }) => id), location],
+  };
+};
+
+const edgesIntersect = (selected, location, edges, edgeIntersect) => {
+  return [
+    ...edges.filter((edge) => !equal(edgeIntersect, edge)),
+    {
+      fromLocation: selected,
+      toLocation: location,
+    },
+    {
+      fromLocation: location,
+      toLocation: edgeIntersect.fromLocation,
+    },
+    { fromLocation: edgeIntersect.toLocation, toLocation: location },
+  ];
+};
+const createEdges = (location, markers, edges, selected, typeId = 2) => {
+  if (selected) {
+    const edge = { fromLocation: selected, toLocation: location };
+    if (markers.findIndex((item) => equal(item, location)) === -1) {
+      // Intersect edge
+      const edgeIntersect = edges.find((edge) => pointInRect(edge, location));
+      // Case of intersect exist
+      if (edgeIntersect)
+        return edgesIntersect(selected, location, edges, edgeIntersect);
+    }
+    // Case of duplicate edge
+    if (duplicateEdge(edge, edges)) return edges;
+    return [...edges, edge];
+  }
+  return edges;
+};
+//#endregion
+//#region onPathClick handle functions
+const markersAfterDelete = (location, markers) =>
+  markers.filter((item) => !equal(item, location));
+const edgesAfterDelete = (location, edges) =>
+  edges.filter(
+    ({ fromLocation, toLocation }) =>
+      !equal(fromLocation, location) && !equal(toLocation, location)
+  );
+const selectedChanged = (location, selected, isDelete) => {
+  if (equal(selected, location)) return null;
+  return isDelete ? null : location;
+};
+//#endregion
 const ImageRealSize = ({
   src,
   mode = "floorPlan",
-  types = "",
-  rotate,
+  typeId,
+  rotate = 0,
   scale,
   enabled,
+  markers,
+  edges,
+  selected,
+  handleSelect,
 }) => {
+  const dispatch = useDispatch();
+
   const [dimension, setDimension] = useState({});
   const wrapperRef = useRef(null);
-  const [mapState, setMapState] = useState({
-    markers: [],
-    edges: [],
-    selected: null,
-  });
-  const listEdges = useSelector(selectEdgesByFloorPlan);
-  const listLocationOnFloor = useSelector(selectLocationByFloorPlan);
 
-  useEffect(() => {
-    setMapState({
-      markers: listLocationOnFloor.filter(({ locationTypeId }) =>
-        types.includes(locationTypeId)
-      ),
-      edges: listEdges.filter(
-        ({ fromLocation, toLocation }) =>
-          types.includes(fromLocation.locationTypeId) &&
-          types.includes(toLocation.locationTypeId)
-      ),
-      selected: mapState.selected,
-    });
-  }, [listEdges, listLocationOnFloor, types]);
-
-  const selectedChanged = (location, selected, isDelete) => {
-    if (equal(selected, location)) return null;
-    return isDelete ? null : location;
-  };
-
-  //#region onMapClick handle functions
-  const initLocation = (
-    { left, top, right, bottom },
-    markers,
-    clientX,
-    clientY
-  ) => {
-    let location;
-    if (rotate === 180 || rotate === -180) {
-      location = {
-        x: (right - clientX) / scale,
-        y: (bottom - clientY) / scale,
-      };
-    } else if (rotate === 90) {
-      location = {
-        x: (clientY - top) / scale,
-        y: (right - clientX) / scale,
-      };
-    } else if (rotate === -90) {
-      location = {
-        x: (bottom - clientY) / scale,
-        y: (clientX - left) / scale,
-      };
-    } else if (rotate === 0) {
-      location = { x: (clientX - left) / scale, y: (clientY - top) / scale };
-    }
-
-    return duplicateLocation(location, markers) ?? location;
-  };
-
-  const duplicateEdge = (edge, edges) => {
-    return (
-      edges.findIndex(
-        (e) =>
-          (equal(e.fromLocation, edge.fromLocation) &&
-            equal(e.toLocation, edge.toLocation)) ||
-          (equal(e.toLocation, edge.fromLocation) &&
-            equal(e.fromLocation, edge.toLocation))
-      ) !== -1
-    );
-  };
-  const createMarkers = (location, markers) => {
-    if (markers.findIndex((item) => equal(item, location)) !== -1)
-      return markers;
-    return [...markers, location];
-  };
-
-  /////////////THiếu chỗ này
-
-  const edgesIntersect = (selected, location, edges, edgeIntersect) => {
-    return [
-      ...edges.filter((edge) => !equal(edgeIntersect, edge)),
-      {
-        fromLocation: selected,
-        toLocation: location,
-      },
-      {
-        fromLocation: location,
-        toLocation: edgeIntersect.fromLocation,
-      },
-      { fromLocation: edgeIntersect.toLocation, toLocation: location },
-    ];
-  };
-  const createEdges = (location, markers, edges, selected) => {
-    if (selected) {
-      const edge = { fromLocation: selected, toLocation: location };
-      if (markers.findIndex((item) => equal(item, location)) === -1) {
-        // Intersect edge
-        const edgeIntersect = edges.find((edge) => pointInRect(edge, location));
-        // Case of intersect exist
-        if (edgeIntersect)
-          return edgesIntersect(selected, location, edges, edgeIntersect);
-      }
-      // Case of duplicate edge
-      if (duplicateEdge(edge, edges)) return edges;
-      return [...edges, edge];
-    }
-    return edges;
-  };
-  //#endregion
   const onMapLeftClick = async (evt) => {
     const { clientX, clientY, shiftKey } = evt;
     if (shiftKey) {
       const rect = wrapperRef.current.getBoundingClientRect();
-      const { selected, markers, edges } = mapState;
-      const raw = initLocation(rect, markers, clientX, clientY);
-      setMapState({
-        markers: createMarkers(raw, markers),
-        edges: createEdges(raw, markers, edges, selected),
-        selected: selectedChanged(raw, selected),
-      });
+      const raw = initLocation(
+        rect,
+        markers,
+        clientX,
+        clientY,
+        typeId,
+        rotate,
+        scale
+      );
+      const { selectedNew, markersNew } = createMarkers(raw, markers, typeId);
+      const edgeNew = createEdges(raw, markers, edges, selectedNew ?? selected);
+      dispatch(setMarkers(markersNew));
+      dispatch(setEdges(edgeNew));
+      dispatch(setSelected(selectedChanged(raw, selected)));
     }
   };
-  //#region onPathClick handle functions
-  const markersAfterDelete = (location, markers) =>
-    markers.filter((item) => !equal(item, location));
-  const edgesAfterDelete = (location, edges) =>
-    edges.filter(
-      ({ fromLocation, toLocation }) =>
-        !equal(fromLocation, location) && !equal(toLocation, location)
-    );
 
-  //#endregion
   const onPathClick = (location, evt) => {
     evt.preventDefault();
     const { type } = evt;
-    if (type === "contextmenu") {
-      const { markers, edges, selected } = mapState;
-      setMapState({
-        markers: markersAfterDelete(location, markers),
-        edges: edgesAfterDelete(location, edges),
-        selected: selectedChanged(location, selected, true),
-      });
+
+    if (type === "contextmenu" && mode === "floorPlan") {
+      dispatch(setMarkers(markersAfterDelete(location, markers)));
+      dispatch(setEdges(edgesAfterDelete(location, edges)));
+      dispatch(setSelected(selectedChanged(location, selected, true)));
     } else if (type === "click") {
-      console.log(location);
-      const { selected } = mapState;
-      setMapState({
-        edges: mapState.edges,
-        markers: mapState.markers,
-        selected: selectedChanged(location, selected),
-      });
+      if (handleSelect) {
+        handleSelect(location);
+      }
+      dispatch(setSelected(selectedChanged(location, selected)));
     }
   };
 
@@ -340,6 +441,7 @@ const ImageRealSize = ({
     if (!width || !height) return { width: 0, height: 0 };
     return { width, height };
   };
+
   return (
     <div
       key={"wrapper"}
@@ -365,9 +467,10 @@ const ImageRealSize = ({
         key="wrapper-key"
         dimension={dimension}
         rotate={rotate}
-        markers={mapState.markers}
-        edges={mapState.edges}
-        selected={mapState.selected}
+        markers={markers}
+        typeId={typeId}
+        edges={edges}
+        selected={selected}
         onPathClick={enabled ? onPathClick : () => {}}
       />
     </div>
@@ -377,6 +480,7 @@ const ImageRealSize = ({
 const SvgWrapper = ({
   dimension,
   rotate,
+  typeId,
   markers,
   edges,
   selected,
@@ -405,6 +509,7 @@ const SvgWrapper = ({
           <PathWrapper
             key={index}
             location={item}
+            typeId={typeId}
             selected={selected}
             onPathClick={onPathClick}
             rotate={rotate}
@@ -414,44 +519,30 @@ const SvgWrapper = ({
   );
 };
 
-const PathWrapper = ({ key, rotate, selected, location, onPathClick }) => {
+const PathWrapper = ({
+  key,
+  rotate,
+  selected,
+  mode,
+  typeId,
+  location,
+  onPathClick,
+}) => {
   const { x, y, locationTypeId } = location;
-  if (locationTypeId === 1) {
+  const img = (id) => {
+    if (id === 1) return stores;
+    if (id === 4) return stairSvg;
+    if (id === 3) return elevator;
+    if (id === 10) return restroom;
+  };
+  if (locationTypeId !== 2) {
     return (
       <PlaceMarker
-        src={stores}
+        src={img(locationTypeId)}
         location={location}
         selected={selected}
-        onPathClick={onPathClick}
-      />
-    );
-  }
-  if (locationTypeId === 4) {
-    return (
-      <PlaceMarker
-        src={stairSvg}
-        location={location}
-        selected={selected}
-        onPathClick={onPathClick}
-      />
-    );
-  }
-  if (locationTypeId === 10) {
-    return (
-      <PlaceMarker
-        src={restroom}
-        location={location}
-        selected={selected}
-        onPathClick={onPathClick}
-      />
-    );
-  }
-  if (locationTypeId === 3) {
-    return (
-      <PlaceMarker
-        src={elevator}
-        location={location}
-        selected={selected}
+        mode={mode}
+        typeId={typeId}
         onPathClick={onPathClick}
       />
     );
@@ -506,28 +597,201 @@ const SelectedMarker = ({ location, onPathClick, rotate }) => {
     </g>
   );
 };
+const DeleteMenu = ({ location }) => {
+  const dispatch = useDispatch();
+  const markers = useSelector(selectMarkers);
+  const edges = useSelector(selectEdges);
+  const selected = useSelector(selectSelected);
 
-const PlaceMarker = ({ src, location, selected, onPathClick }) => {
-  const { x, y, store } = location;
+  const onDelete = async () => {
+    dispatch(setMarkers(markersAfterDelete(location, markers)));
+    dispatch(setEdges(edgesAfterDelete(location, edges)));
+    dispatch(setSelected(selectedChanged(location, selected, true)));
+  };
   return (
-    <g
-      transform={`translate(${x - 17}, ${y - 17})`}
-      onClick={(evt) => onPathClick(location, evt)}
-      onContextMenu={(evt) => onPathClick(location, evt)}
-    >
-      <rect
-        width="24"
-        height="18"
-        fill="white"
-        transform="translate(0, 5)"
-      ></rect>
-      <image
-        className={equal(location, selected) ? "img-red" : ""}
-        href={src}
-        height="25"
+    <Menu>
+      <Menu.Item
+        onClick={onDelete}
+        className="custom-menu-item"
+        key="1"
+        icon={<DeleteOutlined color="#ef5350" />}
+      >
+        Remove
+      </Menu.Item>
+    </Menu>
+  );
+};
+
+const StairLiftMenu = ({ location }) => {
+  const dispatch = useDispatch();
+  const markers = useSelector(selectMarkers);
+  const edges = useSelector(selectEdges);
+  const selected = useSelector(selectSelected);
+  const connects = useSelector(selectToCreate);
+
+  const handleSelect = (location) => {
+    addLoc(location);
+  };
+  useEffect(() => {}, [location]);
+  const addLoc = (location) => {
+    dispatch(
+      setToCreateMarkers([
+        ...connects,
+        { ...location, ...{ floorCode: selectFloor.floorCode } },
+      ])
+    );
+  };
+  const removeLoc = (location) => {
+    dispatch(
+      setToCreateMarkers([connects.filter(({ id }) => location.id !== id)])
+    );
+  };
+  useEffect(() => {
+    dispatch(loadAll());
+  }, [dispatch]);
+  const floors = useSelector(selectListFloorCode);
+  const [selectFloor, setSelectFloor] = useState(null);
+  const handleChange = (value) => {
+    dispatch(setSelectedFloorId(value));
+  };
+
+  const onDelete = async () => {
+    dispatch(setMarkers(markersAfterDelete(location, markers)));
+    dispatch(setEdges(edgesAfterDelete(location, edges)));
+    dispatch(setSelected(selectedChanged(location, selected, true)));
+  };
+  return (
+    <Row>
+      <div>
+        <Menu title="Options" selectedKeys={["3"]}>
+          <Menu.Item className="custom-menu-item" icon={<SaveOutlined />}>
+            Save
+          </Menu.Item>
+          <div>
+            <Select
+              placeholder="Connect to floor"
+              style={{ width: 180, margin: "0 16px", marginBottom: 8 }}
+              onChange={handleChange}
+              tokenSeparators={[","]}
+            >
+              {floors?.map((item) => (
+                <Select.Option key={item.id}>
+                  <div onClick={() => setSelectFloor(item)}>
+                    Tầng {item.floorCode}
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+            <div style={{ marginLeft: 15 }}>
+              {connects.map((item) => (
+                <Tag key={item.id} closable onClose={() => removeLoc(item)}>
+                  Tầng {item.floorCode}
+                </Tag>
+              ))}
+            </div>
+          </div>
+
+          <Menu.Item
+            onClick={onDelete}
+            className="custom-menu-item"
+            key="1"
+            icon={<DeleteOutlined />}
+          >
+            Remove
+          </Menu.Item>
+        </Menu>
+      </div>
+      <ChooseStairLiftConnection
+        handleSelect={handleSelect}
+        floorPlanId={location.floorPlanId}
       />
-      {store && <text transform="translate(0, 39)">{store.name}</text>}
-    </g>
+    </Row>
+  );
+};
+const ChooseStairLiftConnection = ({ floorPlanId, handleSelect }) => {
+  const [scale, setScale] = useState(0.1);
+  const src = useSelector(selectNextFloorImg);
+  const markers = useSelector(selectNextFloorMarker);
+
+  if (!src) {
+    return <></>;
+  }
+  return (
+    <div
+      className="preview-wrapper"
+      style={{
+        width: 450,
+        backgroundColor: "white",
+        position: "absolute",
+        left: 220,
+        top: -50,
+      }}
+    >
+      <TransformWrapper
+        pinch={{ disabled: true }}
+        doubleClick={{ disabled: true }}
+        initialScale={0.3}
+        minScale={0.3}
+        maxScale={1}
+        onZoom={(value) => {
+          const { scale } = value.state;
+          setScale(scale);
+        }}
+      >
+        <TransformComponent>
+          <ImageRealSize
+            src={src}
+            scale={scale}
+            markers={markers ?? []}
+            handleSelect={handleSelect}
+            enabled={true}
+          />
+        </TransformComponent>
+      </TransformWrapper>
+    </div>
+  );
+};
+
+const PlaceMarker = ({
+  src,
+  location,
+  selected,
+  onPathClick,
+  mode,
+  typeId,
+}) => {
+  const { x, y, store, locationTypeId } = location;
+  const getMenu = () => {
+    if (mode === "floorPlan") return <></>;
+    if (!typeId.includes(locationTypeId)) return <></>;
+    switch (locationTypeId) {
+      case 3:
+      case 4:
+        return <StairLiftMenu location={location} />;
+      default:
+        return <DeleteMenu location={location} />;
+    }
+  };
+  return (
+    <Dropdown overlay={getMenu()} trigger={["contextMenu"]}>
+      <g
+        transform={`translate(${x - 17}, ${y - 17})`}
+        onClick={(evt) => onPathClick(location, evt)}
+      >
+        <rect
+          width="24"
+          height="18"
+          fill="white"
+          transform="translate(0, 5)"
+        ></rect>
+        <image
+          className={equal(location, selected) ? "img-red" : ""}
+          href={src}
+          height="25"
+        />
+        {store && <text transform="translate(0, 39)">{store.name}</text>}
+      </g>
+    </Dropdown>
   );
 };
 export default MapZoomPan;

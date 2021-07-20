@@ -12,3 +12,21 @@ export const getByFloorPlan = async ({ isAll = true, floorPlanId }) => {
   const response = await axiosClient.get(edges, { params });
   return response.data;
 };
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] parameters for get request
+ */
+export const postEdges = async (list) => {
+  const response = await axiosClient.post(edges, list);
+  return response.data;
+};
+
+/**
+ * Page wrapper for new page
+ * @param {Array} [ids] parameters for get request
+ */
+export const deleteEdges = async (ids) => {
+  const response = await axiosClient.delete(edges, { data: { ids: ids } });
+  return response.status === 204;
+};
