@@ -4,14 +4,20 @@ import { Table, Image, Tag, Typography, Avatar } from "antd";
 
 const StoreTable = ({ onRowClick }) => {
   const [data, setData] = useState({ list: null, isLoading: false });
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(0);
   useEffect(() => {
     const fetchApi = async () => {
       setData({ isLoading: true });
-      const data = await getAllStore({ buildingId: 1 });
+      const data = await getAllStore({ buildingId: 1, pageIndex: currentPage });
       setData({ list: data.content, isLoading: false });
+      setTotalCount(data.totalCount);
+      setPageSize(data.pageSize);
     };
+
     fetchApi();
-  }, []);
+  }, [currentPage]);
 
   return (
     <>
@@ -21,6 +27,14 @@ const StoreTable = ({ onRowClick }) => {
         onRow={(record) => ({
           onClick: (evt) => onRowClick(record),
         })}
+        pagination={{
+          size: "small",
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalCount,
+          onChange: (value) => setCurrentPage(value),
+          showSizeChanger: false,
+        }}
       >
         <Table.Column
           title="#No"
