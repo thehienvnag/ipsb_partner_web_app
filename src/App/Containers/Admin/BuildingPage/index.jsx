@@ -81,11 +81,12 @@ const BuildingPage = () => {
 
   const showModalCreate = () => {
     setVisibleCreate(true);
+    setFile(null);
   };
 
   const hideModalCreate = () => {
     setVisibleCreate(false);
-    form.resetFields();
+    form1.resetFields();
     setImageUrl(null);
   };
   const hideModalDetail = () => {
@@ -106,17 +107,15 @@ const BuildingPage = () => {
     } else if (values != null && values.imageUrl != null) {
       const data = await postBuilding({
         ...values,
+        ...{ adminId: 2 },
         ...{ imageUrl: file },
       });
       if (data?.id != null) {
         message
           .loading("Action in progress...", 3)
           .then(() => message.success("Create building successfull", 3))
-          .then(
-            () => dispatch(loadBuildings({ pageIndex: currentPage })),
-            hideModalCreate(),
-            setImageUrl(null)
-          );
+          .then(() => hideModalCreate())
+          .then(() => dispatch(loadBuildings({ pageIndex: currentPage })));
       }
     }
   };
@@ -164,13 +163,13 @@ const BuildingPage = () => {
                 form.resetFields();
               }}
             >
-              Hủy
+              Cancel
             </Button>
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" onClick={saveBuilding}>
-              Đăng ký
+              Save
             </Button>
           </Form.Item>
         </Space>
@@ -318,7 +317,8 @@ const BuildingPage = () => {
                     <div className="ant-image-custom">
                       <Image
                         style={{
-                          width: "350px",
+                          width: "380px",
+                          height: "290px",
                         }}
                         src={imageUrl}
                         preview={true}
@@ -433,6 +433,7 @@ const BuildingPage = () => {
                       <Image
                         style={{
                           width: "380px",
+                          height: "290px",
                         }}
                         src={imageUrl}
                         preview={true}

@@ -67,5 +67,6 @@ export const deleteAccounts = async (ids = []) => {
     await axiosClient.delete(accounts, { params: { ids } });
   } catch (error) {
     console.log(error?.message);
+    return error?.message;
   }
 };

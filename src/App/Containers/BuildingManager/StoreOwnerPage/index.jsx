@@ -308,7 +308,8 @@ const StoreOwnerPage = () => {
                     <div className="ant-image-custom">
                       <Image
                         style={{
-                          width: "270px",
+                          width: "280px",
+                          height: "290px",
                         }}
                         src={imageUrl}
                         preview={true}
@@ -386,6 +387,7 @@ const StoreOwnerPage = () => {
                       </Form.Item>
                       <Form.Item name="status" label="Choose status:">
                         <Select style={{ width: 150 }}>
+                          <Option value="New">New</Option>
                           <Option value="Active">Active</Option>
                           <Option value="Inactive">Inactive</Option>
                         </Select>

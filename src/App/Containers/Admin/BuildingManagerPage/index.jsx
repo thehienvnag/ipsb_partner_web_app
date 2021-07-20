@@ -56,9 +56,18 @@ const BuildingManagerPage = () => {
     dispatch(loadAccounts({ pageIndex: currentPage }));
   };
 
-  const handleDelete = () => {
-    //deleteAccounts(selectedItems);
+  const handleDelete = async () => {
+    const data = await deleteAccounts(selectedItems);
     console.log(selectedItems);
+    if (data == "Request failed with status code 405") {
+      message.error("Method Not Allowed", 4);
+    } else {
+      message
+        .loading("Action in progress...", 3)
+        .then(() => message.success("Delete success", 3))
+        .then(() => setSelectedItems([]))
+        .then(() => dispatch(loadAccounts()));
+    }
   };
   const handleCreate = () => {
     showModalCreate();
@@ -86,6 +95,7 @@ const BuildingManagerPage = () => {
 
   const showModalCreate = () => {
     setVisibleCreate(true);
+    setFile(null);
   };
 
   const hideModalCreate = () => {
@@ -121,10 +131,7 @@ const BuildingManagerPage = () => {
       const data = await postAccount({
         ...values,
         ...{ imageUrl: file },
-        ...{ name: values.name },
-        ...{ phone: values.phone },
         ...{ role: "Building Manager" },
-        ...{ email: values.email },
       });
       console.log(data);
       if (data?.id !== null) {
@@ -398,6 +405,7 @@ const BuildingManagerPage = () => {
                       </Form.Item>
                       <Form.Item name="status" label="Choose status:">
                         <Select style={{ width: 150 }}>
+                          <Option value="New">New</Option>
                           <Option value="Active">Active</Option>
                           <Option value="Inactive">Inactive</Option>
                         </Select>
