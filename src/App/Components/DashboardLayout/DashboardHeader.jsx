@@ -4,20 +4,30 @@ import { selectAccount } from "App/Stores/auth.slice";
 import React from "react";
 import { useSelector } from "react-redux";
 import "./DashboardHeader.scss";
+import { useNavigate } from "react-router-dom";
 const notifications = (
   <Menu>
     <Menu.Item key="0">1st menu item</Menu.Item>
     <Menu.Item key="1">2nd menu item</Menu.Item>
   </Menu>
 );
-const profile = (
-  <Menu>
-    <Menu.Item key="0">Profile &amp; account</Menu.Item>
-    <Menu.Item key="1">Feedback</Menu.Item>
-    <Menu.Divider />
-    <Menu.Item key="3">Logout</Menu.Item>
-  </Menu>
-);
+
+const Profile = () => {
+  const navigate = useNavigate();
+  const logOut = () => {
+    navigate("../../login");
+  };
+  return (
+    <Menu>
+      <Menu.Item key="0">Profile &amp; account</Menu.Item>
+      <Menu.Item key="1">Feedback</Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="3" onClick={logOut}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
+};
 const DashboardHeader = ({ handleCollapsed }) => {
   const account = useSelector(selectAccount);
   return (
@@ -85,7 +95,7 @@ const DashboardHeader = ({ handleCollapsed }) => {
           </div>
           <div className="nav-item">
             <Dropdown
-              overlay={profile}
+              overlay={<Profile />}
               trigger={["click"]}
               placement="bottomRight"
             >

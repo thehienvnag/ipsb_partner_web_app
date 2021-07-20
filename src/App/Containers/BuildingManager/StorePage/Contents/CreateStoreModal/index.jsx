@@ -22,10 +22,18 @@ import {
   selectListFloorCode,
 } from "App/Stores/floorPlan.slice";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  loadAccounts,
+  selectIsLoading,
+  selectListAccount,
+  selectPageSize,
+  selectTotalCount,
+} from "App/Stores/account.slice";
+import { productCategories } from "App/Constants/endpoints";
+
 const { TextArea } = Input;
 const { Option } = Select;
-
-const CreateStoreModal = ({ visible, handleCancel, store }) => {
+const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const listFloor = useSelector(selectListFloorCode);
@@ -34,6 +42,11 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("Preview upload image");
   const [previewImage, setPreviewImage] = useState("");
+  const [categoryList, setCategoryList] = useState([]);
+  const [file, setFile] = useState(null);
+
+  const listAccount = useSelector(selectListAccount);
+
   useEffect(() => {
     const initStore = () => {
       if (store) {
@@ -56,10 +69,12 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
     };
     dispatch(LoadFloor());
     loadProductCategories();
+    dispatch(loadAccounts({ role: "Store Owner" }));
     initStore();
   }, [store]);
   const handleChangeSelect = (value) => {
     console.log(`selected ${value}`);
+    setCategoryList(value);
   };
   const onFloorChange = () => {};
 
@@ -68,6 +83,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
   };
 
   const handleCancelPreview = () => setPreviewVisible(false);
+
   const handlePreview = (file) => {
     if (file.originFileObj) {
       getBase64(file.originFileObj, (fileSrc) => {
@@ -79,8 +95,18 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
       );
     }
   };
-  const handleChange = ({ fileList }) => {
-    setFileList(fileList);
+  // const handleChange = ({ fileList }) => {
+  //   setFileList(fileList);
+  //   setFile(fileList[0]?.originFileObj);
+  // };
+
+  const handleChange = (info) => {
+    console.log("Hú", info);
+    setFileList(info.fileList);
+    // getBase64(
+    //   info.fileList[0]?.originFileObj,
+    setFile(info.fileList[0]?.originFileObj);
+    // );
   };
 
   const onSubmitForm = async () => {
@@ -93,12 +119,15 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
         });
         const result = await postStore({
           ...value,
-          ...{ imageUrl: fileList[0] },
+          ...{ productCategoryIds: categoryList },
+          ...{ buildingId: 12 },
+          ...{ imageUrl: file },
         });
         message.success({
           content: "Create Success",
           key: "createStore",
         });
+        handleRefresh();
       }
     } catch (error) {
       console.log(error);
@@ -136,7 +165,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
               <img alt="example" style={{ width: "100%" }} src={previewImage} />
             </Modal>
 
-            <Form layout="vertical">
+            <Form layout="vertical" form={form}>
               <FormItem
                 name="description"
                 label="Description"
@@ -145,9 +174,29 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
               >
                 <TextArea
                   style={{ width: "88%" }}
-                  rows={4}
+                  rows={3}
                   placeholder="Description..."
                 />
+              </FormItem>
+              <FormItem
+                name="accountId"
+                label="Store Owner:"
+                rules={[
+                  {
+                    required: true,
+                    message: "Select store owner",
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Select store owner"
+                  style={{ width: "88%" }}
+                >
+                  {listAccount &&
+                    listAccount.map((item) => (
+                      <Option value={item.id}>{item.name}</Option>
+                    ))}
+                </Select>
               </FormItem>
             </Form>
           </Col>
@@ -185,6 +234,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
                     ))}
                 </Select>
               </Form.Item>
+
               <Form.Item
                 name="phone"
                 label="Phone number"
@@ -193,7 +243,7 @@ const CreateStoreModal = ({ visible, handleCancel, store }) => {
                 <Input placeholder="Input phone number" />
               </Form.Item>
               <FormItem
-                name="productCategories"
+                // name="productCategories"
                 label="Product Category"
                 rules={[{ required: true }]}
                 required

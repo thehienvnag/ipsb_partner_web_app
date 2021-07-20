@@ -763,7 +763,7 @@ const PlaceMarker = ({
   const { x, y, store, locationTypeId } = location;
   const getMenu = () => {
     if (mode === "floorPlan") return <></>;
-    if (!typeId.includes(locationTypeId)) return <></>;
+    if (typeId != locationTypeId) return <></>;
     switch (locationTypeId) {
       case 3:
       case 4:

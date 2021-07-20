@@ -49,7 +49,6 @@ export const postBuilding = async (data) => {
  */
 export const putBuilding = async (data) => {
   const { id } = data;
-  console.log("hú", data);
   try {
     const dataPost = await putFormData(buildings + "/" + id, data);
     return dataPost;

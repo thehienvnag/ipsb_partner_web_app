@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllStore } from "App/Services/store.service";
 import { Table, Image, Tag, Typography, Avatar } from "antd";
 
-const StoreTable = ({ onRowClick }) => {
+const StoreTable = ({ onRowClick, call }) => {
   const [data, setData] = useState({ list: null, isLoading: false });
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -10,14 +10,17 @@ const StoreTable = ({ onRowClick }) => {
   useEffect(() => {
     const fetchApi = async () => {
       setData({ isLoading: true });
-      const data = await getAllStore({ buildingId: 1, pageIndex: currentPage });
+      const data = await getAllStore({
+        buildingId: 12,
+        pageIndex: currentPage,
+      });
       setData({ list: data.content, isLoading: false });
       setTotalCount(data.totalCount);
       setPageSize(data.pageSize);
     };
 
     fetchApi();
-  }, [currentPage]);
+  }, [currentPage, call]);
 
   return (
     <>

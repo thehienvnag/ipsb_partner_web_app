@@ -7,7 +7,7 @@ const checkWebLogin = createAsyncThunk(
   "checkLogin/checkWebLogin",
   async (params = {}, thunkAPI) => {
     const data = await checkLogin(params);
-    if (data == null) {
+    if (!data) {
       return thunkAPI.rejectWithValue("Incorrect email or password");
     }
     if (data.role === "Building Manager") {
