@@ -5,9 +5,11 @@ import buildingReducer from "./building.slice";
 import edgeReducer from "./edge.slice";
 import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
+import authReducer from "./auth.slice";
 
 export const Store = configureStore({
   reducer: {
+    auth: authReducer,
     floorPlan: floorPlanReducer,
     building: buildingReducer,
     edge: edgeReducer,

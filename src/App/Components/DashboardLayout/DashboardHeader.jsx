@@ -1,6 +1,8 @@
 import { Dropdown, Menu, Button } from "antd";
 import Link from "antd/lib/typography/Link";
+import { selectAccount } from "App/Stores/auth.slice";
 import React from "react";
+import { useSelector } from "react-redux";
 import "./DashboardHeader.scss";
 const notifications = (
   <Menu>
@@ -17,6 +19,7 @@ const profile = (
   </Menu>
 );
 const DashboardHeader = ({ handleCollapsed }) => {
+  const account = useSelector(selectAccount);
   return (
     <header className="navbar navbar-expand-md navbar-light d-print-none header">
       <div
@@ -94,13 +97,12 @@ const DashboardHeader = ({ handleCollapsed }) => {
                 <span
                   className="avatar avatar-sm"
                   style={{
-                    backgroundImage:
-                      "url(https://st.gamevui.com/images/image/2020/09/17/AmongUs-Avatar-maker-hd01.jpg)",
+                    backgroundImage: `url(${account?.imageUrl})`,
                   }}
                 />
                 <div className="d-none d-xl-block ps-2">
-                  <div>Paweł Kuna</div>
-                  <div className="mt-1 small text-muted">UI Designer</div>
+                  <div>{account?.name}</div>
+                  <div className="mt-1 small text-muted">{account?.role}</div>
                 </div>
               </Link>
             </Dropdown>

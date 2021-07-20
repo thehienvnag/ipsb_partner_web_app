@@ -15,6 +15,23 @@ export const getBuildings = async ({ pageIndex = 1, pageSize = 5 }) => {
 
 /**
  * Page wrapper for new page
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.managerId] manager id of the building
+ */
+export const getBuildingByManagerId = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  managerId,
+}) => {
+  const params = { pageIndex, pageSize, managerId };
+  const response = await axiosClient.get(buildings, { params });
+  return response.data;
+};
+
+/**
+ * Page wrapper for new page
  * @param {object} [data] values post
  */
 export const postBuilding = async (data) => {
