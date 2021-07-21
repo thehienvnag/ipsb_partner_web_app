@@ -125,7 +125,11 @@ const createLocsAndEdges = (
   const locs =
     newLocs.filter(({ id }) => !id).map((item) => ({ ...item, floorPlanId })) ??
     [];
-  const edges = newEdges.filter(({ id }) => !id) ?? [];
+  const edges =
+    newEdges.filter(
+      ({ id, fromLocation, toLocation }) =>
+        !id && fromLocation.id !== toLocation.id
+    ) ?? [];
   return { removedLocIds, removedEdgeIds, locs, edges };
 };
 const createEdgesData = (edges, locations, newLocs) => {

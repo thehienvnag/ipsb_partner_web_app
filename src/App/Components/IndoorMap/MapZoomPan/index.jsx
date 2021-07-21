@@ -116,7 +116,7 @@ const MapZoomPan = ({
   }
   return (
     <div className="filter-wrapper">
-      <FilterDropdown className="filter-select" />
+      {!disabledPreview && <FilterDropdown className="filter-select" />}
       <Wrapper
         disabledPreview={disabledPreview}
         mode={mode}
@@ -207,6 +207,7 @@ const Wrapper = ({
             mode={mode}
             handleChangeType={handleChangeType}
             typeSelect={typeSelect}
+            disabledPreview={disabledPreview}
           />
         }
         wrapClassName={`modal-wrapper${rotate}`}
@@ -251,6 +252,7 @@ const ModalTitle = ({
   typeSelect,
   handleChangeType,
   mode,
+  disabledPreview,
 }) => {
   const [onOffSwitch, setOnOffSwitch] = useState("OFF");
   return (
@@ -299,7 +301,7 @@ const ModalTitle = ({
         style={{ margin: "0 15px" }}
         onClick={onRotateRight}
       ></Button>
-      <FilterDropdown />
+      {!disabledPreview && <FilterDropdown />}
     </Row>
   );
 };
@@ -449,7 +451,7 @@ const ImageRealSize = ({
   const onPathClick = (location, evt) => {
     evt.preventDefault();
     const { type } = evt;
-
+    console.log(location);
     if (type === "contextmenu" && mode === "floorPlan") {
       dispatch(setMarkers(markersAfterDelete(location, markers)));
       dispatch(setEdges(edgesAfterDelete(location, edges)));

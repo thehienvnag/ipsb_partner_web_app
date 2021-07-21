@@ -93,6 +93,7 @@ const selectEdges = ({ map, locationType }) =>
   );
 const selectSelected = ({ map }) => map.selected;
 const selectCurrent = ({ map }) => map.current;
+const selectNewLocation = ({ map }) => map.markers.filter(({ id }) => !id)[0];
 //#endregion
 //#region next floor
 const selectToCreate = ({ map }) => map.toCreateMarkers;
@@ -131,5 +132,6 @@ export {
   removeNextFloor,
   setToCreateMarkers,
   createLocation,
+  selectNewLocation,
 };
 export default Slice.reducer;

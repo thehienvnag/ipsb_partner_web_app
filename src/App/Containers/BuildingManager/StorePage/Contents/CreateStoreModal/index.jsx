@@ -29,7 +29,9 @@ import {
   selectPageSize,
   selectTotalCount,
 } from "App/Stores/account.slice";
-import { productCategories } from "App/Constants/endpoints";
+import { postLocations } from "App/Services/location.service";
+import { selectNewLocation } from "App/Stores/map.slice";
+import MapZoomPan from "App/Components/IndoorMap/MapZoomPan";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -44,6 +46,8 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
   const [previewImage, setPreviewImage] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [file, setFile] = useState(null);
+  const [floorPlanId, setFloorPlanId] = useState(-1);
+  const newLocation = useSelector(selectNewLocation);
 
   const listAccount = useSelector(selectListAccount);
 
@@ -76,7 +80,7 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
     console.log(`selected ${value}`);
     setCategoryList(value);
   };
-  const onFloorChange = () => {};
+  const onFloorChange = (value) => setFloorPlanId(value);
 
   const onFinish = (values) => {
     console.log(values);
@@ -112,6 +116,7 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
   const onSubmitForm = async () => {
     try {
       const value = await form.validateFields();
+
       if (fileList.length) {
         message.loading({
           content: "loading...",
@@ -123,10 +128,25 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
           ...{ buildingId: 12 },
           ...{ imageUrl: file },
         });
-        message.success({
-          content: "Create Success",
-          key: "createStore",
-        });
+
+        if (result) {
+          await postLocations([
+            {
+              ...newLocation,
+              ...{ floorPlanId: value.floorPlanId, storeId: result.id },
+            },
+          ]);
+          message.success({
+            content: "Create Success",
+            key: "createStore",
+          });
+        } else {
+          message.error({
+            content: "Create Failure",
+            key: "createStore",
+          });
+        }
+
         handleRefresh();
       }
     } catch (error) {
@@ -221,14 +241,14 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
                 required
               >
                 <Select
-                  defaultValue={[store?.floorPlanId]}
+                  defaultValue={store?.floorPlanId}
                   placeholder="Select a floor plan"
                   onChange={onFloorChange}
                   allowClear
                 >
                   {listFloor &&
                     listFloor.map(({ id, floorCode }) => (
-                      <Option value={id} label={floorCode}>
+                      <Option key={id} value={id} label={floorCode}>
                         Floor {floorCode}
                       </Option>
                     ))}
@@ -269,7 +289,22 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
                 rules={[{ required: true }]}
                 required
               >
-                <Button icon={<GrLocation />}> Location</Button>
+                {floorPlanId === -1 && (
+                  <Button disabled>Pick location (Choose floor first!)</Button>
+                )}
+                {floorPlanId > 0 && (
+                  <MapZoomPan
+                    mode="Other"
+                    typeId={1}
+                    floorPlanId={floorPlanId}
+                    disabledPreview={true}
+                    src={
+                      listFloor &&
+                      listFloor.filter(({ id }) => floorPlanId === id)[0]
+                        ?.imageUrl
+                    }
+                  />
+                )}
               </FormItem>
             </Form>
           </Col>

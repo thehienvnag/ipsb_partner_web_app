@@ -133,9 +133,10 @@ export const selectListFloor = (state) =>
     ...item,
   }));
 export const selectListFloorCode = (state) =>
-  state.floorPlan.list?.content.map(({ id, floorCode }) => ({
+  state.floorPlan.list?.content.map(({ id, floorCode, imageUrl }) => ({
     id,
     floorCode,
+    imageUrl,
   }));
 export const selectCurrentFloorPlan = (state) =>
   state.floorPlan.currentFloorPlan;
