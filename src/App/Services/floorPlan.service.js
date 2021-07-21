@@ -59,14 +59,16 @@ export const postLocationsAndEdges = async (
   prevEdges,
   newLocs,
   newEdges,
+  connectEdges,
   floorPlanId
 ) => {
   try {
+    const locConnects = createLocConnect(connectEdges);
     const { removedLocIds, removedEdgeIds, locs, edges } = createLocsAndEdges(
       prevLocs,
       prevEdges,
-      newLocs,
-      newEdges,
+      [...(newLocs ?? []), ...locConnects],
+      [...(newEdges ?? []), ...(connectEdges ?? [])],
       floorPlanId
     );
 
@@ -81,8 +83,11 @@ export const postLocationsAndEdges = async (
     if (locs.length) {
       locsCreate = await postLocations(locs);
     }
+
     if (edges.length) {
-      edgesCreate = postEdges(createEdgesData(edges, locsCreate, newLocs));
+      edgesCreate = await postEdges(
+        createEdgesData(edges, locsCreate, newLocs)
+      );
     }
     return { locsCreate, edgesCreate };
   } catch (error) {
@@ -90,6 +95,18 @@ export const postLocationsAndEdges = async (
   }
 };
 //#region Utils method for put & post locations/edges
+const createLocConnect = (connects) => {
+  const haveNoId = [];
+  connects?.forEach(({ fromLocation, toLocation }) => {
+    if (!fromLocation.id) {
+      haveNoId.push(fromLocation);
+    }
+    if (!toLocation.id) {
+      haveNoId.push(toLocation);
+    }
+  });
+  return haveNoId;
+};
 const createLocsAndEdges = (
   prevLocs,
   prevEdges,
@@ -113,10 +130,10 @@ const createLocsAndEdges = (
 };
 const createEdgesData = (edges, locations, newLocs) => {
   if (edges && edges.length && !locations) {
-    return edges.map(({ fromLocation, toLocation }) => ({
+    return edges.map(({ fromLocation, toLocation, floorCode }) => ({
       fromLocationId: fromLocation.id,
-      toLocation: toLocation.id,
-      distance: distance(fromLocation, toLocation),
+      toLocationId: toLocation.id,
+      distance: floorCode ? 0 : distance(fromLocation, toLocation),
     }));
   }
   const allLocation = [...locations, ...newLocs];

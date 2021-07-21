@@ -36,6 +36,7 @@ const postFloorPlanForm = createAsyncThunk(
       edge.list,
       map.markers,
       map.edges,
+      map.toCreateMarkers,
       id
     );
   }
@@ -50,6 +51,7 @@ const putFloorPlanForm = createAsyncThunk(
       edge.list,
       map.markers,
       map.edges,
+      map.toCreateMarkers,
       data.id
     );
   }

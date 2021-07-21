@@ -73,6 +73,13 @@ const StoreTable = ({ onRowClick, call }) => {
             );
           }}
         />
+        <Table.Column
+          title="Store owner"
+          key="storeOwner"
+          render={(value, record, index) => {
+            return <Typography.Text>{value.account.name}</Typography.Text>;
+          }}
+        />
         <Table.Column title="Status" key="status" dataIndex="status" />
       </Table>
     </>

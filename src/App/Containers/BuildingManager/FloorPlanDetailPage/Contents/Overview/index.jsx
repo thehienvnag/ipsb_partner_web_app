@@ -41,6 +41,7 @@ const Overview = ({ floor }) => {
 
   const { id } = useParams();
   const [form] = Form.useForm();
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     if (id === "create-new") {
@@ -65,6 +66,7 @@ const Overview = ({ floor }) => {
       } else {
         await dispatch(putFloorPlanForm(values));
       }
+      setRefresh(refresh + 1);
       message.success("Success!", "post/putFloor");
     } catch (error) {}
   };
@@ -167,6 +169,7 @@ const Overview = ({ floor }) => {
           <MapZoomPan
             src={src ?? floor?.imageUrl}
             floorPlanId={id !== "create-new" && floor?.id}
+            refresh={refresh}
           />
         </Col>
       </Row>

@@ -36,11 +36,14 @@ const DashboardSidebar = ({ isCollapsed }) => {
               }}
             >
               <img
-                src={logo}
-                style={{ transform: "scale(4.5)" }}
+                src={
+                  "https://scontent-sin6-4.xx.fbcdn.net/v/t1.15752-9/214828465_424955321998031_6613316950298200218_n.png?_nc_cat=103&ccb=1-3&_nc_sid=ae9488&_nc_ohc=dxgJtUjdWwEAX96kVMO&_nc_ht=scontent-sin6-4.xx&oh=8eec4e938ac68f07eceb897e0a2957c0&oe=60FC0407"
+                }
+                style={{ transform: "scale(2.5)" }}
                 alt="Tabler"
                 className="navbar-brand-image"
               />
+
               <img
                 src={logoText}
                 style={{

@@ -42,6 +42,7 @@ import {
   selectNextFloorMarker,
   selectToCreate,
   setToCreateMarkers,
+  removeNextFloor,
 } from "App/Stores/map.slice";
 import { selectListFloorCode, loadAll } from "App/Stores/floorPlan.slice";
 const stairSvg = process.env.PUBLIC_URL + "/stairs.svg";
@@ -84,8 +85,9 @@ const MapZoomPan = ({
   disabledPreview,
   mode = "floorPlan" || "Other",
   typeId = 2,
+  refresh,
   // mode = "Other" || "floorPlan",
-  // typeId = [3],
+  // typeId = 3,
   src,
   floorPlanId,
 }) => {
@@ -93,12 +95,18 @@ const MapZoomPan = ({
   const markers = useSelector(selectMarkers);
   const edges = useSelector(selectEdges);
   const selected = useSelector(selectSelected);
+  const [typeSelect, setTypeSelect] = useState(2);
   useEffect(() => {
     if (floorPlanId) {
       dispatch(loadEdgesOnFloor({ floorPlanId }));
       dispatch(loadLocationByFloor({ floorPlanId }));
     }
-  }, [dispatch, floorPlanId]);
+    setTypeSelect(typeId);
+  }, [dispatch, floorPlanId, typeId, refresh]);
+  const handleChangeType = (type) => {
+    console.log(type);
+    setTypeSelect(type);
+  };
   if (!src) {
     return (
       <Wrapper>
@@ -112,11 +120,13 @@ const MapZoomPan = ({
       <Wrapper
         disabledPreview={disabledPreview}
         mode={mode}
-        typeId={typeId}
+        typeId={typeSelect}
         src={src}
         markers={markers}
         edges={edges}
         selected={selected}
+        typeSelect={typeSelect}
+        handleChangeType={handleChangeType}
       >
         <TransformWrapper
           doubleClick={{ disabled: true }}
@@ -129,7 +139,7 @@ const MapZoomPan = ({
               markers={markers}
               edges={edges}
               selected={selected}
-              typeId={typeId}
+              typeId={typeSelect}
               src={src}
               rotate={0}
             />
@@ -149,6 +159,8 @@ const Wrapper = ({
   typeId,
   children,
   src,
+  typeSelect,
+  handleChangeType,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [scale, setScale] = useState(1);
@@ -164,9 +176,6 @@ const Wrapper = ({
   const onRotateRight = () => {
     if (rotate === 180) return;
     setRotate(rotate + 90);
-  };
-  const onClearAll = () => {
-    setIsClearAll(true);
   };
   const onDrawModeChange = (isDrawModeOn) => setEnableDrawMode(isDrawModeOn);
 
@@ -195,7 +204,9 @@ const Wrapper = ({
             onRotateLeft={onRotateLeft}
             onRotateRight={onRotateRight}
             onDrawModeChange={onDrawModeChange}
-            onClearAll={onClearAll}
+            mode={mode}
+            handleChangeType={handleChangeType}
+            typeSelect={typeSelect}
           />
         }
         wrapClassName={`modal-wrapper${rotate}`}
@@ -237,7 +248,9 @@ const ModalTitle = ({
   onRotateLeft,
   onRotateRight,
   onDrawModeChange,
-  onClearAll,
+  typeSelect,
+  handleChangeType,
+  mode,
 }) => {
   const [onOffSwitch, setOnOffSwitch] = useState("OFF");
   return (
@@ -256,6 +269,18 @@ const ModalTitle = ({
             onDrawModeChange(target.value === "ON");
           }}
         />
+        {mode === "floorPlan" && (
+          <Select
+            defaultValue={2}
+            value={typeSelect}
+            style={{ width: 180 }}
+            onChange={(value) => handleChangeType(value)}
+          >
+            <Select.Option value={2}>Điểm trên đường</Select.Option>
+            <Select.Option value={3}>Thang máy</Select.Option>
+            <Select.Option value={4}>Cầu thang</Select.Option>
+          </Select>
+        )}
       </Row>
       <Divider
         type="vertical"
@@ -330,7 +355,7 @@ const duplicateEdge = (edge, edges) => {
 const createMarkers = (location, markers, typeId = 2) => {
   if (markers.findIndex((item) => equal(item, location)) !== -1)
     return { markersNew: markers };
-  if (typeId === 2) {
+  if (typeId === 2 || typeId === 3 || typeId === 4) {
     return { markersNew: [...markers, location] };
   }
   return {
@@ -628,29 +653,41 @@ const StairLiftMenu = ({ location }) => {
   const edges = useSelector(selectEdges);
   const selected = useSelector(selectSelected);
   const connects = useSelector(selectToCreate);
+  const floors = useSelector(selectListFloorCode);
+  const [selectFloor, setSelectFloor] = useState(null);
 
   const handleSelect = (location) => {
     addLoc(location);
   };
-  useEffect(() => {}, [location]);
-  const addLoc = (location) => {
+  useEffect(() => {
+    if (!floors) {
+      dispatch(loadAll());
+    }
+    dispatch(removeNextFloor());
+  }, [dispatch]);
+
+  const addLoc = (connectLoc) => {
     dispatch(
       setToCreateMarkers([
-        ...connects,
-        { ...location, ...{ floorCode: selectFloor.floorCode } },
+        ...(connects ?? []),
+        {
+          fromLocation: location,
+          toLocation: connectLoc,
+          distance: 0,
+          floorCode: selectFloor?.floorCode,
+        },
       ])
     );
   };
-  const removeLoc = (location) => {
+  const containsConnect = ({ fromLocation, toLocation }) => {
+    return fromLocation === location || toLocation === location;
+  };
+  const removeLoc = (connectLoc) => {
     dispatch(
-      setToCreateMarkers([connects.filter(({ id }) => location.id !== id)])
+      setToCreateMarkers(connects.filter(({ id }) => connectLoc.id !== id))
     );
   };
-  useEffect(() => {
-    dispatch(loadAll());
-  }, [dispatch]);
-  const floors = useSelector(selectListFloorCode);
-  const [selectFloor, setSelectFloor] = useState(null);
+
   const handleChange = (value) => {
     dispatch(setSelectedFloorId(value));
   };
@@ -664,7 +701,11 @@ const StairLiftMenu = ({ location }) => {
     <Row>
       <div>
         <Menu title="Options" selectedKeys={["3"]}>
-          <Menu.Item className="custom-menu-item" icon={<SaveOutlined />}>
+          <Menu.Item
+            key={"saveBtn"}
+            className="custom-menu-item"
+            icon={<SaveOutlined />}
+          >
             Save
           </Menu.Item>
           <div>
@@ -674,27 +715,34 @@ const StairLiftMenu = ({ location }) => {
               onChange={handleChange}
               tokenSeparators={[","]}
             >
-              {floors?.map((item) => (
-                <Select.Option key={item.id}>
-                  <div onClick={() => setSelectFloor(item)}>
-                    Tầng {item.floorCode}
-                  </div>
-                </Select.Option>
-              ))}
+              {floors &&
+                floors?.map((item) => (
+                  <Select.Option key={item.id}>
+                    <div onClick={() => setSelectFloor(item)}>
+                      Tầng {item.floorCode}
+                    </div>
+                  </Select.Option>
+                ))}
             </Select>
             <div style={{ marginLeft: 15 }}>
-              {connects.map((item) => (
-                <Tag key={item.id} closable onClose={() => removeLoc(item)}>
-                  Tầng {item.floorCode}
-                </Tag>
-              ))}
+              {connects &&
+                connects.map((item) => {
+                  if (!containsConnect(item)) {
+                    return <></>;
+                  }
+                  return (
+                    <Tag key={item.id} closable onClose={() => removeLoc(item)}>
+                      Tầng {item.floorCode}
+                    </Tag>
+                  );
+                })}
             </div>
           </div>
 
           <Menu.Item
             onClick={onDelete}
             className="custom-menu-item"
-            key="1"
+            key="removeBtn"
             icon={<DeleteOutlined />}
           >
             Remove
@@ -763,7 +811,6 @@ const PlaceMarker = ({
   const { x, y, store, locationTypeId } = location;
   const getMenu = () => {
     if (mode === "floorPlan") return <></>;
-    if (typeId != locationTypeId) return <></>;
     switch (locationTypeId) {
       case 3:
       case 4:
