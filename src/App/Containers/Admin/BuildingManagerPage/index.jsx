@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, Menu, Table, Tag, Typography, Avatar } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
+import { SearchOutlined } from "@ant-design/icons";
 import { getBase64 } from "App/Utils/utils";
 import {
   loadAccounts,
@@ -37,11 +38,13 @@ import {
 } from "App/Services/account.service";
 
 const BuildingManagerPage = () => {
-  const [idsDelete, setIdsDelete] = useState([]);
+  const [searchText, setSeachText] = useState(null);
 
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [firstTimeLoading, setFirstTimeLoading] = useState(false);
+
   //#endregion
   //#region handle event functions
   const { Option } = Select;
@@ -83,9 +86,13 @@ const BuildingManagerPage = () => {
 
   useEffect(() => {
     dispatch(loadAccounts());
-  }, [dispatch]);
+    if (!firstTimeLoading) {
+      setFirstTimeLoading(true);
+    }
+  }, [firstTimeLoading]);
 
   const [visibleDetail, setVisibleDetail] = useState(false);
+
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [formDetail] = Form.useForm();
   const [formCreate] = Form.useForm();
@@ -103,6 +110,7 @@ const BuildingManagerPage = () => {
     formCreate.resetFields();
     setImageUrl(null);
   };
+
   const hideModalDetail = () => {
     setVisibleDetail(false);
     formDetail.resetFields();
@@ -219,6 +227,57 @@ const BuildingManagerPage = () => {
     );
   }
 
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          // onPressEnter={() =>
+          //   this.handleSearch(selectedKeys, confirm, dataIndex)
+          // }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            // onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+  });
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSeachText(null);
+  };
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSeachText(selectedKeys[0]);
+  };
+
   return (
     <PageWrapper className="building-page">
       <Header
@@ -272,6 +331,56 @@ const BuildingManagerPage = () => {
                 title="Name"
                 dataIndex="name"
                 key="name"
+                filterDropdown={({
+                  setSelectedKeys,
+                  selectedKeys,
+                  confirm,
+                  clearFilters,
+                  dataIndex,
+                }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search name manager`}
+                      value={selectedKeys[0]}
+                      onChange={(e) =>
+                        setSelectedKeys(e.target.value ? [e.target.value] : [])
+                      }
+                      onPressEnter={() =>
+                        handleSearch(selectedKeys, confirm, dataIndex)
+                      }
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() =>
+                          handleSearch(selectedKeys, confirm, dataIndex)
+                        }
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                      <Button
+                        onClick={() => handleReset(clearFilters)}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Reset
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
+                onFilter={(value, record) =>
+                  record["name"]
+                    ? record["name"]
+                        .toString()
+                        .toLowerCase()
+                        .includes(value.toLowerCase())
+                    : ""
+                }
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
 
@@ -281,12 +390,112 @@ const BuildingManagerPage = () => {
                 key="email"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({
+                  setSelectedKeys,
+                  selectedKeys,
+                  confirm,
+                  clearFilters,
+                  dataIndex,
+                }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search email`}
+                      value={selectedKeys[0]}
+                      onChange={(e) =>
+                        setSelectedKeys(e.target.value ? [e.target.value] : [])
+                      }
+                      onPressEnter={() =>
+                        handleSearch(selectedKeys, confirm, dataIndex)
+                      }
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() =>
+                          handleSearch(selectedKeys, confirm, dataIndex)
+                        }
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                      <Button
+                        onClick={() => handleReset(clearFilters)}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Reset
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
+                onFilter={(value, record) =>
+                  record["email"]
+                    ? record["email"]
+                        .toString()
+                        .toLowerCase()
+                        .includes(value.toLowerCase())
+                    : ""
+                }
               />
               <Table.Column
                 title="Phone"
                 dataIndex="phone"
                 key="phone"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({
+                  setSelectedKeys,
+                  selectedKeys,
+                  confirm,
+                  clearFilters,
+                  dataIndex,
+                }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search phone`}
+                      value={selectedKeys[0]}
+                      onChange={(e) =>
+                        setSelectedKeys(e.target.value ? [e.target.value] : [])
+                      }
+                      onPressEnter={() =>
+                        handleSearch(selectedKeys, confirm, dataIndex)
+                      }
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() =>
+                          handleSearch(selectedKeys, confirm, dataIndex)
+                        }
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                      <Button
+                        onClick={() => handleReset(clearFilters)}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Reset
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
+                onFilter={(value, record) =>
+                  record["phone"]
+                    ? record["phone"]
+                        .toString()
+                        .toLowerCase()
+                        .includes(value.toLowerCase())
+                    : ""
+                }
               />
 
               <Table.Column
@@ -294,18 +503,36 @@ const BuildingManagerPage = () => {
                 dataIndex="status"
                 key="status"
                 render={(value) => {
-                  if (!value) {
-                    value =
-                      Math.floor(Math.random() * 2) % 2 === 0
-                        ? "Active"
-                        : "Inactive";
-                  }
+                  // if (!value) {
+                  //   value =
+                  //     Math.floor(Math.random() * 2) % 2 === 0
+                  //       ? "Active"
+                  //       : "Inactive";
+                  // }
                   return (
                     <Tag color={value === "Active" ? "blue" : "red"}>
                       {value}
                     </Tag>
                   );
                 }}
+                filters={[
+                  { text: "All", value: "" },
+                  { text: "Active", value: "Active" },
+                  { text: "New", value: "New" },
+                  { text: "Inactive", value: "Inactive" },
+                ]}
+                onFilter={
+                  (value, record) =>
+                    //console.log("ne nè: ", value)
+                    dispatch(loadAccounts({ status: value }))
+
+                  // record["status"]
+                  //   ? record["status"]
+                  //       .toString()
+                  //       .toLowerCase()
+                  //       .includes(value.toLowerCase())
+                  //   : ""
+                }
               />
             </Table>
             <Modal
