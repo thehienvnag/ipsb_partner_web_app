@@ -1,18 +1,17 @@
 import { accounts } from "../Constants/endpoints";
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 /**
- * Page wrapper for new page
+ * Get accounts functions
  * @param {object} [params] parameters for get request
- * @param {number} [params.pageIndex] current page of get request
- * @param {number} [params.pageSize] current page size of get request
  */
 export const getAccounts = async ({
   pageIndex = 1,
   pageSize = 5,
   role = "Building Manager",
   isAll = false,
+  searchObject = {},
 }) => {
-  const params = { pageIndex, pageSize, role, isAll };
+  const params = { pageIndex, pageSize, role, isAll, ...searchObject };
   const response = await axiosClient.get(accounts, { params });
   return response.data;
 };

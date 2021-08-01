@@ -43,7 +43,8 @@ const BuildingManagerPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [firstTimeLoading, setFirstTimeLoading] = useState(false);
+  const [search, setSearch] = useState(null);
+  // const [firstTimeLoading, setFirstTimeLoading] = useState(true);
 
   //#endregion
   //#region handle event functions
@@ -52,7 +53,13 @@ const BuildingManagerPage = () => {
     setSelectedItems(values);
   };
   const handlePaging = (number) => {
-    dispatch(loadAccounts({ pageIndex: number }));
+    console.log(number);
+    if (search) {
+      console.log(search);
+      dispatch(loadAccounts({ pageIndex: number, searchObject: search }));
+    } else {
+      dispatch(loadAccounts({ pageIndex: number }));
+    }
     setCurrentPage(number);
   };
   const handleRefresh = () => {
@@ -62,7 +69,7 @@ const BuildingManagerPage = () => {
   const handleDelete = async () => {
     const data = await deleteAccounts(selectedItems);
     console.log(selectedItems);
-    if (data == "Request failed with status code 405") {
+    if (data === "Request failed with status code 405") {
       message.error("Method Not Allowed", 4);
     } else {
       message
@@ -86,10 +93,7 @@ const BuildingManagerPage = () => {
 
   useEffect(() => {
     dispatch(loadAccounts());
-    if (!firstTimeLoading) {
-      setFirstTimeLoading(true);
-    }
-  }, [firstTimeLoading]);
+  }, [dispatch]);
 
   const [visibleDetail, setVisibleDetail] = useState(false);
 
@@ -342,9 +346,14 @@ const BuildingManagerPage = () => {
                     <Input
                       placeholder={`Search name manager`}
                       value={selectedKeys[0]}
-                      onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ name: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
                       onPressEnter={() =>
                         handleSearch(selectedKeys, confirm, dataIndex)
                       }
@@ -353,34 +362,34 @@ const BuildingManagerPage = () => {
                     <Space>
                       <Button
                         type="primary"
-                        onClick={() =>
-                          handleSearch(selectedKeys, confirm, dataIndex)
-                        }
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
                         icon={<SearchOutlined />}
                         size="small"
                         style={{ width: 100 }}
                       >
                         Search
                       </Button>
-                      <Button
+                      {/* <Button
                         onClick={() => handleReset(clearFilters)}
                         size="small"
                         style={{ width: 100 }}
                       >
                         Reset
-                      </Button>
+                      </Button> */}
                     </Space>
                   </div>
                 )}
                 filterIcon={<SearchOutlined />}
-                onFilter={(value, record) =>
-                  record["name"]
-                    ? record["name"]
-                        .toString()
-                        .toLowerCase()
-                        .includes(value.toLowerCase())
-                    : ""
-                }
+                // onFilter={(value, record) =>
+                //   record["name"]
+                //     ? record["name"]
+                //         .toString()
+                //         .toLowerCase()
+                //         .includes(value.toLowerCase())
+                //     : ""
+                // }
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
 
@@ -522,9 +531,8 @@ const BuildingManagerPage = () => {
                   { text: "Inactive", value: "Inactive" },
                 ]}
                 onFilter={
-                  (value, record) =>
-                    //console.log("ne nè: ", value)
-                    dispatch(loadAccounts({ status: value }))
+                  (value, record) => true
+                  // dispatch(loadAccounts({ status: value }))
 
                   // record["status"]
                   //   ? record["status"]
