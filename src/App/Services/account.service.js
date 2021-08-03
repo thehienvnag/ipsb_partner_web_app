@@ -8,10 +8,28 @@ export const getAccounts = async ({
   pageIndex = 1,
   pageSize = 5,
   role = "Building Manager",
+  status = "Active",
   isAll = false,
   searchObject = {},
 }) => {
-  const params = { pageIndex, pageSize, role, isAll, ...searchObject };
+  const params = { pageIndex, pageSize, role, status, isAll, ...searchObject };
+  const response = await axiosClient.get(accounts, { params });
+  return response.data;
+};
+
+/**
+ * Get accounts with store owner role functions
+ * @param {object} [params] parameters for get request
+ */
+export const getAccountsStoreOwner = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  role = "Store Owner",
+  status = "Active",
+  isAll = false,
+  searchObject = {},
+}) => {
+  const params = { pageIndex, pageSize, status, role, isAll, ...searchObject };
   const response = await axiosClient.get(accounts, { params });
   return response.data;
 };
@@ -63,7 +81,11 @@ export const testPoseWithoutFile = async (data) => {
  */
 export const deleteAccounts = async (ids = []) => {
   try {
-    await axiosClient.delete(accounts, { params: { ids } });
+    const removeAll = ids.map(
+      async (id) => await axiosClient.delete(accounts + "/" + id)
+    );
+    await Promise.all(removeAll);
+    // await axiosClient.delete(accounts, { params: { ids } });
   } catch (error) {
     console.log(error?.message);
     return error?.message;

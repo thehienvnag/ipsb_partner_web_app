@@ -9,13 +9,14 @@ import {
   selectListAccount,
   selectPageSize,
   selectTotalCount,
-} from "App/Stores/account.slice";
+} from "App/Stores/accountStoreOwner.slice";
 import "./index.scss";
 import Header from "./Header";
 import {
   GlobalOutlined,
   SettingOutlined,
   UploadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -30,6 +31,7 @@ import {
   Modal,
   Space,
   Avatar,
+  Checkbox,
 } from "antd";
 import { postAccount, putAccount } from "App/Services/account.service";
 
@@ -37,16 +39,24 @@ const StoreOwnerPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState(null);
   //#endregion
   //#region handle event functions
   const { Option } = Select;
   const handleRows = (values) => setSelectedItems(values);
   const handlePaging = (number) => {
-    dispatch(loadAccounts({ pageIndex: number }));
+    if (search) {
+      console.log(search);
+      dispatch(
+        loadAccounts({ pageIndex: number, searchObject: search, status: "" })
+      );
+    } else {
+      dispatch(loadAccounts({ pageIndex: number }));
+    }
     setCurrentPage(number);
   };
   const handleRefresh = () => {
-    dispatch(loadAccounts({ role: "Store Owner", pageIndex: currentPage }));
+    dispatch(loadAccounts({ pageIndex: currentPage }));
   };
 
   const handleDelete = () => {};
@@ -63,7 +73,7 @@ const StoreOwnerPage = () => {
   //#endregion
 
   useEffect(() => {
-    dispatch(loadAccounts({ role: "Store Owner" }));
+    dispatch(loadAccounts());
   }, [dispatch]);
 
   const [visibleDetail, setVisibleDetail] = useState(false);
@@ -254,6 +264,38 @@ const StoreOwnerPage = () => {
                 dataIndex="name"
                 key="name"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search name manager`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ name: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
 
               <Table.Column
@@ -262,12 +304,76 @@ const StoreOwnerPage = () => {
                 key="email"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search email`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ email: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
               <Table.Column
                 title="Phone"
                 dataIndex="phone"
                 key="phone"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search phone`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ phone: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
 
               <Table.Column
@@ -287,6 +393,57 @@ const StoreOwnerPage = () => {
                     </Tag>
                   );
                 }}
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Checkbox.Group
+                        style={{ width: "100%" }}
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Checkbox value="">All</Checkbox>
+                        <Checkbox value="New">New</Checkbox>
+                        <Checkbox value="Active">Active</Checkbox>
+                        <Checkbox value="Inactive">Inactive</Checkbox>
+                      </Checkbox.Group>
+
+                      {/* <Select
+                        placeholder="Select Status"
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Option value="">All</Option>
+                        <Option value="New">New</Option>
+                        <Option value="Active">Active</Option>
+                        <Option value="Inactive">Inactive</Option>
+                      </Select> */}
+
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Filter
+                      </Button>
+                    </Space>
+                  </div>
+                )}
               />
             </Table>
             <Modal

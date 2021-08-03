@@ -30,6 +30,7 @@ import {
   message,
   Modal,
   Space,
+  Checkbox,
 } from "antd";
 import {
   postAccount,
@@ -38,13 +39,10 @@ import {
 } from "App/Services/account.service";
 
 const BuildingManagerPage = () => {
-  const [searchText, setSeachText] = useState(null);
-
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState(null);
-  // const [firstTimeLoading, setFirstTimeLoading] = useState(true);
 
   //#endregion
   //#region handle event functions
@@ -56,7 +54,9 @@ const BuildingManagerPage = () => {
     console.log(number);
     if (search) {
       console.log(search);
-      dispatch(loadAccounts({ pageIndex: number, searchObject: search }));
+      dispatch(
+        loadAccounts({ pageIndex: number, searchObject: search, status: "" })
+      );
     } else {
       dispatch(loadAccounts({ pageIndex: number }));
     }
@@ -231,57 +231,6 @@ const BuildingManagerPage = () => {
     );
   }
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          // onPressEnter={() =>
-          //   this.handleSearch(selectedKeys, confirm, dataIndex)
-          // }
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            // onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-        </Space>
-      </div>
-    ),
-  });
-
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSeachText(null);
-  };
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSeachText(selectedKeys[0]);
-  };
-
   return (
     <PageWrapper className="building-page">
       <Header
@@ -335,13 +284,7 @@ const BuildingManagerPage = () => {
                 title="Name"
                 dataIndex="name"
                 key="name"
-                filterDropdown={({
-                  setSelectedKeys,
-                  selectedKeys,
-                  confirm,
-                  clearFilters,
-                  dataIndex,
-                }) => (
+                filterDropdown={({ selectedKeys }) => (
                   <div style={{ padding: 8 }}>
                     <Input
                       placeholder={`Search name manager`}
@@ -354,9 +297,7 @@ const BuildingManagerPage = () => {
                           setSearch(null);
                         }
                       }}
-                      onPressEnter={() =>
-                        handleSearch(selectedKeys, confirm, dataIndex)
-                      }
+                      onPressEnter={() => handlePaging(1)}
                       style={{ marginBottom: 8, display: "block" }}
                     />
                     <Space>
@@ -371,25 +312,10 @@ const BuildingManagerPage = () => {
                       >
                         Search
                       </Button>
-                      {/* <Button
-                        onClick={() => handleReset(clearFilters)}
-                        size="small"
-                        style={{ width: 100 }}
-                      >
-                        Reset
-                      </Button> */}
                     </Space>
                   </div>
                 )}
                 filterIcon={<SearchOutlined />}
-                // onFilter={(value, record) =>
-                //   record["name"]
-                //     ? record["name"]
-                //         .toString()
-                //         .toLowerCase()
-                //         .includes(value.toLowerCase())
-                //     : ""
-                // }
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
 
@@ -399,112 +325,76 @@ const BuildingManagerPage = () => {
                 key="email"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
-                filterDropdown={({
-                  setSelectedKeys,
-                  selectedKeys,
-                  confirm,
-                  clearFilters,
-                  dataIndex,
-                }) => (
+                filterDropdown={({ selectedKeys }) => (
                   <div style={{ padding: 8 }}>
                     <Input
-                      placeholder={`Search email`}
+                      placeholder={`Search email manager`}
                       value={selectedKeys[0]}
-                      onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                      }
-                      onPressEnter={() =>
-                        handleSearch(selectedKeys, confirm, dataIndex)
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ email: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
                       style={{ marginBottom: 8, display: "block" }}
                     />
                     <Space>
                       <Button
                         type="primary"
-                        onClick={() =>
-                          handleSearch(selectedKeys, confirm, dataIndex)
-                        }
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
                         icon={<SearchOutlined />}
                         size="small"
                         style={{ width: 100 }}
                       >
                         Search
                       </Button>
-                      <Button
-                        onClick={() => handleReset(clearFilters)}
-                        size="small"
-                        style={{ width: 100 }}
-                      >
-                        Reset
-                      </Button>
                     </Space>
                   </div>
                 )}
                 filterIcon={<SearchOutlined />}
-                onFilter={(value, record) =>
-                  record["email"]
-                    ? record["email"]
-                        .toString()
-                        .toLowerCase()
-                        .includes(value.toLowerCase())
-                    : ""
-                }
               />
               <Table.Column
                 title="Phone"
                 dataIndex="phone"
                 key="phone"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
-                filterDropdown={({
-                  setSelectedKeys,
-                  selectedKeys,
-                  confirm,
-                  clearFilters,
-                  dataIndex,
-                }) => (
+                filterDropdown={({ selectedKeys }) => (
                   <div style={{ padding: 8 }}>
                     <Input
-                      placeholder={`Search phone`}
+                      placeholder={`Search phone manager`}
                       value={selectedKeys[0]}
-                      onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                      }
-                      onPressEnter={() =>
-                        handleSearch(selectedKeys, confirm, dataIndex)
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ phone: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
                       style={{ marginBottom: 8, display: "block" }}
                     />
                     <Space>
                       <Button
                         type="primary"
-                        onClick={() =>
-                          handleSearch(selectedKeys, confirm, dataIndex)
-                        }
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
                         icon={<SearchOutlined />}
                         size="small"
                         style={{ width: 100 }}
                       >
                         Search
                       </Button>
-                      <Button
-                        onClick={() => handleReset(clearFilters)}
-                        size="small"
-                        style={{ width: 100 }}
-                      >
-                        Reset
-                      </Button>
                     </Space>
                   </div>
                 )}
                 filterIcon={<SearchOutlined />}
-                onFilter={(value, record) =>
-                  record["phone"]
-                    ? record["phone"]
-                        .toString()
-                        .toLowerCase()
-                        .includes(value.toLowerCase())
-                    : ""
-                }
               />
 
               <Table.Column
@@ -512,35 +402,63 @@ const BuildingManagerPage = () => {
                 dataIndex="status"
                 key="status"
                 render={(value) => {
-                  // if (!value) {
-                  //   value =
-                  //     Math.floor(Math.random() * 2) % 2 === 0
-                  //       ? "Active"
-                  //       : "Inactive";
-                  // }
                   return (
                     <Tag color={value === "Active" ? "blue" : "red"}>
                       {value}
                     </Tag>
                   );
                 }}
-                filters={[
-                  { text: "All", value: "" },
-                  { text: "Active", value: "Active" },
-                  { text: "New", value: "New" },
-                  { text: "Inactive", value: "Inactive" },
-                ]}
-                onFilter={
-                  (value, record) => true
-                  // dispatch(loadAccounts({ status: value }))
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Checkbox.Group
+                        style={{ width: "100%" }}
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Checkbox value="">All</Checkbox>
+                        <Checkbox value="Active">Active</Checkbox>
+                        <Checkbox value="New">New</Checkbox>
+                        <Checkbox value="Inactive">Inactive</Checkbox>
+                      </Checkbox.Group>
 
-                  // record["status"]
-                  //   ? record["status"]
-                  //       .toString()
-                  //       .toLowerCase()
-                  //       .includes(value.toLowerCase())
-                  //   : ""
-                }
+                      {/* <Select
+                        placeholder="Select Status"
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Option value="">All</Option>
+                        <Option value="New">New</Option>
+                        <Option value="Active">Active</Option>
+                        <Option value="Inactive">Inactive</Option>
+                      </Select> */}
+
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Filter
+                      </Button>
+                    </Space>
+                  </div>
+                )}
               />
             </Table>
             <Modal
