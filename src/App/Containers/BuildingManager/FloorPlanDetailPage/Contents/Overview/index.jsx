@@ -14,7 +14,7 @@ import {
 } from "antd";
 import { getBase64 } from "App/Utils/utils";
 import { SaveOutlined, UploadOutlined } from "@ant-design/icons";
-import MapZoomPan from "App/Components/IndoorMap/MapZoomPan";
+import IndoorMap from "App/Components/IndoorMap/index";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { removeLocations } from "App/Stores/location.slice";
@@ -24,15 +24,6 @@ import {
   putFloorPlanForm,
 } from "App/Stores/floorPlan.slice";
 
-const types = [
-  { id: 1, name: "Cửa hàng" },
-  { id: 2, name: "Đường đi" },
-  { id: 3, name: "Thang máy" },
-  { id: 4, name: "Cầu thang" },
-  { id: 5, name: "Beacon" },
-  { id: 6, name: "Checkout" },
-  { id: 10, name: "Nhà vệ sinh" },
-];
 const Overview = ({ floor }) => {
   const [componentSize, setComponentSize] = useState("default");
   const dispatch = useDispatch();
@@ -166,7 +157,7 @@ const Overview = ({ floor }) => {
         </Col>
         <Col className="col-md-7">
           <Row></Row>
-          <MapZoomPan
+          <IndoorMap
             src={src ?? floor?.imageUrl}
             floorPlanId={id !== "create-new" && floor?.id}
             refresh={refresh}

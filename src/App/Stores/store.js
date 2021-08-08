@@ -7,6 +7,7 @@ import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
 import locationTypeReducer from "./locationType.slice";
 import mapReducer from "./map.slice";
+import indoorMapReducer from "./indoorMap.slice";
 import authReducer from "./auth.slice";
 
 export const Store = configureStore({
@@ -19,6 +20,7 @@ export const Store = configureStore({
     account: accountReducer,
     locatorTag: locatorTagReducer,
     locationType: locationTypeReducer,
+    indoorMap: indoorMapReducer,
     map: mapReducer,
   },
 });
