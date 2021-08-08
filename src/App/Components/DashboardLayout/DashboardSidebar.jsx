@@ -7,7 +7,7 @@ import { BsBuilding, BsFillPersonLinesFill } from "react-icons/bs";
 import { GoLocation } from "react-icons/go";
 import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
 const { Sider } = Layout;
-const logo = process.env.PUBLIC_URL + "/logo.svg";
+const logo = process.env.PUBLIC_URL + "/logo.png";
 const logoText = process.env.PUBLIC_URL + "/logo-text.png";
 const DashboardSidebar = ({ isCollapsed }) => {
   const { pathname } = useLocation();
@@ -36,9 +36,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
               }}
             >
               <img
-                src={
-                  "https://scontent-sin6-4.xx.fbcdn.net/v/t1.15752-9/214828465_424955321998031_6613316950298200218_n.png?_nc_cat=103&ccb=1-3&_nc_sid=ae9488&_nc_ohc=dxgJtUjdWwEAX96kVMO&_nc_ht=scontent-sin6-4.xx&oh=8eec4e938ac68f07eceb897e0a2957c0&oe=60FC0407"
-                }
+                src={logo}
                 style={{ transform: "scale(2.5)" }}
                 alt="Tabler"
                 className="navbar-brand-image"
@@ -47,7 +45,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
               <img
                 src={logoText}
                 style={{
-                  transform: "scale(1.8) translate(26px, 0px)",
+                  transform: "scale(1.8) translate(30px, 0px)",
                 }}
                 alt="Tabler"
                 className="navbar-brand-image"
