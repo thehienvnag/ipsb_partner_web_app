@@ -73,7 +73,6 @@ const Slice = createSlice({
   },
   reducers: {
     setSelected: (state, { payload }) => {
-      console.log("set selected");
       if (!state.selected) {
         state.selected = payload;
         return;
@@ -170,27 +169,38 @@ const Slice = createSlice({
 
 //Floor plan selector to observe data
 //#region [typesSelect, locationTypes]
-const selectMarkers = ({ indoorMap, locationType, location }) => {
-  const { createdLocations, removedLocationIds } = indoorMap;
-  const { list } = location;
-  const result = list?.content?.filter(
-    ({ id }) => !removedLocationIds.includes(id)
+const selectMarkers = ({ indoorMap, locationType, location, edge }) => {
+  const { createdLocations, removedLocationIds, createdEdges, removedEdgeIds } =
+    indoorMap;
+
+  const locationsToDisplay = LocationHelper.display(
+    location.list,
+    createdLocations,
+    removedLocationIds,
+    locationType.typesSelect
   );
-  return [...(result ?? []), ...createdLocations].filter(({ locationTypeId }) =>
-    locationType.typesSelect.includes(locationTypeId)
+  const totalEdges = EdgeHelper.display(
+    edge.list,
+    createdEdges,
+    removedEdgeIds,
+    locationType.typesSelect
   );
+  const floorConnectEdges = EdgeHelper.getFloorConnectEdges(totalEdges);
+  const result = locationsToDisplay.map((loc) =>
+    LocationHelper.appendEdge(floorConnectEdges, loc)
+  );
+  console.log(result.filter(({ floorConnects }) => floorConnects.length));
+  return result;
 };
 
 const selectEdges = ({ indoorMap, locationType, edge }) => {
   const { createdEdges, removedEdgeIds } = indoorMap;
   const { list } = edge;
-  const result = list?.content?.filter(
-    ({ id }) => !removedEdgeIds.includes(id)
-  );
-  return [...(result ?? []), ...createdEdges].filter(
-    ({ fromLocation, toLocation }) =>
-      locationType.typesSelect.includes(fromLocation.locationTypeId) &&
-      locationType.typesSelect.includes(toLocation.locationTypeId)
+  return EdgeHelper.display(
+    list,
+    createdEdges,
+    removedEdgeIds,
+    locationType.typesSelect
   );
 };
 
@@ -208,7 +218,6 @@ const selectNextFloorSelected = ({ indoorMap }) => indoorMap.nextFloorSelected;
 
 /// Export reducer
 const {
-  removeEdge,
   setSelected,
   setNextFloorImg,
   setNextFloorMarkers,

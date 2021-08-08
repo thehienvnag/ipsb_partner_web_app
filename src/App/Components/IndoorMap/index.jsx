@@ -22,10 +22,10 @@ import {
   RotateRightOutlined,
   DeleteOutlined,
   SaveOutlined,
+  LinkOutlined,
 } from "@ant-design/icons";
 import { MdMyLocation } from "react-icons/md";
 import "./index.scss";
-import { pointInRect, duplicateLocation } from "App/Utils/utils";
 import {
   selectLocationTypes,
   setTypesSelect,
@@ -51,9 +51,6 @@ const stairSvg = process.env.PUBLIC_URL + "/stairs.svg";
 const restroom = process.env.PUBLIC_URL + "/restroom.svg";
 const elevator = process.env.PUBLIC_URL + "/elevator.svg";
 const stores = process.env.PUBLIC_URL + "/stores.svg";
-
-const equal = (one, that) =>
-  ((one?.id || that?.id) && one?.id === that?.id) || one === that;
 
 const FilterDropdown = ({ className }) => {
   const dispatch = useDispatch();
@@ -157,7 +154,7 @@ const Wrapper = ({
   markers,
   edges,
   selected,
-  mode,
+  mode = "floorPlan",
   typeId,
   children,
   src,
@@ -345,6 +342,7 @@ const ImageRealSize = ({
   const onPathClick = (location, evt) => {
     evt.preventDefault();
     const { type, shiftKey } = evt;
+    console.log(location, type, mode);
     if (type === "contextmenu" && mode === "floorPlan") {
       dispatch(removeLocation(location));
     } else if (type === "click" && !shiftKey) {
@@ -390,6 +388,7 @@ const ImageRealSize = ({
         edges={edges}
         selected={selected}
         onPathClick={enabled ? onPathClick : () => {}}
+        mode={mode}
       />
     </div>
   );
@@ -403,13 +402,14 @@ const SvgWrapper = ({
   edges,
   selected,
   onPathClick,
+  mode = "floorPlan",
 }) => {
   return (
     <Svg width={dimension.width ?? 0} height={dimension.height ?? 0}>
       {edges &&
         edges.map(({ fromLocation, toLocation }, index) => (
           <Polyline
-            key={"path" + index}
+            key={index}
             points={[
               [fromLocation.x, fromLocation.y],
               [toLocation.x, toLocation.y],
@@ -431,6 +431,7 @@ const SvgWrapper = ({
             selected={selected}
             onPathClick={onPathClick}
             rotate={rotate}
+            mode={mode}
           />
         ))}
     </Svg>
@@ -441,7 +442,7 @@ const PathWrapper = ({
   key,
   rotate,
   selected,
-  mode,
+  mode = "floorPlan",
   typeId,
   location,
   onPathClick,
@@ -467,7 +468,7 @@ const PathWrapper = ({
   }
   return (
     <>
-      {equal(location, selected) ? (
+      {LocationHelper.equal(location, selected) ? (
         <SelectedMarker
           location={location}
           selected={selected}
@@ -517,15 +518,8 @@ const SelectedMarker = ({ location, onPathClick, rotate }) => {
 };
 const DeleteMenu = ({ location }) => {
   const dispatch = useDispatch();
-  const markers = useSelector(selectMarkers);
-  const edges = useSelector(selectEdges);
-  const selected = useSelector(selectSelected);
 
-  const onDelete = async () => {
-    // dispatch(setMarkers(markersAfterDelete(location, markers)));
-    // dispatch(setEdges(edgesAfterDelete(location, edges)));
-    // dispatch(setSelected(selectedChanged(location, selected, true)));
-  };
+  const onDelete = async () => {};
   return (
     <Menu>
       <Menu.Item
@@ -542,10 +536,6 @@ const DeleteMenu = ({ location }) => {
 
 const StairLiftMenu = ({ location }) => {
   const dispatch = useDispatch();
-  const markers = useSelector(selectMarkers);
-  const edges = useSelector(selectEdges);
-  const selected = useSelector(selectSelected);
-  const connects = useSelector(selectToCreate);
   const floors = useSelector(selectListFloorCode);
   const [selectFloor, setSelectFloor] = useState(null);
 
@@ -560,36 +550,30 @@ const StairLiftMenu = ({ location }) => {
   }, [dispatch]);
 
   const addLoc = (connectLoc) => {
-    dispatch(
-      setToCreateMarkers([
-        ...(connects ?? []),
-        {
-          fromLocation: location,
-          toLocation: connectLoc,
-          distance: 0,
-          floorCode: selectFloor?.floorCode,
-        },
-      ])
-    );
+    // dispatch(
+    //   setToCreateMarkers([
+    //     ...(connects ?? []),
+    //     {
+    //       fromLocation: location,
+    //       toLocation: connectLoc,
+    //       distance: 0,
+    //       floorCode: selectFloor?.floorCode,
+    //     },
+    //   ])
+    // );
   };
-  const containsConnect = ({ fromLocation, toLocation }) => {
-    return fromLocation === location || toLocation === location;
-  };
+
   const removeLoc = (connectLoc) => {
-    dispatch(
-      setToCreateMarkers(connects.filter(({ id }) => connectLoc.id !== id))
-    );
+    // dispatch(
+    //   setToCreateMarkers(connects.filter(({ id }) => connectLoc.id !== id))
+    // );
   };
 
   const handleChange = (value) => {
     dispatch(setSelectedFloorId(value));
   };
 
-  const onDelete = async () => {
-    // dispatch(setMarkers(markersAfterDelete(location, markers)));
-    // dispatch(setEdges(edgesAfterDelete(location, edges)));
-    // dispatch(setSelected(selectedChanged(location, selected, true)));
-  };
+  const onDelete = async () => {};
   return (
     <Row>
       <div>
@@ -618,17 +602,12 @@ const StairLiftMenu = ({ location }) => {
                 ))}
             </Select>
             <div style={{ marginLeft: 15 }}>
-              {connects &&
-                connects.map((item) => {
-                  if (!containsConnect(item)) {
-                    return <></>;
-                  }
-                  return (
-                    <Tag key={item.id} closable onClose={() => removeLoc(item)}>
-                      Tầng {item.floorCode}
-                    </Tag>
-                  );
-                })}
+              {location.floorConnects &&
+                location.floorConnects.map((item) => (
+                  <Tag key={item.id} closable onClose={() => removeLoc(item)}>
+                    <LinkOutlined /> Tầng {item.floorPlan.floorCode}
+                  </Tag>
+                ))}
             </div>
           </div>
 
@@ -644,12 +623,14 @@ const StairLiftMenu = ({ location }) => {
       </div>
       <ChooseStairLiftConnection
         handleSelect={handleSelect}
-        floorPlanId={location.floorPlanId}
+        floorConnects={location.floorConnects.filter(
+          ({ floorPlanId }) => floorPlanId === selectFloor?.id
+        )}
       />
     </Row>
   );
 };
-const ChooseStairLiftConnection = ({ floorPlanId, handleSelect }) => {
+const ChooseStairLiftConnection = ({ handleSelect, floorConnects }) => {
   const [scale, setScale] = useState(0.1);
   const src = useSelector(selectNextFloorImg);
   const markers = useSelector(selectNextFloorMarker);
@@ -673,7 +654,7 @@ const ChooseStairLiftConnection = ({ floorPlanId, handleSelect }) => {
         doubleClick={{ disabled: true }}
         initialScale={0.3}
         minScale={0.3}
-        maxScale={1}
+        maxScale={1.4}
         onZoom={(value) => {
           const { scale } = value.state;
           setScale(scale);
@@ -686,6 +667,7 @@ const ChooseStairLiftConnection = ({ floorPlanId, handleSelect }) => {
             markers={markers ?? []}
             handleSelect={handleSelect}
             enabled={true}
+            mode="chooseStairLift"
           />
         </TransformComponent>
       </TransformWrapper>
@@ -698,12 +680,13 @@ const PlaceMarker = ({
   location,
   selected,
   onPathClick,
-  mode,
+  mode = "floorPlan",
   typeId,
 }) => {
-  const { x, y, store, locationTypeId } = location;
+  const { x, y, store, locationTypeId, floorConnects } = location;
+
   const getMenu = () => {
-    if (mode === "floorPlan") return <></>;
+    // if (mode === "floorPlan") return <></>;
     switch (locationTypeId) {
       case 3:
       case 4:
@@ -719,17 +702,60 @@ const PlaceMarker = ({
         onClick={(evt) => onPathClick(location, evt)}
       >
         <rect
-          width="24"
-          height="18"
+          width="28"
+          height="28"
           fill="white"
-          transform="translate(0, 5)"
+          rx="2"
+          strokeWidth="0.2"
+          stroke="grey"
+          transform="translate(-3.7, -4)"
         ></rect>
+        {LocationHelper.equal(location, selected) && (
+          <rect
+            width="28"
+            height="28"
+            fill="#333642"
+            rx="2"
+            strokeWidth="0.2"
+            stroke="grey"
+            transform="translate(-3.7, -4)"
+          ></rect>
+        )}
+
         <image
-          className={equal(location, selected) ? "img-red" : ""}
+          className={
+            LocationHelper.equal(location, selected) ? "img-white" : ""
+          }
           href={src}
-          height="25"
+          height="19"
         />
         {store && <text transform="translate(0, 39)">{store.name}</text>}
+        {mode === "floorPlan" && floorConnects.length && (
+          <>
+            <rect
+              className="img-red"
+              x="22"
+              y="-8"
+              height="14"
+              width="30"
+              rx="3"
+            />
+            <path
+              fill="white"
+              transform="translate(23, -7) scale(0.012)"
+              d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
+            ></path>
+            <text
+              x="62"
+              y="2.8"
+              transform="scale(0.7)"
+              textAnchor="middle"
+              fill="white"
+            >
+              {floorConnects.length}
+            </text>
+          </>
+        )}
       </g>
     </Dropdown>
   );
