@@ -211,7 +211,7 @@ const CreateLocatorTag = ({ hideModal, visible }) => {
     if (values != null) {
       message
         .loading("Action in progress...", 3)
-        .then(() => message.success("Thêm mới thẻ định vị thành công", 2))
+        .then(() => message.success("Create success", 2))
         .then(() => hideModal());
     }
   };
@@ -219,22 +219,20 @@ const CreateLocatorTag = ({ hideModal, visible }) => {
   const onErrorCreateLocatorTag = () => {
     message
       .loading("Action in progress...", 3)
-      .then(() =>
-        message.error("Có lỗi xảy ra trong quá trình tạo mới thẻ định vị", 2)
-      )
+      .then(() => message.error("Error in create locator progress!", 2))
       .then(() => hideModal());
   };
 
   return (
     <Modal
       width={700}
-      title={`Tạo mới thẻ định vị`}
+      title={`Create new locator tag`}
       visible={visible}
       back
       onOk={onSave}
       onCancel={hideModal}
-      okText="Lưu"
-      cancelText="Hủy"
+      okText="Save"
+      cancelText="Cancel"
     >
       <Form layout="vertical" form={form1}>
         <Row justify="space-between">
@@ -242,18 +240,18 @@ const CreateLocatorTag = ({ hideModal, visible }) => {
             <Col span={21}>
               <Form.Item
                 name="macAddress"
-                label="Địa chỉ MAC: "
-                tooltip="Đây là địa chỉ MAC của thẻ định vị"
+                label="MAC Address: "
+                tooltip="This is MAC address of locator tag"
                 rules={[
                   {
                     required: true,
-                    message: "Nhập địa chỉ MAC của thẻ định vị",
+                    message: "Input MAC address of locator tag",
                     whitespace: false,
                   },
                 ]}
               >
                 <Input
-                  placeholder="Nhập địa chỉ MAC của thẻ định vị"
+                  placeholder="Input MAC address of locator tag"
                   onChange={() => {
                     // setInput(!input);
                   }}
@@ -263,18 +261,18 @@ const CreateLocatorTag = ({ hideModal, visible }) => {
             <Col span={21}>
               <Form.Item
                 name="locationId"
-                label="Vị trí ID của thẻ định vị: "
-                tooltip="Đây là vị trí của thẻ định vị trong tòa nhà"
+                label="Location ID of locator tag: "
+                tooltip="This is location ID of locator tag"
                 rules={[
                   {
                     required: true,
-                    message: "Nhập vị trí của thẻ định vị trong tòa nhà",
+                    message: "Input location ID of locator tag",
                     whitespace: false,
                   },
                 ]}
               >
                 <Input
-                  placeholder="Nhập vị trí ID của thẻ định vị"
+                  placeholder="Input location ID of locator tag"
                   onChange={() => {
                     // setInput(!input);
                   }}
@@ -284,16 +282,16 @@ const CreateLocatorTag = ({ hideModal, visible }) => {
             <Col>
               <Form.Item
                 name="floorPlanId"
-                label="Tầng trong tòa nhà:"
-                tooltip="Đây là vị trí của thẻ định vị nằm ở tầng nào trong tòa nhà"
+                label="Floor in building"
+                tooltip="This is the location of the locator tag on which floor of building"
                 rules={[
                   {
                     required: true,
-                    message: "Chọn tầng của tòa nhà",
+                    message: "Select floor in building",
                   },
                 ]}
               >
-                <Select placeholder="Chọn tầng" style={{ width: 145 }}>
+                <Select placeholder="Select floor" style={{ width: 145 }}>
                   <Option value="1">Tầng 1</Option>
                   <Option value="2">Tầng 2</Option>
                   <Option value="3">Tầng 3</Option>
