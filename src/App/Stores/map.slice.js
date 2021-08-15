@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getById } from "App/Services/floorPlan.service";
 import { getByFloorIdForStairLift } from "App/Services/location.service";
-import { postLocationsAndEdges } from "App/Services/floorPlan.service";
 //#region Async thunks floor plans
 const setSelectedFloorId = createAsyncThunk(
   "map/setSelectedFloorId",
@@ -20,13 +19,6 @@ const createLocation = createAsyncThunk(
   "map/setSelectedFloorId",
   async (floorId, { getState }) => {
     const { map, location, edge } = getState();
-    await postLocationsAndEdges(
-      location.list,
-      edge.list,
-      map.markers,
-      map.edges,
-      floorId
-    );
   }
 );
 //#endregion

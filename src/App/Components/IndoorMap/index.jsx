@@ -14,6 +14,7 @@ import {
   Menu,
   Dropdown,
   Tag,
+  message,
 } from "antd";
 import { Svg, Circle, Polyline } from "react-svg-path";
 import {
@@ -32,18 +33,19 @@ import {
 } from "App/Stores/locationType.slice";
 
 import {
-  selectSelected,
+  createLocation,
   removeLocation,
+  createEdge,
+  removeEdge,
+  saveLocationAndEdges,
   setSelected,
   setSelectedFloorId,
-  selectNextFloorImg,
-  selectNextFloorMarker,
-  selectToCreate,
-  setToCreateMarkers,
-  removeNextFloor,
   selectMarkers,
   selectEdges,
-  createLocation,
+  selectOpenMenu,
+  selectSelected,
+  selectNextFloorPlan,
+  selectNextFloorMarkers,
 } from "App/Stores/indoorMap.slice";
 import { selectListFloorCode, loadAll } from "App/Stores/floorPlan.slice";
 import LocationHelper from "App/Utils/locationHelper";
@@ -85,8 +87,6 @@ const MapZoomPan = ({
   mode = "floorPlan" || "Other",
   typeId = 2,
   refresh,
-  // mode = "Other" || "floorPlan",
-  // typeId = 3,
   src,
   floorPlanId,
 }) => {
@@ -161,11 +161,11 @@ const Wrapper = ({
   typeSelect,
   handleChangeType,
 }) => {
+  const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [scale, setScale] = useState(1);
   const [enableDrawMode, setEnableDrawMode] = useState(false);
   const [rotate, setRotate] = useState(0);
-  const [isClearAll, setIsClearAll] = useState(false);
 
   // const [rotate, setRotate] = useState(0);
   const onRotateLeft = () => {
@@ -177,7 +177,14 @@ const Wrapper = ({
     setRotate(rotate + 90);
   };
   const onDrawModeChange = (isDrawModeOn) => setEnableDrawMode(isDrawModeOn);
-
+  const handleSelect = (location) => {
+    dispatch(createEdge(location));
+  };
+  const handleOk = async () => {
+    message.loading("Saving floor data in progress..");
+    await dispatch(saveLocationAndEdges());
+    message.success("Saved successfully!!");
+  };
   return (
     <div className={disabledPreview ? "without-preview" : "preview-wrapper"}>
       {disabledPreview && (
@@ -211,34 +218,37 @@ const Wrapper = ({
         }
         wrapClassName={`modal-wrapper${rotate}`}
         visible={modalVisible}
-        onOk={() => setModalVisible(false)}
+        okText="Save"
+        onOk={handleOk}
         onCancel={() => setModalVisible(false)}
       >
-        <TransformWrapper
-          pinch={{ disabled: true }}
-          doubleClick={{ disabled: true }}
-          minScale={0.3}
-          maxScale={4}
-          onZoom={(value) => {
-            const { scale } = value.state;
-            setScale(scale);
-          }}
-        >
-          <TransformComponent>
-            <ImageRealSize
-              src={src}
-              typeId={typeId}
-              mode={mode}
-              clearAll={isClearAll}
-              scale={scale ?? 1}
-              enabled={enableDrawMode}
-              rotate={rotate}
-              markers={markers}
-              edges={edges}
-              selected={selected}
-            />
-          </TransformComponent>
-        </TransformWrapper>
+        <Row>
+          <TransformWrapper
+            pinch={{ disabled: true }}
+            doubleClick={{ disabled: true }}
+            minScale={0.3}
+            maxScale={4}
+            onZoom={(value) => {
+              const { scale } = value.state;
+              setScale(scale);
+            }}
+          >
+            <TransformComponent>
+              <ImageRealSize
+                src={src}
+                typeId={typeId}
+                mode={mode}
+                scale={scale ?? 1}
+                enabled={enableDrawMode}
+                rotate={rotate}
+                markers={markers}
+                edges={edges}
+                selected={selected}
+              />
+            </TransformComponent>
+          </TransformWrapper>
+          <ChooseStairLiftConnection handleSelect={handleSelect} />
+        </Row>
       </Modal>
     </div>
   );
@@ -317,6 +327,7 @@ const ImageRealSize = ({
   edges,
   selected,
   handleSelect,
+  floorConnects,
 }) => {
   const dispatch = useDispatch();
 
@@ -339,17 +350,32 @@ const ImageRealSize = ({
     }
   };
 
-  const onPathClick = (location, evt) => {
-    evt.preventDefault();
+  const onPathClick = async (location, evt) => {
+    evt?.preventDefault && evt.preventDefault();
     const { type, shiftKey } = evt;
-    console.log(location, type, mode);
-    if (type === "contextmenu" && mode === "floorPlan") {
+    if (
+      type === "contextmenu" &&
+      mode === "floorPlan" &&
+      location.locationTypeId === 2
+    ) {
       dispatch(removeLocation(location));
-    } else if (type === "click" && !shiftKey) {
+    }
+
+    if (
+      type === "contextmenu" &&
+      mode === "floorPlan" &&
+      location.locationTypeId !== 2
+    ) {
+      dispatch(setSelected({ location, openMenu: true }));
+    }
+    if (location && type === "click" && mode === "floorPlan" && !shiftKey) {
+      dispatch(setSelected({ location }));
+    }
+
+    if (mode === "chooseStairLift") {
       if (handleSelect) {
         handleSelect(location);
       }
-      dispatch(setSelected(location));
     }
   };
 
@@ -389,6 +415,7 @@ const ImageRealSize = ({
         selected={selected}
         onPathClick={enabled ? onPathClick : () => {}}
         mode={mode}
+        floorConnects={floorConnects}
       />
     </div>
   );
@@ -403,6 +430,7 @@ const SvgWrapper = ({
   selected,
   onPathClick,
   mode = "floorPlan",
+  floorConnects,
 }) => {
   return (
     <Svg width={dimension.width ?? 0} height={dimension.height ?? 0}>
@@ -432,9 +460,42 @@ const SvgWrapper = ({
             onPathClick={onPathClick}
             rotate={rotate}
             mode={mode}
+            floorConnects={floorConnects}
           />
         ))}
+      {floorConnects &&
+        floorConnects.map((item, index) => (
+          <StairLiftConnected key={index} location={item} rotate={rotate} />
+        ))}
     </Svg>
+  );
+};
+const offset = (rotate) => {
+  if (rotate === 90) return { x: -10, y: 30 };
+  if (rotate === -90) return { x: 35, y: 4 };
+  if (rotate === -180 || rotate === 180) return { x: 24, y: 32 };
+  return { x: 0, y: 0 };
+};
+const StairLiftConnected = ({ location: { x, y }, rotate }) => {
+  return (
+    <g
+      transform={`translate(${x - 12.4 + offset(rotate).x},${
+        y - 15.3 + offset(rotate).y
+      }) rotate(${-rotate})`}
+    >
+      <Circle size={20} fill="#198754" cx={20} cy={-10}></Circle>
+      <path
+        fill="white"
+        transform="translate(12, -19) scale(0.017)"
+        d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
+      ></path>
+      {/* <rect fill="#198754" x="18" y="-8" height="14" width="30" rx="3" />
+      <path
+        fill="white"
+        transform="translate(, -7) scale(0.012)"
+        d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
+      ></path> */}
+    </g>
   );
 };
 
@@ -446,6 +507,7 @@ const PathWrapper = ({
   typeId,
   location,
   onPathClick,
+  floorConnects,
 }) => {
   const { x, y, locationTypeId } = location;
   const img = (id) => {
@@ -454,9 +516,13 @@ const PathWrapper = ({
     if (id === 3) return elevator;
     if (id === 10) return restroom;
   };
+  if (locationTypeId === 6) return <></>;
   if (locationTypeId !== 2) {
     return (
       <PlaceMarker
+        className={
+          LocationHelper.includes(floorConnects, location) && "not-allowed"
+        }
         src={img(locationTypeId)}
         location={location}
         selected={selected}
@@ -493,12 +559,6 @@ const PathWrapper = ({
 };
 
 const SelectedMarker = ({ location, onPathClick, rotate }) => {
-  const offset = (rotate) => {
-    if (rotate === 90) return { x: -10, y: 30 };
-    if (rotate === -90) return { x: 35, y: 4 };
-    if (rotate === -180 || rotate === 180) return { x: 24, y: 32 };
-    return { x: 0, y: 0 };
-  };
   const { x, y } = location;
   return (
     <g
@@ -518,7 +578,6 @@ const SelectedMarker = ({ location, onPathClick, rotate }) => {
 };
 const DeleteMenu = ({ location }) => {
   const dispatch = useDispatch();
-
   const onDelete = async () => {};
   return (
     <Menu>
@@ -534,144 +593,130 @@ const DeleteMenu = ({ location }) => {
   );
 };
 
-const StairLiftMenu = ({ location }) => {
+const StairLiftMenu = () => {
   const dispatch = useDispatch();
+  const location = useSelector(selectSelected);
   const floors = useSelector(selectListFloorCode);
-  const [selectFloor, setSelectFloor] = useState(null);
+  const selectedFloor = useSelector(selectNextFloorPlan);
 
-  const handleSelect = (location) => {
-    addLoc(location);
-  };
   useEffect(() => {
     if (!floors) {
       dispatch(loadAll());
     }
-    dispatch(removeNextFloor());
+    handleChange(-1);
   }, [dispatch]);
 
-  const addLoc = (connectLoc) => {
-    // dispatch(
-    //   setToCreateMarkers([
-    //     ...(connects ?? []),
-    //     {
-    //       fromLocation: location,
-    //       toLocation: connectLoc,
-    //       distance: 0,
-    //       floorCode: selectFloor?.floorCode,
-    //     },
-    //   ])
-    // );
-  };
-
-  const removeLoc = (connectLoc) => {
-    // dispatch(
-    //   setToCreateMarkers(connects.filter(({ id }) => connectLoc.id !== id))
-    // );
+  const removeLoc = async (connectLoc) => {
+    if (connectLoc) {
+      dispatch(removeEdge({ fromLocation: connectLoc, toLocation: location }));
+    }
   };
 
   const handleChange = (value) => {
-    dispatch(setSelectedFloorId(value));
+    if (value !== -1) {
+      dispatch(setSelectedFloorId(value));
+    }
   };
 
   const onDelete = async () => {};
-  return (
-    <Row>
-      <div>
-        <Menu title="Options" selectedKeys={["3"]}>
-          <Menu.Item
-            key={"saveBtn"}
-            className="custom-menu-item"
-            icon={<SaveOutlined />}
-          >
-            Save
-          </Menu.Item>
-          <div>
-            <Select
-              placeholder="Connect to floor"
-              style={{ width: 180, margin: "0 16px", marginBottom: 8 }}
-              onChange={handleChange}
-              tokenSeparators={[","]}
-            >
-              {floors &&
-                floors?.map((item) => (
-                  <Select.Option key={item.id}>
-                    <div onClick={() => setSelectFloor(item)}>
-                      Tầng {item.floorCode}
-                    </div>
-                  </Select.Option>
-                ))}
-            </Select>
-            <div style={{ marginLeft: 15 }}>
-              {location.floorConnects &&
-                location.floorConnects.map((item) => (
-                  <Tag key={item.id} closable onClose={() => removeLoc(item)}>
-                    <LinkOutlined /> Tầng {item.floorPlan.floorCode}
-                  </Tag>
-                ))}
-            </div>
-          </div>
 
-          <Menu.Item
-            onClick={onDelete}
-            className="custom-menu-item"
-            key="removeBtn"
-            icon={<DeleteOutlined />}
+  return (
+    <>
+      <Menu title="Options" selectedKeys={["3"]}>
+        <Menu.Item
+          key={"saveBtn"}
+          className="custom-menu-item"
+          icon={<SaveOutlined />}
+        >
+          Save
+        </Menu.Item>
+        <div>
+          <Select
+            placeholder="Connect to floor"
+            style={{ width: 180, margin: "0 16px", marginBottom: 8 }}
+            onChange={handleChange}
+            tokenSeparators={[","]}
+            defaultValue={-1}
+            value={selectedFloor?.id ?? -1}
           >
-            Remove
-          </Menu.Item>
-        </Menu>
-      </div>
-      <ChooseStairLiftConnection
-        handleSelect={handleSelect}
-        floorConnects={location.floorConnects.filter(
-          ({ floorPlanId }) => floorPlanId === selectFloor?.id
-        )}
-      />
-    </Row>
+            <Select.Option value={-1}>Chọn tầng --</Select.Option>
+            {floors &&
+              floors?.map((item) => (
+                <Select.Option value={item.id}>
+                  Tầng {item.floorCode}
+                </Select.Option>
+              ))}
+          </Select>
+          <div style={{ marginLeft: 15 }}>
+            {location?.floorConnects &&
+              location.floorConnects.map((item) => (
+                <Tag key={item.id} closable onClose={() => removeLoc(item)}>
+                  <LinkOutlined /> Tầng {item.floorPlan.floorCode}
+                </Tag>
+              ))}
+          </div>
+        </div>
+
+        <Menu.Item
+          onClick={onDelete}
+          className="custom-menu-item"
+          key="removeBtn"
+          icon={<DeleteOutlined />}
+        >
+          Remove
+        </Menu.Item>
+      </Menu>
+    </>
   );
 };
-const ChooseStairLiftConnection = ({ handleSelect, floorConnects }) => {
+const ChooseStairLiftConnection = ({ handleSelect }) => {
   const [scale, setScale] = useState(0.1);
-  const src = useSelector(selectNextFloorImg);
-  const markers = useSelector(selectNextFloorMarker);
+  const floorPlan = useSelector(selectNextFloorPlan);
+  const markers = useSelector(selectNextFloorMarkers);
+  const openMenu = useSelector(selectOpenMenu);
+  const [floorConnects, setFloorConnects] = useState([]);
+  const selected = useSelector(selectSelected);
+  useEffect(() => {
+    if (selected) {
+      setFloorConnects(
+        selected.floorConnects.filter(
+          ({ floorPlanId }) => floorPlanId === floorPlan?.id
+        )
+      );
+    }
+  }, [selected]);
 
-  if (!src) {
-    return <></>;
-  }
   return (
-    <div
-      className="preview-wrapper"
-      style={{
-        width: 450,
-        backgroundColor: "white",
-        position: "absolute",
-        left: 220,
-        top: -50,
-      }}
-    >
-      <TransformWrapper
-        pinch={{ disabled: true }}
-        doubleClick={{ disabled: true }}
-        initialScale={0.3}
-        minScale={0.3}
-        maxScale={1.4}
-        onZoom={(value) => {
-          const { scale } = value.state;
-          setScale(scale);
-        }}
-      >
-        <TransformComponent>
-          <ImageRealSize
-            src={src}
-            scale={scale}
-            markers={markers ?? []}
-            handleSelect={handleSelect}
-            enabled={true}
-            mode="chooseStairLift"
-          />
-        </TransformComponent>
-      </TransformWrapper>
-    </div>
+    <>
+      {floorPlan && selected && openMenu && (
+        <div className="choose-stair-lift-wrapper">
+          <h4>Choose floor connections</h4>
+          <TransformWrapper
+            pinch={{ disabled: true }}
+            doubleClick={{ disabled: true }}
+            initialScale={0.3}
+            minScale={0.3}
+            maxScale={1.4}
+            onZoom={(value) => {
+              const { scale } = value.state;
+              setScale(scale);
+            }}
+          >
+            <TransformComponent>
+              <ImageRealSize
+                src={floorPlan.imageUrl}
+                scale={scale}
+                markers={markers ?? []}
+                handleSelect={handleSelect}
+                enabled={true}
+                mode="chooseStairLift"
+                floorConnects={floorConnects}
+              />
+            </TransformComponent>
+          </TransformWrapper>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -681,12 +726,11 @@ const PlaceMarker = ({
   selected,
   onPathClick,
   mode = "floorPlan",
-  typeId,
 }) => {
+  const openMenu = useSelector(selectOpenMenu);
   const { x, y, store, locationTypeId, floorConnects } = location;
-
   const getMenu = () => {
-    // if (mode === "floorPlan") return <></>;
+    if (!openMenu) return <></>;
     switch (locationTypeId) {
       case 3:
       case 4:
@@ -695,11 +739,17 @@ const PlaceMarker = ({
         return <DeleteMenu location={location} />;
     }
   };
+
   return (
-    <Dropdown overlay={getMenu()} trigger={["contextMenu"]}>
+    <Dropdown
+      overlay={getMenu()}
+      visible={LocationHelper.equal(location, selected)}
+      trigger={["contextMenu"]}
+    >
       <g
         transform={`translate(${x - 17}, ${y - 17})`}
         onClick={(evt) => onPathClick(location, evt)}
+        onContextMenu={(evt) => onPathClick(location, evt)}
       >
         <rect
           width="28"

@@ -96,6 +96,50 @@
     }
   }
 }
+.choose-stair-lift-wrapper {
+  // background-color: #F6F6F6;
+  position: fixed !important;
+  right: 90px;
+  top: 120px;
+  border: 1px solid rgb(201, 201, 201);
+  border-radius: 8px;
+  width: 400px;
+  height: 500px;
+  background-color: white;
+  overflow: hidden;
+  padding: 10px;
+
+  .react-transform-wrapper {
+    width: 96.2%;
+    height: 93%;
+    overflow: hidden;
+  }
+  .full-screen-btn {
+    z-index: 10;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    .anticon {
+      font-size: 25px;
+    }
+  }
+  .without-preview-btn{
+    transform:  translate(-3px,-1.5px)
+  }
+  .image-wrapper {
+    position: relative;
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      path,
+      circle, g, rect {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
 
 .without-preview{
   display: inline-block;
@@ -130,4 +174,8 @@
   .anticon{
     margin-top: 8px;
   }
+}
+
+.not-allowed{
+  cursor: not-allowed !important;
 }

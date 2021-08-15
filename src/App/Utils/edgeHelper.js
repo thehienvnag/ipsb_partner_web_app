@@ -1,4 +1,4 @@
-import { pointInRect } from "App/Utils/utils";
+import { pointInRect, distance as calDistance } from "App/Utils/utils";
 import LocationHelper from "./locationHelper";
 const stairLiftIds = [3, 4];
 export default class EdgeHelper {
@@ -11,11 +11,14 @@ export default class EdgeHelper {
       LocationHelper.equal(one.toLocation, that.fromLocation));
   static duplicate = (edge, list) =>
     list.findIndex((e) => this.equal(e, edge)) !== -1;
+  static find = (edges, edgeToFind) =>
+    edges.find((edge) => this.equal(edgeToFind, edge));
+  static isFloorConnect = (from, to) =>
+    stairLiftIds.includes(from.locationTypeId) &&
+    stairLiftIds.includes(to.locationTypeId);
   static getFloorConnectEdges = (edges) =>
-    edges.filter(
-      ({ fromLocation, toLocation }) =>
-        stairLiftIds.includes(fromLocation.locationTypeId) &&
-        stairLiftIds.includes(toLocation.locationTypeId)
+    edges.filter(({ fromLocation, toLocation }) =>
+      this.isFloorConnect(fromLocation, toLocation)
     );
   static findAll = (edges, location) =>
     edges.filter(
@@ -50,8 +53,28 @@ export default class EdgeHelper {
     );
     return [...(result ?? []), ...createdEdges].filter(
       ({ fromLocation, toLocation }) =>
-        typesSelect.includes(fromLocation.locationTypeId) &&
-        typesSelect.includes(toLocation.locationTypeId)
+        (typesSelect?.includes(fromLocation.locationTypeId) ?? true) &&
+        (typesSelect?.includes(toLocation.locationTypeId) ?? true)
     );
+  };
+  static filterFloorConnect = (list) =>
+    list.filter(
+      ({ fromLocation, toLocation }) =>
+        !this.isFloorConnect(fromLocation, toLocation)
+    );
+  static mapLocationsWithId = (locations, edges) => {
+    return edges.map(({ fromLocation, toLocation }) => {
+      const from = LocationHelper.find(locations, fromLocation) ?? fromLocation;
+      const to = LocationHelper.find(locations, toLocation) ?? toLocation;
+      const distance = this.isFloorConnect(from, to)
+        ? 0
+        : calDistance(from, to);
+
+      return {
+        fromLocationId: from.id,
+        toLocationId: to.id,
+        distance: distance,
+      };
+    });
   };
 }

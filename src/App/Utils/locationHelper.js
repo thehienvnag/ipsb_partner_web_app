@@ -1,13 +1,19 @@
 const distance = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
-
+const ibeaconLocationType = 6;
 class LocationHelper {
   static getRemovedList = (list, p2) =>
     list.filter((p1) => !this.equal(p1, p2));
   static equal = (p1, p2) =>
     (p1?.x === p2?.x && p1?.y === p2?.y) ||
     (p1?.x === p2?.y && p1?.y === p2?.x);
+  static includes = (list, p2) =>
+    list?.findIndex((p1) => this.equal(p1, p2)) !== -1;
   static duplicate = (p1, markers, radius = 30) =>
-    markers?.find((p2) => distance(p1, p2) <= radius);
+    markers
+      ?.filter(({ locationTypeId }) => locationTypeId !== ibeaconLocationType)
+      .find((p2) => distance(p1, p2) <= radius);
+  static find = (list, locationToFind) =>
+    list.find((location) => this.equal(location, locationToFind));
   static initLocation = (
     { left, top, right, bottom },
     clientX,
@@ -63,7 +69,7 @@ class LocationHelper {
         result.floorConnects?.push(fromLocation);
       }
     });
-    return result;
+    return { ...result };
   };
   static display = (
     list,
@@ -77,7 +83,9 @@ class LocationHelper {
     const result = [
       ...(resultWithoutRemoved ?? []),
       ...createdLocations,
-    ].filter(({ locationTypeId }) => typesSelect.includes(locationTypeId));
+    ].filter(
+      ({ locationTypeId }) => typesSelect?.includes(locationTypeId) ?? true
+    );
 
     return result;
   };

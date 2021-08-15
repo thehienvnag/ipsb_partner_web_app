@@ -13,6 +13,8 @@ export const mergeDeduplicate = (arr) => {
   return [...new Set([].concat(...arr))];
 };
 
+export const chainTasks = (...fns) => {};
+
 //#region Map utils
 const getParallel = ({ fromLocation, toLocation }, d, side) => {
   var dx = fromLocation.x - toLocation.x,

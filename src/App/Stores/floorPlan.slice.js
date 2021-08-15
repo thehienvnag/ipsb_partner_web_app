@@ -26,34 +26,17 @@ const loadById = createAsyncThunk(
   }
 );
 const postFloorPlanForm = createAsyncThunk(
-  "floorPlan/postForm",
+  "floorPlan/postFloorPlanForm",
   async (data, thunkAPI) => {
-    const { map, location, edge, building } = thunkAPI.getState();
+    const { building } = thunkAPI.getState();
     const buildingId = building.inChargeBuilding?.id;
-    const { id } = await postFloorPlan({ ...data, buildingId });
-    return await postLocationsAndEdges(
-      location.list,
-      edge.list,
-      map.markers,
-      map.edges,
-      map.toCreateMarkers,
-      id
-    );
+    return await postFloorPlan({ ...data, buildingId });
   }
 );
 const putFloorPlanForm = createAsyncThunk(
   "floorPlan/putForm",
-  async (data, { getState, dispatch }) => {
-    const { map, location, edge } = getState();
+  async (data, thunkAPI) => {
     await putFloorPlan(data);
-    return await postLocationsAndEdges(
-      location.list,
-      edge.list,
-      map.markers,
-      map.edges,
-      map.toCreateMarkers,
-      data.id
-    );
   }
 );
 //#endregion
@@ -117,6 +100,7 @@ const Slice = createSlice({
     },
     [putFloorPlanForm.fulfilled]: (state, { payload }) => {
       state.isLoading = false;
+      state.currentFloorPlan = payload;
     },
     [putFloorPlanForm.rejected]: (state, action) => {
       state.isLoading = false;

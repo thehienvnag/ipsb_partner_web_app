@@ -1,14 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getById } from "App/Services/floorPlan.service";
-import { getByFloorIdForStairLift } from "App/Services/location.service";
-import { postLocationsAndEdges } from "App/Services/floorPlan.service";
+import {
+  getByFloorIdForStairLift,
+  deleteLocations,
+  postLocations,
+} from "App/Services/location.service";
+import { deleteEdges, postEdges } from "App/Services/edge.service";
 import LocationHelper from "App/Utils/locationHelper";
 import EdgeHelper from "App/Utils/edgeHelper";
 //#region Async thunks floor plans
 const createLocation = createAsyncThunk(
   "indoorMap/createLocation",
   async (rawLocation, { getState, rejectWithValue }) => {
-    const { location, edge, indoorMap } = getState();
+    const { location, edge, indoorMap, floorPlan } = getState();
     const duplicate = LocationHelper.duplicate(rawLocation, [
       ...(location.list?.content ?? []),
       ...(indoorMap.createdLocations ?? []),
@@ -20,7 +24,13 @@ const createLocation = createAsyncThunk(
       [...(edge.list?.content ?? []), ...(indoorMap.createdEdges ?? [])],
       rawLocation
     );
-    return { location: rawLocation, edgeIntersect };
+    return {
+      location: {
+        ...rawLocation,
+        ...{ floorPlanId: floorPlan.currentFloorPlan.id },
+      },
+      edgeIntersect,
+    };
   }
 );
 const removeLocation = createAsyncThunk(
@@ -41,16 +51,96 @@ const removeLocation = createAsyncThunk(
   }
 );
 const setSelectedFloorId = createAsyncThunk(
-  "map/setSelectedFloorId",
+  "indoorMap/setSelectedFloorId",
   async (floorId, thunkAPI) => {
-    const floor = getById(floorId);
-    const locations = getByFloorIdForStairLift(floorId);
-    if (floor) {
-      return {
-        floorImg: (await floor).imageUrl,
-        locations: await locations,
-      };
+    if (floorId) {
+      const floorPlan = getById(floorId);
+      const locations = getByFloorIdForStairLift(floorId);
+      if (floorPlan) {
+        return {
+          floorPlan: await floorPlan,
+          locations: await locations,
+        };
+      }
     }
+  }
+);
+const createEdge = createAsyncThunk(
+  "indoorMap/createEdge",
+  async (toLocation, { getState, rejectWithValue }) => {
+    const {
+      edge,
+      location,
+      indoorMap: { selected, createdEdges, removedEdgeIds, createdLocations },
+    } = getState();
+    if (!location || !selected) return rejectWithValue();
+
+    const edgeToCreate = { fromLocation: selected, toLocation: toLocation };
+    const duplicate = EdgeHelper.find(
+      EdgeHelper.display(edge.list, createdEdges, removedEdgeIds),
+      edgeToCreate
+    );
+    const selectedNew = LocationHelper.find(
+      [...(location.list?.content ?? []), ...(createdLocations ?? [])],
+      selected
+    );
+    if (!duplicate) {
+      return { edgeToCreate, selected: selectedNew };
+    }
+    return rejectWithValue();
+  }
+);
+const removeEdge = createAsyncThunk(
+  "indoorMap/removeEdge",
+  async (edgeToRemove, { getState, rejectWithValue }) => {
+    const {
+      edge,
+      location,
+      indoorMap: {
+        createdEdges,
+        removedEdgeIds,
+        createdLocations,
+        removedLocationIds,
+      },
+    } = getState();
+    const result = EdgeHelper.find(
+      EdgeHelper.display(edge.list, createdEdges, removedEdgeIds),
+      edgeToRemove
+    );
+    const selected = LocationHelper.find(
+      LocationHelper.display(
+        location.list,
+        createdLocations,
+        removedLocationIds
+      ),
+      edgeToRemove.toLocation
+    );
+    return result ? { edgeToRemove: result, selected } : rejectWithValue();
+  }
+);
+
+const saveLocationAndEdges = createAsyncThunk(
+  "indoorMap/saveLocationAndEdges",
+  async (payload, { getState, rejectWithValue }) => {
+    const {
+      indoorMap: {
+        createdEdges,
+        removedEdgeIds,
+        createdLocations,
+        removedLocationIds,
+      },
+    } = getState();
+
+    await deleteEdges(removedEdgeIds);
+
+    await deleteLocations(removedLocationIds);
+
+    const locations = await postLocations(createdLocations);
+    const edgesToCreate = EdgeHelper.mapLocationsWithId(
+      locations,
+      createdEdges
+    );
+    await postEdges(edgesToCreate);
   }
 );
 //#endregion
@@ -65,42 +155,49 @@ const Slice = createSlice({
     markers: [],
     edges: [],
     selected: null,
-    nextFloorImg: null,
+    openMenu: false,
+    nextFloorPlan: null,
     nextFloorMarkers: [],
-    toCreateMarkers: [],
-    nextFloorSelected: null,
-    selectedFloorId: null,
   },
   reducers: {
-    setSelected: (state, { payload }) => {
-      if (!state.selected) {
-        state.selected = payload;
-        return;
-      }
-      if (LocationHelper.equal(state.selected, payload)) {
+    setSelected: (state, { payload: { location, openMenu } }) => {
+      console.log(location, openMenu);
+
+      if (LocationHelper.equal(state.selected, location)) {
         state.selected = null;
       } else {
-        state.selected = payload;
+        state.selected = location;
       }
-    },
-    setNextFloorImg: (state, { payload }) => {
-      state.nextFloorImg = payload;
-    },
-    setNextFloorMarkers: (state, { payload }) => {
-      state.nextFloorMarkers = payload;
-    },
-    setNextFloorSelected: (state, { payload }) => {
-      state.nextFloorSelected = payload;
-    },
-    setToCreateMarkers: (state, { payload }) => {
-      state.toCreateMarkers = payload;
-    },
-    removeNextFloor: (state, action) => {
-      state.nextFloorImg = null;
-      state.nextFloorMarkers = null;
+      if (openMenu) {
+        state.openMenu = true;
+      } else {
+        state.openMenu = false;
+      }
     },
   },
   extraReducers: {
+    [createEdge.fulfilled]: (
+      state,
+      { payload: { edgeToCreate, selected } }
+    ) => {
+      console.log(edgeToCreate, selected);
+      state.createdEdges.push(edgeToCreate);
+      state.selected = selected;
+    },
+    [removeEdge.fulfilled]: (
+      state,
+      { payload: { edgeToRemove, selected } }
+    ) => {
+      if (edgeToRemove.id) {
+        state.removedEdgeIds.push(edgeToRemove.id);
+      } else {
+        state.createdEdges = EdgeHelper.getRemovedList(
+          state.createdEdges,
+          edgeToRemove
+        );
+      }
+      state.selected = selected;
+    },
     [removeLocation.rejected]: (state, { payload }) => {
       console.log("reject", payload);
     },
@@ -160,8 +257,9 @@ const Slice = createSlice({
       }
     },
     [setSelectedFloorId.fulfilled]: (state, { payload }) => {
-      const { floorImg, locations } = payload;
-      state.nextFloorImg = floorImg;
+      const { floorPlan, locations } = payload;
+      console.log(payload);
+      state.nextFloorPlan = floorPlan;
       state.nextFloorMarkers = locations;
     },
   },
@@ -189,60 +287,59 @@ const selectMarkers = ({ indoorMap, locationType, location, edge }) => {
   const result = locationsToDisplay.map((loc) =>
     LocationHelper.appendEdge(floorConnectEdges, loc)
   );
-  console.log(result.filter(({ floorConnects }) => floorConnects.length));
   return result;
 };
 
 const selectEdges = ({ indoorMap, locationType, edge }) => {
   const { createdEdges, removedEdgeIds } = indoorMap;
   const { list } = edge;
-  return EdgeHelper.display(
+  const result = EdgeHelper.display(
     list,
     createdEdges,
     removedEdgeIds,
     locationType.typesSelect
   );
+  return EdgeHelper.filterFloorConnect(result);
 };
 
-const selectSelected = ({ indoorMap }) => indoorMap.selected;
-const selectCurrent = ({ indoorMap }) => indoorMap.current;
-const selectNewLocation = ({ indoorMap }) =>
-  indoorMap.markers.filter(({ id }) => !id)[0];
+const selectSelected = ({
+  edge,
+  locationType,
+  indoorMap: { selected, createdEdges, removedEdgeIds },
+}) => {
+  const totalEdges = EdgeHelper.display(
+    edge.list,
+    createdEdges,
+    removedEdgeIds,
+    locationType.typesSelect
+  );
+  const floorConnectEdges = EdgeHelper.getFloorConnectEdges(totalEdges);
+  return selected
+    ? LocationHelper.appendEdge(floorConnectEdges, selected)
+    : null;
+};
+const selectOpenMenu = ({ indoorMap }) => indoorMap.openMenu;
 //#endregion
 //#region next floor
-const selectToCreate = ({ indoorMap }) => indoorMap.toCreateMarkers;
-const selectNextFloorImg = ({ indoorMap }) => indoorMap.nextFloorImg;
-const selectNextFloorMarker = ({ indoorMap }) => indoorMap.nextFloorMarkers;
-const selectNextFloorSelected = ({ indoorMap }) => indoorMap.nextFloorSelected;
+const selectNextFloorPlan = ({ indoorMap }) => indoorMap.nextFloorPlan;
+const selectNextFloorMarkers = ({ indoorMap }) => indoorMap.nextFloorMarkers;
 //#endregion
 
 /// Export reducer
-const {
-  setSelected,
-  setNextFloorImg,
-  setNextFloorMarkers,
-  setNextFloorSelected,
-  removeNextFloor,
-  setToCreateMarkers,
-} = Slice.actions;
+const { setSelected } = Slice.actions;
 export {
-  selectSelected,
-  selectEdges,
   selectMarkers,
-  selectCurrent,
-  removeLocation,
-  setSelected,
-  selectNextFloorImg,
-  selectNextFloorMarker,
-  selectNextFloorSelected,
-  selectToCreate,
-  setNextFloorImg,
-  setNextFloorMarkers,
-  setNextFloorSelected,
-  setSelectedFloorId,
-  removeNextFloor,
-  setToCreateMarkers,
+  selectEdges,
+  selectOpenMenu,
+  selectSelected,
+  selectNextFloorPlan,
+  selectNextFloorMarkers,
   createLocation,
-  selectNewLocation,
+  removeLocation,
+  createEdge,
+  removeEdge,
+  saveLocationAndEdges,
+  setSelected,
+  setSelectedFloorId,
 };
 export default Slice.reducer;
