@@ -6,9 +6,14 @@ import { buildings } from "../Constants/endpoints";
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  */
-export const getBuildings = async ({ pageIndex = 1, pageSize = 5 }) => {
-  const params = { pageIndex, pageSize };
-  console.log(params);
+export const getBuildings = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  isAll = false,
+  status = "Active",
+  searchObject = {},
+}) => {
+  const params = { pageIndex, pageSize, isAll, status, ...searchObject };
   const response = await axiosClient.get(buildings, { params });
   return response.data;
 };

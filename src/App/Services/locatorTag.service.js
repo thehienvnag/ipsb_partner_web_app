@@ -10,9 +10,11 @@ import { locatorTags } from "../Constants/endpoints";
 export const getLocatorTags = async ({
   pageIndex = 1,
   pageSize = 5,
+  status = "Active",
   floorPlanId,
+  searchObject = {},
 }) => {
-  const params = { pageIndex, pageSize, floorPlanId };
+  const params = { pageIndex, pageSize, status, floorPlanId, ...searchObject };
   console.log(params);
   const response = await axiosClient.get(locatorTags, { params });
   return response.data;

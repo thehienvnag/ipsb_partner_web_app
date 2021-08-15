@@ -17,6 +17,7 @@ import {
   GlobalOutlined,
   SettingOutlined,
   UploadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -30,6 +31,7 @@ import {
   message,
   Modal,
   Space,
+  Checkbox,
 } from "antd";
 import { postBuilding, putBuilding } from "App/Services/building.service";
 
@@ -37,12 +39,20 @@ const BuildingPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState(null);
   //#endregion
   //#region handle event functions
 
   const handleRows = (values) => setSelectedItems(values);
   const handlePaging = (number) => {
-    dispatch(loadBuildings({ pageIndex: number }));
+    if (search) {
+      console.log(search);
+      dispatch(
+        loadBuildings({ pageIndex: number, searchObject: search, status: "" })
+      );
+    } else {
+      dispatch(loadBuildings({ pageIndex: number }));
+    }
     setCurrentPage(number);
   };
   const handleRefresh = () => {
@@ -255,14 +265,77 @@ const BuildingPage = () => {
                 dataIndex="name"
                 key="name"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search buiding name`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ name: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
-
               <Table.Column
                 title="Address"
                 dataIndex="address"
                 key="address"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search by address`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ address: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
               <Table.Column
                 title="Manager Name"
@@ -271,8 +344,43 @@ const BuildingPage = () => {
                 render={(item) => (
                   <Typography.Text>{item.name}</Typography.Text>
                 )}
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Select
+                        placeholder="Select manager"
+                        onChange={(e) => {
+                          const value = e;
+                          console.log("hello: ", e);
+                          if (value && value.length) {
+                            setSearch({ managerId: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        {listAccount &&
+                          listAccount.map((item) => (
+                            <Option value={item.id}>{item.name}</Option>
+                          ))}
+                      </Select>
+                      <br />
+                    </Space>
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        handlePaging(1);
+                      }}
+                      icon={<SearchOutlined />}
+                      size="small"
+                      style={{ width: 100 }}
+                    >
+                      Search
+                    </Button>
+                  </div>
+                )}
+                //filterIcon={<SearchOutlined />}
               />
-
               <Table.Column
                 title="Num.Floor"
                 dataIndex="numberOfFloor"
@@ -296,6 +404,57 @@ const BuildingPage = () => {
                     </Tag>
                   );
                 }}
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Checkbox.Group
+                        style={{ width: "100%" }}
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Checkbox value="">All</Checkbox>
+                        <Checkbox value="Active">Active</Checkbox>
+                        <Checkbox value="New">New</Checkbox>
+                        <Checkbox value="Inactive">Inactive</Checkbox>
+                      </Checkbox.Group>
+
+                      {/* <Select
+                        placeholder="Select Status"
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Option value="">All</Option>
+                        <Option value="New">New</Option>
+                        <Option value="Active">Active</Option>
+                        <Option value="Inactive">Inactive</Option>
+                      </Select> */}
+
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Filter
+                      </Button>
+                    </Space>
+                  </div>
+                )}
               />
             </Table>
             <Modal

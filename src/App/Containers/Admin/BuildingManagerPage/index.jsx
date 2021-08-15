@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, Menu, Table, Tag, Typography, Avatar } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
+import { SearchOutlined } from "@ant-design/icons";
 import { getBase64 } from "App/Utils/utils";
 import {
   loadAccounts,
@@ -29,6 +30,7 @@ import {
   message,
   Modal,
   Space,
+  Checkbox,
 } from "antd";
 import {
   postAccount,
@@ -37,11 +39,11 @@ import {
 } from "App/Services/account.service";
 
 const BuildingManagerPage = () => {
-  const [idsDelete, setIdsDelete] = useState([]);
-
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState(null);
+
   //#endregion
   //#region handle event functions
   const { Option } = Select;
@@ -49,7 +51,15 @@ const BuildingManagerPage = () => {
     setSelectedItems(values);
   };
   const handlePaging = (number) => {
-    dispatch(loadAccounts({ pageIndex: number }));
+    console.log(number);
+    if (search) {
+      console.log(search);
+      dispatch(
+        loadAccounts({ pageIndex: number, searchObject: search, status: "" })
+      );
+    } else {
+      dispatch(loadAccounts({ pageIndex: number }));
+    }
     setCurrentPage(number);
   };
   const handleRefresh = () => {
@@ -59,7 +69,7 @@ const BuildingManagerPage = () => {
   const handleDelete = async () => {
     const data = await deleteAccounts(selectedItems);
     console.log(selectedItems);
-    if (data == "Request failed with status code 405") {
+    if (data === "Request failed with status code 405") {
       message.error("Method Not Allowed", 4);
     } else {
       message
@@ -86,6 +96,7 @@ const BuildingManagerPage = () => {
   }, [dispatch]);
 
   const [visibleDetail, setVisibleDetail] = useState(false);
+
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [formDetail] = Form.useForm();
   const [formCreate] = Form.useForm();
@@ -103,6 +114,7 @@ const BuildingManagerPage = () => {
     formCreate.resetFields();
     setImageUrl(null);
   };
+
   const hideModalDetail = () => {
     setVisibleDetail(false);
     formDetail.resetFields();
@@ -272,6 +284,38 @@ const BuildingManagerPage = () => {
                 title="Name"
                 dataIndex="name"
                 key="name"
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search name manager`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ name: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
               />
 
@@ -281,12 +325,76 @@ const BuildingManagerPage = () => {
                 key="email"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search email manager`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ email: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
               <Table.Column
                 title="Phone"
                 dataIndex="phone"
                 key="phone"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search phone manager`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ phone: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
 
               <Table.Column
@@ -294,18 +402,63 @@ const BuildingManagerPage = () => {
                 dataIndex="status"
                 key="status"
                 render={(value) => {
-                  if (!value) {
-                    value =
-                      Math.floor(Math.random() * 2) % 2 === 0
-                        ? "Active"
-                        : "Inactive";
-                  }
                   return (
                     <Tag color={value === "Active" ? "blue" : "red"}>
                       {value}
                     </Tag>
                   );
                 }}
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Checkbox.Group
+                        style={{ width: "100%" }}
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Checkbox value="">All</Checkbox>
+                        <Checkbox value="Active">Active</Checkbox>
+                        <Checkbox value="New">New</Checkbox>
+                        <Checkbox value="Inactive">Inactive</Checkbox>
+                      </Checkbox.Group>
+
+                      {/* <Select
+                        placeholder="Select Status"
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Option value="">All</Option>
+                        <Option value="New">New</Option>
+                        <Option value="Active">Active</Option>
+                        <Option value="Inactive">Inactive</Option>
+                      </Select> */}
+
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Filter
+                      </Button>
+                    </Space>
+                  </div>
+                )}
               />
             </Table>
             <Modal
