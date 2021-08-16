@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.scss";
 import {
   Form,
@@ -10,44 +10,56 @@ import {
   Col,
   Button,
   Divider,
+  message,
 } from "antd";
 import { getBase64 } from "App/Utils/utils";
 import { SaveOutlined, UploadOutlined } from "@ant-design/icons";
-import MapZoomPan from "App/Components/IndoorMap/MapZoomPan";
-import { useSelector } from "react-redux";
-import { selectInChargeBuildingId } from "App/Stores/building.slice";
-import { postFloorPlan } from "App/Services/floorPlan.service";
+import IndoorMap from "App/Components/IndoorMap/index";
+import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { removeLocations } from "App/Stores/location.slice";
+import { removeEdges } from "App/Stores/edge.slice";
+import {
+  postFloorPlanForm,
+  putFloorPlanForm,
+} from "App/Stores/floorPlan.slice";
 
-const types = [
-  { id: 1, name: "Cửa hàng" },
-  { id: 2, name: "Đường đi" },
-  { id: 3, name: "Thang máy" },
-  { id: 4, name: "Cầu thang" },
-  { id: 5, name: "Beacon" },
-  { id: 6, name: "Checkout" },
-  { id: 10, name: "Nhà vệ sinh" },
-];
 const Overview = ({ floor }) => {
   const [componentSize, setComponentSize] = useState("default");
+  const dispatch = useDispatch();
   const [src, setSrc] = useState(null);
   const [file, setFile] = useState(null);
-  const [locationType, setLocationType] = useState(types);
-  const [typesSelect, setTypesSelect] = useState([
-    locationType.reduce((acc, { id }) => acc + "," + id, ""),
-  ]);
-  const buildingIdFromStore = useSelector(selectInChargeBuildingId);
+
+  const { id } = useParams();
   const [form] = Form.useForm();
+  const [refresh, setRefresh] = useState(0);
+
+  useEffect(() => {
+    if (id === "create-new") {
+      dispatch(removeEdges());
+      dispatch(removeLocations());
+      form.resetFields();
+    }
+    if (floor) {
+      form.setFieldsValue(floor);
+    }
+  }, [floor]);
 
   const onSave = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    const data = await postFloorPlan({
-      ...values,
-      ...{ imageUrl: file },
-      ...{ buildingId: buildingIdFromStore },
-      ...{ floorNumber: 10 },
-    });
-    console.log(data);
+    try {
+      const values = await form.validateFields();
+      if (file) {
+        Object.assign(values, { imageUrl: file });
+      }
+      message.loading("Loading...", "post/putFloor");
+      if (id === "create-new" && file) {
+        await dispatch(postFloorPlanForm(values));
+      } else {
+        await dispatch(putFloorPlanForm(values));
+      }
+      setRefresh(refresh + 1);
+      message.success("Success!", "post/putFloor");
+    } catch (error) {}
   };
   const onFormLayoutChange = ({ size }) => {
     setComponentSize(size);
@@ -59,31 +71,6 @@ const Overview = ({ floor }) => {
           <Button icon={<SaveOutlined />} onClick={onSave}>
             Save
           </Button>
-        </Row>
-        <Row>
-          <Divider
-            type="vertical"
-            style={{ height: 35, borderWidth: 2, marginRight: 20 }}
-          />
-          <Select
-            allowClear
-            onChange={(values) => setTypesSelect(values)}
-            defaultValue={[
-              locationType.reduce((acc, { id }) => acc + "," + id, ""),
-            ]}
-            style={{ width: 260 }}
-            placeholder="Elements to show on map"
-            mode="multiple"
-          >
-            <Select.Option
-              value={locationType.reduce((acc, { id }) => acc + "," + id, "")}
-            >
-              All
-            </Select.Option>
-            {locationType.map(({ id, name }) => (
-              <Select.Option value={id}>{name}</Select.Option>
-            ))}
-          </Select>
         </Row>
       </Row>
       <Divider style={{ margin: "10px 0 30px 0" }} />
@@ -104,22 +91,48 @@ const Overview = ({ floor }) => {
             onValuesChange={onFormLayoutChange}
             size={componentSize}
           >
-            <Form.Item label="Floor status">
-              <Switch />
+            {id !== "create-new" && (
+              <>
+                <Form.Item name="status" label="Floor status">
+                  <Switch checked={floor?.status === "Active"} />
+                </Form.Item>
+                <Form.Item name="buildingId" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="id" hidden>
+                  <Input />
+                </Form.Item>
+              </>
+            )}
+
+            <Form.Item
+              label="Floor position"
+              required
+              name="floorNumber"
+              rules={[
+                { required: true, message: "Please input floor number!" },
+              ]}
+            >
+              <Input />
             </Form.Item>
             <Form.Item
               label="Floor code"
               required
               name="floorCode"
+              rules={[{ required: true, message: "Please input floor code!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="floorType"
+              label="Floor type"
+              required
               rules={[{ required: true, message: "Please input your !" }]}
             >
-              <Input value={floor?.floorCode} />
-            </Form.Item>
-            <Form.Item label="Floor type" required>
               <Select>
-                <Select.Option value="upper">Upper</Select.Option>
-                <Select.Option value="ground">Ground</Select.Option>
-                <Select.Option value="basement">Basement</Select.Option>
+                <Select.Option value="Upper">Upper</Select.Option>
+                <Select.Option value="Ground">Ground</Select.Option>
+                <Select.Option value="Basement">Basement</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item label="Floor map image" required>
@@ -144,10 +157,10 @@ const Overview = ({ floor }) => {
         </Col>
         <Col className="col-md-7">
           <Row></Row>
-          <MapZoomPan
+          <IndoorMap
             src={src ?? floor?.imageUrl}
-            floorPlanId={floor?.id}
-            types={typesSelect.join(",")}
+            floorPlanId={id !== "create-new" && floor?.id}
+            refresh={refresh}
           />
         </Col>
       </Row>

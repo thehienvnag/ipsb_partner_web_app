@@ -3,7 +3,11 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Card } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-import { loadById, selectOne } from "App/Stores/floorPlan.slice";
+import {
+  loadById,
+  selectOne,
+  removeCurrentFloor,
+} from "App/Stores/floorPlan.slice";
 import "./index.scss";
 import Header from "./Header";
 
@@ -25,7 +29,11 @@ const FloorPlanDetailPage = ({ match }) => {
   const dispatch = useDispatch();
   // Init function
   useEffect(() => {
-    dispatch(loadById(id));
+    if (id === "create-new") {
+      dispatch(removeCurrentFloor());
+    } else {
+      dispatch(loadById(id));
+    }
   }, [dispatch, id]);
   //#endregion
 

@@ -67,7 +67,7 @@ const routes = (floorCode) => [
   },
   {
     path: "",
-    breadcrumbName: `Floor Plan - ${floorCode}`,
+    breadcrumbName: `Floor Plan ${floorCode ?? "(new)"}`,
   },
 ];
 
@@ -84,7 +84,7 @@ const Header = ({ floor, handleCreate, handleDelete, handleRefresh }) => {
     <PageHeader
       onBack={() => navigate(-1)}
       className="site-page-header"
-      title={`Floor Plan - ${floor?.floorCode}`}
+      title={`Floor Plan - ${floor?.floorCode ?? "Create new"}`}
       subTitle="Manages floor plan details"
       tags={<Tag color="blue">Running</Tag>}
       extra={

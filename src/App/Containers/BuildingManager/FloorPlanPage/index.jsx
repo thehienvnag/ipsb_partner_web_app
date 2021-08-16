@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Card } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-
+import { useNavigate } from "react-router-dom";
 import { loadAll } from "App/Stores/floorPlan.slice";
 import "./index.scss";
 import Header from "./Header";
@@ -12,12 +12,15 @@ const FloorPlanPage = () => {
   //#region state includes: [selectedItems: array]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   //#endregion
   //#region handle event functions
   const handleRefresh = () => dispatch(loadAll({ pageIndex: currentPage }));
   const handleDelete = () => {};
-  const handleCreate = () => {};
+  const handleCreate = () => {
+    navigate({ pathname: "create-new" });
+  };
   //#endregion
   //#region load state of floor plans to store
   const dispatch = useDispatch();

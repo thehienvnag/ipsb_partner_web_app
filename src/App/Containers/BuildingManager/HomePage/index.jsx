@@ -23,7 +23,7 @@ const BmHomePage = () => {
     <PageWrapper>
       <PageHeader title="Overview" subTitle="Building Manager" />
       <PageBody>
-        <Card title="Card"></Card>
+        <Card title="Card">Home Page</Card>
       </PageBody>
     </PageWrapper>
   );

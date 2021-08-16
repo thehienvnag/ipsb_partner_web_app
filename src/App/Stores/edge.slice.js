@@ -1,10 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getByFloorPlan } from "App/Services/edge.service";
+import { setEdges } from "App/Stores/map.slice";
 //#region Async thunks floor plans
 const loadEdgesOnFloor = createAsyncThunk(
   "edge/loadEdgesOnFloor",
-  async (params = {}, thunkAPI) => {
-    return await getByFloorPlan(params);
+  async (params = {}, { dispatch }) => {
+    const data = await getByFloorPlan(params);
+    if (data) {
+      dispatch(setEdges(data.content));
+    }
+    return data;
   }
 );
 //#endregion
@@ -15,7 +20,11 @@ const Slice = createSlice({
     list: null,
     isLoading: false,
   },
-  reducers: {},
+  reducers: {
+    removeEdges: (state, location) => {
+      state.list = null;
+    },
+  },
   extraReducers: {
     //#region Load floor plans by buildingId state
     [loadEdgesOnFloor.pending]: (state, action) => {
@@ -39,5 +48,6 @@ export const selectEdgeLoading = (state) => state.edge.isLoading;
 //#endregion
 
 /// Export reducer
-export { loadEdgesOnFloor };
+const { removeEdges } = Slice.actions;
+export { loadEdgesOnFloor, removeEdges };
 export default Slice.reducer;

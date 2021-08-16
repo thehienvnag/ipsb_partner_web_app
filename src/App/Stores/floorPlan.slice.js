@@ -1,12 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAll, getById } from "../Services/floorPlan.service";
+import {
+  getAll,
+  getById,
+  postFloorPlan,
+  postLocationsAndEdges,
+  putFloorPlan,
+} from "../Services/floorPlan.service";
 
 //#region Async thunks floor plans
 const loadAll = createAsyncThunk(
   "floorPlan/loadAll",
   async (params = {}, thunkAPI) => {
     const { building } = thunkAPI.getState();
-
     if (building.inChargeBuilding) {
       Object.assign(params, { buildingId: building.inChargeBuilding.id });
     }
@@ -20,7 +25,20 @@ const loadById = createAsyncThunk(
     return await getById(id);
   }
 );
-
+const postFloorPlanForm = createAsyncThunk(
+  "floorPlan/postFloorPlanForm",
+  async (data, thunkAPI) => {
+    const { building } = thunkAPI.getState();
+    const buildingId = building.inChargeBuilding?.id;
+    return await postFloorPlan({ ...data, buildingId });
+  }
+);
+const putFloorPlanForm = createAsyncThunk(
+  "floorPlan/putForm",
+  async (data, thunkAPI) => {
+    await putFloorPlan(data);
+  }
+);
 //#endregion
 
 const Slice = createSlice({
@@ -29,9 +47,17 @@ const Slice = createSlice({
     list: null,
     one: null,
     isLoading: false,
-    currentFloorPlan: {id : 12}
+    currentFloorPlan: { id: 12 },
   },
-  reducers: {},
+  reducers: {
+    removeCurrentFloor: (state, action) => {
+      state.one = null;
+    },
+    setCurrentFloor: (state, action) => {
+      state.currentFloorPlan = action.payload;
+      console.log("Action: ", action);
+    },
+  },
   extraReducers: {
     //#region Load floor plans by buildingId state
     [loadAll.pending]: (state, action) => {
@@ -57,6 +83,29 @@ const Slice = createSlice({
       state.isLoading = false;
     },
     //#endregion
+    //#region Post floorplan
+    [postFloorPlanForm.pending]: (state, action) => {
+      state.isLoading = true;
+    },
+    [postFloorPlanForm.fulfilled]: (state, { payload }) => {
+      state.isLoading = false;
+    },
+    [postFloorPlanForm.rejected]: (state, action) => {
+      state.isLoading = false;
+    },
+    //#endregion
+    //#region Put floorplan
+    [putFloorPlanForm.pending]: (state, action) => {
+      state.isLoading = true;
+    },
+    [putFloorPlanForm.fulfilled]: (state, { payload }) => {
+      state.isLoading = false;
+      state.currentFloorPlan = payload;
+    },
+    [putFloorPlanForm.rejected]: (state, action) => {
+      state.isLoading = false;
+    },
+    //#endregion
   },
 });
 
@@ -67,6 +116,14 @@ export const selectListFloor = (state) =>
     ...{ key: index },
     ...item,
   }));
+export const selectListFloorCode = (state) =>
+  state.floorPlan.list?.content.map(({ id, floorCode, imageUrl }) => ({
+    id,
+    floorCode,
+    imageUrl,
+  }));
+export const selectCurrentFloorPlan = (state) =>
+  state.floorPlan.currentFloorPlan;
 export const selectOne = (state) => state.floorPlan.one;
 export const selectTotalCount = (state) => state.floorPlan.list?.totalCount;
 export const selectPageSize = (state) => state.floorPlan.list?.pageSize;
@@ -74,5 +131,13 @@ export const selectIsLoading = (state) => state.floorPlan.isLoading;
 //#endregion
 
 /// Export reducer
-export { loadAll, loadById };
+const { removeCurrentFloor, setCurrentFloor } = Slice.actions;
+export {
+  loadAll,
+  loadById,
+  removeCurrentFloor,
+  setCurrentFloor,
+  postFloorPlanForm,
+  putFloorPlanForm,
+};
 export default Slice.reducer;

@@ -7,13 +7,17 @@ import AdHomePage from "../Containers/Admin/HomePage/index";
 import BmHomePage from "../Containers/BuildingManager/HomePage/index";
 import StorePage from "../Containers/BuildingManager/StorePage/index";
 import LocationTypePage from "../Containers/BuildingManager/LocationTypePage/index";
+import BuildingManagerPage from "App/Containers/Admin/BuildingManagerPage";
+import StoreOwnerPage from "App/Containers/BuildingManager/StoreOwnerPage";
+import LoginPage from "App/Containers/Auth/Login";
+import { element } from "prop-types";
+import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
 const appRoutes = [
   {
     path: "building-manager",
     element: <DashboardLayout />,
     children: [
-      { path: "/test", element: <BmHomePage /> },
-      { path: "/test2", element: <BmHomePage /> },
+      { path: "/", element: <BmHomePage /> },
       {
         path: "/floor-plans",
         element: <FloorPlanPage />,
@@ -34,6 +38,7 @@ const appRoutes = [
         path: "/location-type",
         element: <LocationTypePage />,
       },
+      { path: "/manager-accounts", element: <StoreOwnerPage /> },
     ],
   },
   {
@@ -43,7 +48,18 @@ const appRoutes = [
       { path: "/test", element: <AdHomePage /> },
       { path: "/test2", element: <AdHomePage /> },
       { path: "/buildings", element: <BuildingPage /> },
+      { path: "/manager-accounts", element: <BuildingManagerPage /> },
     ],
+  },
+
+  {
+    path: "login",
+    element: <LoginPage />,
+  },
+
+  {
+    path: "change-password",
+    element: <ChangePasswordPage />,
   },
 ];
 

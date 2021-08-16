@@ -58,7 +58,7 @@
 
 .preview-wrapper {
   height: 340px;
-  background-color: #F6F6F6;
+  // background-color: #F6F6F6;
   position: relative;
   display: flex;
   justify-content: center;
@@ -105,5 +105,26 @@
   .ant-radio-button-checked {
     background-color: #c5c0c0;
     border-color: #c5c0c0;
+  }
+}
+
+.img-red{
+  filter: invert(62%) sepia(59%) saturate(5304%) hue-rotate(328deg) brightness(95%) contrast(97%);
+}
+
+.filter-wrapper{
+  position: relative;
+  .filter-select{
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 10;
+  }
+}
+
+.custom-menu-item{
+  user-select: none;
+  .anticon{
+    margin-top: 8px;
   }
 }

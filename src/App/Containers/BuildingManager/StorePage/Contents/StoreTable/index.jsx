@@ -2,20 +2,43 @@ import React, { useState, useEffect } from "react";
 import { getAllStore } from "App/Services/store.service";
 import { Table, Image, Tag, Typography, Avatar } from "antd";
 
-const StoreTable = () => {
-  const [listStore, setListStore] = useState(null);
+const StoreTable = ({ onRowClick, call }) => {
+  const [data, setData] = useState({ list: null, isLoading: false });
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(0);
   useEffect(() => {
-    fetchApi();
-  }, []);
-  const fetchApi = async () => {
-    const data = await getAllStore({ buildingId: 1 });
+    const fetchApi = async () => {
+      setData({ isLoading: true });
+      const data = await getAllStore({
+        buildingId: 12,
+        pageIndex: currentPage,
+      });
+      setData({ list: data.content, isLoading: false });
+      setTotalCount(data.totalCount);
+      setPageSize(data.pageSize);
+    };
 
-    setListStore(data.content);
-    console.log(data.content);
-  };
+    fetchApi();
+  }, [currentPage, call]);
+
   return (
     <>
-      <Table dataSource={listStore}>
+      <Table
+        dataSource={data.list}
+        loading={data.isLoading}
+        onRow={(record) => ({
+          onClick: (evt) => onRowClick(record),
+        })}
+        pagination={{
+          size: "small",
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalCount,
+          onChange: (value) => setCurrentPage(value),
+          showSizeChanger: false,
+        }}
+      >
         <Table.Column
           title="#No"
           key="id"
@@ -48,6 +71,13 @@ const StoreTable = () => {
                 Floor {value.floorPlan.floorCode}
               </Typography.Text>
             );
+          }}
+        />
+        <Table.Column
+          title="Store owner"
+          key="storeOwner"
+          render={(value, record, index) => {
+            return <Typography.Text>{value.account.name}</Typography.Text>;
           }}
         />
         <Table.Column title="Status" key="status" dataIndex="status" />

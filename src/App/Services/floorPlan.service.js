@@ -1,4 +1,4 @@
-import axiosClient, { postFormData } from "../Utils/axiosClient";
+import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 import { floorPlans } from "../Constants/endpoints";
 /**
  * Page wrapper for new page
@@ -34,15 +34,14 @@ export const postFloorPlan = async (data) => {
     console.log(error?.message);
   }
 };
-
 /**
  * Page wrapper for new page
  * @param {object} [data] values post
  */
-export const testPoseWithoutFile = async (data) => {
+export const putFloorPlan = async (data) => {
   try {
-    const response = await axiosClient.post(floorPlans, data);
-    return response.data;
+    const dataPut = await putFormData(floorPlans + "/" + data.id, data);
+    return dataPut;
   } catch (error) {
     console.log(error?.message);
   }

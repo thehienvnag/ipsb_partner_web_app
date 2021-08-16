@@ -17,6 +17,7 @@ import {
   GlobalOutlined,
   SettingOutlined,
   UploadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -30,20 +31,28 @@ import {
   message,
   Modal,
   Space,
-  Steps,
-  Spin,
+  Checkbox,
 } from "antd";
+import { postBuilding, putBuilding } from "App/Services/building.service";
 
 const BuildingPage = () => {
   //#region state includes: [selectedItems: array], [currentPage: int]
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState(null);
   //#endregion
   //#region handle event functions
 
   const handleRows = (values) => setSelectedItems(values);
   const handlePaging = (number) => {
-    dispatch(loadBuildings({ pageIndex: number }));
+    if (search) {
+      console.log(search);
+      dispatch(
+        loadBuildings({ pageIndex: number, searchObject: search, status: "" })
+      );
+    } else {
+      dispatch(loadBuildings({ pageIndex: number }));
+    }
     setCurrentPage(number);
   };
   const handleRefresh = () => {
@@ -67,390 +76,115 @@ const BuildingPage = () => {
 
   useEffect(() => {
     dispatch(loadBuildings());
-    dispatch(loadAccounts());
+    dispatch(loadAccounts({ isAll: true }));
   }, [dispatch]);
 
   const [visibleDetail, setVisibleDetail] = useState(false);
   const [visibleCreate, setVisibleCreate] = useState(false);
-  const [currentStep, setStep] = useState(0);
-  const [visibleManagerId, setVisibleManagerId] = useState(false);
-  const [model, setModel] = useState(null);
-  const { Step } = Steps;
   const { TextArea } = Input;
   const { Option } = Select;
   const [form] = Form.useForm();
+  const [form1] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
+  const [buildingId, setBuildingId] = useState(null);
   const [file, setFile] = useState(null);
 
   const showModalCreate = () => {
     setVisibleCreate(true);
+    setFile(null);
   };
 
   const hideModalCreate = () => {
     setVisibleCreate(false);
-    form.resetFields();
-    setStep(0);
+    form1.resetFields();
     setImageUrl(null);
   };
   const hideModalDetail = () => {
     setVisibleDetail(false);
-    setVisibleManagerId(false);
     form.resetFields();
     setImageUrl(null);
   };
 
   const showModalDetail = (value) => {
-    setImageUrl(value);
     setVisibleDetail(true);
-    setVisibleManagerId(true);
-    setModel(value);
   };
 
+  const saveBuilding = async () => {
+    form1.validateFields();
+    const values = form1.getFieldsValue();
+    if (values.imageUrl == null) {
+      message.error("Add image for building", 4);
+    } else if (values != null && values.imageUrl != null) {
+      const data = await postBuilding({
+        ...values,
+        ...{ adminId: 2 },
+        ...{ imageUrl: file },
+      });
+      if (data?.id != null) {
+        message
+          .loading("Action in progress...", 3)
+          .then(() => message.success("Create building successfull", 3))
+          .then(() => hideModalCreate())
+          .then(() => dispatch(loadBuildings({ pageIndex: currentPage })));
+      }
+    }
+  };
+
+  const updateBuilding = async () => {
+    form.validateFields();
+    const values = form.getFieldsValue();
+    console.log(values);
+    if (values.imageUrl == null) {
+      message.error("Add image for building manager", 4);
+    } else if (values !== null && values.imageUrl != null) {
+      const data = await putBuilding({
+        ...values,
+        ...{ imageUrl: file },
+        ...{ id: buildingId },
+        ...{ adminId: 2 },
+        ...{ status: "Active" },
+      });
+      if (data?.id !== null) {
+        message
+          .loading("Action in progress...", 3)
+          .then(() => message.success("Update success", 3))
+          .then(() => hideModalDetail())
+          .then(() => dispatch(loadBuildings({ pageIndex: currentPage })));
+      }
+    }
+  };
   const handleChange = (info) => {
     getBase64(
       info.fileList[0]?.originFileObj,
       (imageUrl) => setImageUrl(imageUrl),
-      setFile(info.fileList[0])
+      setFile(info.fileList[0]?.originFileObj)
     );
   };
-
-  const onFinishCreateAccount = (values) => {
-    console.log(values.name, values.email, values.phone, values.role, file);
-    if (values != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() =>
-          message.success("Tạo mới tài khoản quản lý thành công", 2.5)
-        )
-        .then(() => setStep(currentStep + 1), setImageUrl(null));
-    }
-  };
-
-  const onFinishCreateBuilding = (values) => {
-    console.log(
-      "Building nè: " + values.name,
-      values.address,
-      values.numberOfFloor,
-      file
-    );
-    if (values != null && values.imageUrl != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() => message.success("Tạo mới tòa nhà thành công", 3))
-        .then(() => setStep(currentStep + 1), setImageUrl(null));
-
-      setModel(values.name); // lưu thông tin tạo mới của tòa nhà
-    }
-    if (values.imageUrl == null) {
-      message.error("Thêm ảnh cho tòa nhà", 4);
-    }
-  };
-
-  const onFinishAssignBuilding = (values) => {
-    if (values != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() => message.success("Thêm mới quản lý tòa nhà thành công", 3))
-        .then(() => setStep(currentStep + 1));
-    }
-  };
-
-  function CreateBuildingForm() {
-    return (
-      <Form
-        form={form}
-        layout="vertical"
-        name="register"
-        onFinish={onFinishCreateBuilding}
-        scrollToFirstError
-        id="formCreate"
-      >
-        <Row justify="space-between">
-          <Col span={13}>
-            <div className="ant-image-custom">
-              <Image
-                style={{
-                  width: "380px",
-                }}
-                src={imageUrl}
-                preview={true}
-              />
-            </div>
-
-            <Form.Item name="imageUrl" label="Thêm ảnh tòa nhà:" required>
-              <Upload
-                name="avatar"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                maxCount={1}
-                beforeUpload={() => false}
-                onChange={handleChange}
-              >
-                <Button icon={<UploadOutlined />}>Upload</Button>
-              </Upload>
-            </Form.Item>
-          </Col>
-          ,
-          <Col span={10}>
-            <Form.Item
-              name="name"
-              label="Tên tòa nhà: "
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Nhập tên của tòa nhà",
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input placeholder="Nhập tên tòa nhà" />
-            </Form.Item>
-
-            <Form.Item
-              name="address"
-              label="Địa chỉ:"
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Nhập địa chỉ của tòa nhà",
-                  whitespace: true,
-                },
-              ]}
-            >
-              <TextArea rows={3} placeholder="Nhập địa chỉ tòa nhà" />
-            </Form.Item>
-
-            <Form.Item
-              name="numberOfFloor"
-              label="Số tầng tòa nhà:"
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Chọn tầng của tòa nhà",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Nhập số tầng tòa nhà"
-                type="number"
-                maxLength={3}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-
-  function CreateAccountForm() {
-    return (
-      <Form
-        id="formCreate"
-        form={form}
-        // layout="vertical"
-        name="register"
-        onFinish={onFinishCreateAccount}
-        scrollToFirstError
-      >
-        <Row justify="space-between">
-          <Col span={10}>
-            <div className="ant-image-custom">
-              <Image
-                style={{
-                  width: "270px",
-                }}
-                src={imageUrl}
-                preview={true}
-              />
-            </div>
-          </Col>
-          ,
-          <Col span={12}>
-            <Form.Item
-              name="name"
-              label="Tên:"
-              rules={[
-                {
-                  required: true,
-                  message: "Nhập đầy đủ tên của người dùng ",
-                  whitespace: false,
-                },
-              ]}
-            >
-              <div className="form-input">
-                <Input placeholder="Nhập tên của người dùng" />
-              </div>
-            </Form.Item>
-
-            <Form.Item
-              name="email"
-              label="Email: "
-              required
-              rules={[
-                {
-                  type: "email",
-                  message: "E-mail không xác định !",
-                },
-                {
-                  required: true,
-                  message: "Nhập email",
-                },
-              ]}
-            >
-              <div className="form-input">
-                <Input placeholder="Nhập email liên lạc" type="email" />
-              </div>
-            </Form.Item>
-
-            <Form.Item
-              name="role"
-              label="Quyền"
-              rules={[
-                {
-                  required: true,
-                  message: "Chọn quyền cho người dùng",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn quyền">
-                <Option value="Store Owner">Chủ cửa hàng</Option>
-                <Option value="Building Manager">Quản lý tòa nhà</Option>
-                <Option value="Admin">Admin</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="phone"
-              label="Số điện thoại: "
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Nhập số điện thoại",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Nhập số điện thoại"
-                type="number"
-                maxLength={10}
-              />
-            </Form.Item>
-
-            <Form.Item name="imageUrl" label="Thêm ảnh cá nhân:">
-              <Upload
-                name="avatar"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                maxCount={1}
-                required
-                beforeUpload={() => false}
-                onChange={handleChange}
-              >
-                <Button icon={<UploadOutlined />}>Upload</Button>
-              </Upload>
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-
-  function AssignManagerForm() {
-    return (
-      <Form
-        form={form}
-        layout="vertical"
-        name="register"
-        onFinish={onFinishAssignBuilding}
-        scrollToFirstError
-        id="formCreate"
-      >
-        <Row justify="space-around">
-          <Col span={10}>
-            <Form.Item name="name" label="Tên tòa nhà: ">
-              <Input
-                placeholder="Nhập tên tòa nhà"
-                value={model?.name}
-                disabled={true}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={10}>
-            <Form.Item
-              name="managerId"
-              label="Quản lý tòa nhà"
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Chọn quản lý tòa nhà",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn quản lý cho tòa nhà">
-                {listAccount &&
-                  listAccount.map((item) => (
-                    <Option value={item.id}>{item.name}</Option>
-                  ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-
-  function DoneForm() {
-    return (
-      <div className="example">
-        <h1>
-          <Spin /> Tòa nhà đã được thêm mới vào hệ thống <Spin />
-        </h1>
-        <h2 style={{ color: "Highlight" }}>
-          <a
-            href="http://localhost:3000/admin/buildings"
-            // target="_blank"
-            rel="noreferrer"
-          >
-            Quản lý ngay
-          </a>
-        </h2>
-      </div>
-    );
-  }
 
   function FooterCreate() {
-    if (currentStep != "3")
-      return (
-        <Row justify="end">
-          <Space>
-            <Form.Item>
-              <Button
-                type="ghost"
-                onClick={() => {
-                  hideModalCreate();
-                  form.resetFields();
-                }}
-              >
-                Hủy
-              </Button>
-            </Form.Item>
+    return (
+      <Row justify="end">
+        <Space>
+          <Form.Item>
+            <Button
+              type="ghost"
+              onClick={() => {
+                hideModalCreate();
+                form.resetFields();
+              }}
+            >
+              Cancel
+            </Button>
+          </Form.Item>
 
-            <Form.Item>
-              <Button form="formCreate" type="primary" htmlType="submit">
-                Đăng ký
-              </Button>
-            </Form.Item>
-          </Space>
-        </Row>
-      );
-    return null;
+          <Form.Item>
+            <Button type="primary" onClick={saveBuilding}>
+              Save
+            </Button>
+          </Form.Item>
+        </Space>
+      </Row>
+    );
   }
 
   function FooterDetail() {
@@ -465,27 +199,19 @@ const BuildingPage = () => {
                 form.resetFields();
               }}
             >
-              Hủy
+              Cancel
             </Button>
           </Form.Item>
 
           <Form.Item>
-            <Button form="formDetail" type="primary" htmlType="submit">
-              Lưu
+            <Button type="primary" htmlType="submit" onClick={updateBuilding}>
+              Save
             </Button>
           </Form.Item>
         </Space>
       </Row>
     );
   }
-  const onFinishSaveBuilding = (values) => {
-    if (values != null) {
-      message
-        .loading("Action in progress...", 3)
-        .then(() => message.success("Lưu thông tin tòa nhà thành công", 3))
-        .then(() => hideModalDetail());
-    }
-  };
 
   return (
     <PageWrapper className="building-page">
@@ -523,6 +249,7 @@ const BuildingPage = () => {
                 onClick: (event) => {
                   showModalDetail(record);
                   setImageUrl(record.imageUrl);
+                  setBuildingId(record.id);
                   form.setFieldsValue(record);
                 },
               })}
@@ -538,14 +265,77 @@ const BuildingPage = () => {
                 dataIndex="name"
                 key="name"
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search buiding name`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ name: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
-
               <Table.Column
                 title="Address"
                 dataIndex="address"
                 key="address"
                 width={290}
                 render={(item) => <Typography.Text>{item}</Typography.Text>}
+                filterDropdown={({ selectedKeys }) => (
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      placeholder={`Search by address`}
+                      value={selectedKeys[0]}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value && value.length) {
+                          setSearch({ address: value });
+                        } else {
+                          setSearch(null);
+                        }
+                      }}
+                      onPressEnter={() => handlePaging(1)}
+                      style={{ marginBottom: 8, display: "block" }}
+                    />
+                    <Space>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Search
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                filterIcon={<SearchOutlined />}
               />
               <Table.Column
                 title="Manager Name"
@@ -554,8 +344,43 @@ const BuildingPage = () => {
                 render={(item) => (
                   <Typography.Text>{item.name}</Typography.Text>
                 )}
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Select
+                        placeholder="Select manager"
+                        onChange={(e) => {
+                          const value = e;
+                          console.log("hello: ", e);
+                          if (value && value.length) {
+                            setSearch({ managerId: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        {listAccount &&
+                          listAccount.map((item) => (
+                            <Option value={item.id}>{item.name}</Option>
+                          ))}
+                      </Select>
+                      <br />
+                    </Space>
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        handlePaging(1);
+                      }}
+                      icon={<SearchOutlined />}
+                      size="small"
+                      style={{ width: 100 }}
+                    >
+                      Search
+                    </Button>
+                  </div>
+                )}
+                //filterIcon={<SearchOutlined />}
               />
-
               <Table.Column
                 title="Num.Floor"
                 dataIndex="numberOfFloor"
@@ -579,12 +404,63 @@ const BuildingPage = () => {
                     </Tag>
                   );
                 }}
+                filterDropdown={() => (
+                  <div style={{ padding: 8 }}>
+                    <Space>
+                      <Checkbox.Group
+                        style={{ width: "100%" }}
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Checkbox value="">All</Checkbox>
+                        <Checkbox value="Active">Active</Checkbox>
+                        <Checkbox value="New">New</Checkbox>
+                        <Checkbox value="Inactive">Inactive</Checkbox>
+                      </Checkbox.Group>
+
+                      {/* <Select
+                        placeholder="Select Status"
+                        onChange={(e) => {
+                          const value = e;
+                          if (value && value.length) {
+                            setSearch({ status: value });
+                          } else {
+                            setSearch(null);
+                          }
+                        }}
+                      >
+                        <Option value="">All</Option>
+                        <Option value="New">New</Option>
+                        <Option value="Active">Active</Option>
+                        <Option value="Inactive">Inactive</Option>
+                      </Select> */}
+
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handlePaging(1);
+                        }}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 100 }}
+                      >
+                        Filter
+                      </Button>
+                    </Space>
+                  </div>
+                )}
               />
             </Table>
             <Modal
               className="modal-building"
               width={800}
-              title="Chia tiết của tòa nhà"
+              title="Detail of building"
               visible={visibleDetail}
               onCancel={hideModalDetail}
               footer={[<FooterDetail />]}
@@ -593,27 +469,22 @@ const BuildingPage = () => {
                 form={form}
                 layout="vertical"
                 name="register"
-                onFinish={onFinishSaveBuilding}
                 scrollToFirstError
-                id="formDetail"
               >
                 <Row justify="space-between">
                   <Col span={13}>
                     <div className="ant-image-custom">
                       <Image
                         style={{
-                          width: "350px",
+                          width: "380px",
+                          height: "290px",
                         }}
                         src={imageUrl}
                         preview={true}
                       />
                     </div>
                     <Space />
-                    <Form.Item
-                      name="imageUrl"
-                      label="Thêm ảnh tòa nhà:"
-                      required
-                    >
+                    <Form.Item name="imageUrl" label="Add image:" required>
                       <Upload
                         name="avatar"
                         listType="picture-card"
@@ -631,47 +502,50 @@ const BuildingPage = () => {
                   <Col span={10}>
                     <Form.Item
                       name="name"
-                      label="Tên tòa nhà: "
+                      label="Building name: "
                       required
                       rules={[
                         {
                           required: true,
-                          message: "Nhập tên của tòa nhà",
+                          message: "Input building name",
                           whitespace: true,
                         },
                       ]}
                     >
-                      <Input placeholder="Nhập tên tòa nhà" />
+                      <Input placeholder="Input building name" />
                     </Form.Item>
 
                     <Form.Item
                       name="address"
-                      label="Địa chỉ:"
+                      label="Address:"
                       required
                       rules={[
                         {
                           required: true,
-                          message: "Nhập địa chỉ của tòa nhà",
+                          message: "Input address of building",
                           whitespace: true,
                         },
                       ]}
                     >
-                      <TextArea rows={3} placeholder="Nhập địa chỉ tòa nhà" />
+                      <TextArea
+                        rows={3}
+                        placeholder="Input address of building"
+                      />
                     </Form.Item>
 
                     <Form.Item
                       name="numberOfFloor"
-                      label="Số tầng tòa nhà:"
+                      label="Number of floor:"
                       required
                       rules={[
                         {
                           required: true,
-                          message: "Chọn tầng của tòa nhà",
+                          message: "Input number of floor",
                         },
                       ]}
                     >
                       <Input
-                        placeholder="Nhập số tầng tòa nhà"
+                        placeholder="Input number of floor"
                         type="number"
                         maxLength={3}
                       />
@@ -679,15 +553,15 @@ const BuildingPage = () => {
 
                     <Form.Item
                       name="managerId"
-                      label="Quản lý tòa nhà"
+                      label="Manager:"
                       rules={[
                         {
-                          required: { visibleManagerId },
-                          message: "Chọn quản lý tòa nhà",
+                          required: true,
+                          message: "Please choose manager!",
                         },
                       ]}
                     >
-                      <Select placeholder="Chọn quản lý">
+                      <Select placeholder="Choose manager">
                         {listAccount &&
                           listAccount.map((item) => (
                             <Option value={item.id}>{item.name}</Option>
@@ -701,21 +575,115 @@ const BuildingPage = () => {
             <Modal
               className="modal-building"
               width={800}
-              title="Thêm mới tòa nhà"
+              title="Create building"
               visible={visibleCreate}
               onCancel={hideModalCreate}
               footer={[<FooterCreate />]}
             >
-              <Steps current={currentStep}>
-                <Step title="Đăng ký tòa nhà" />
-                <Step title="Đăng ký tài khoản" />
-                <Step title="Thêm quản lý tòa nhà" />
-              </Steps>
-              <Space> </Space>
-              {currentStep == "0" ? <CreateBuildingForm /> : null}
-              {currentStep == "1" ? <CreateAccountForm /> : null}
-              {currentStep == "2" ? <AssignManagerForm /> : null}
-              {currentStep == "3" ? <DoneForm /> : null}
+              <Form
+                form={form1}
+                layout="vertical"
+                name="register"
+                scrollToFirstError
+              >
+                <Row justify="space-between">
+                  <Col span={13}>
+                    <div className="ant-image-custom">
+                      <Image
+                        style={{
+                          width: "380px",
+                          height: "290px",
+                        }}
+                        src={imageUrl}
+                        preview={true}
+                      />
+                    </div>
+
+                    <Form.Item name="imageUrl" label="Add image:" required>
+                      <Upload
+                        name="avatar"
+                        listType="picture-card"
+                        className="avatar-uploader"
+                        showUploadList={false}
+                        maxCount={1}
+                        beforeUpload={() => false}
+                        onChange={handleChange}
+                      >
+                        <Button icon={<UploadOutlined />}>Upload</Button>
+                      </Upload>
+                    </Form.Item>
+                  </Col>
+                  ,
+                  <Col span={10}>
+                    <Form.Item
+                      name="name"
+                      label="Name of building: "
+                      rules={[
+                        {
+                          required: true,
+                          message: "Input name of building",
+                          whitespace: true,
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Input name of building" />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="address"
+                      label="Address:"
+                      required
+                      rules={[
+                        {
+                          required: true,
+                          message: "Input address of building",
+                          whitespace: true,
+                        },
+                      ]}
+                    >
+                      <TextArea
+                        rows={3}
+                        placeholder="Input address of building"
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="numberOfFloor"
+                      label="Number of floor:"
+                      required
+                      rules={[
+                        {
+                          required: true,
+                          message: "Input number floor of building",
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Input number floor of building"
+                        type="number"
+                        maxLength={3}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="managerId"
+                      label="Building manager:"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Select manager",
+                        },
+                      ]}
+                    >
+                      <Select placeholder="Select manager">
+                        {listAccount &&
+                          listAccount.map((item) => (
+                            <Option value={item.id}>{item.name}</Option>
+                          ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Form>
             </Modal>
           </>
         </Card>

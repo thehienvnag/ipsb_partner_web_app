@@ -1,10 +1,16 @@
 import React from "react";
 import "./DashboardSidebar.scss";
 import { Menu, Col, Layout } from "antd";
-import { MailOutlined, CalendarOutlined } from "@ant-design/icons";
+import { Link, useLocation } from "react-router-dom";
+import { GrMap } from "react-icons/gr";
+import { BsBuilding, BsFillPersonLinesFill } from "react-icons/bs";
+import { GoLocation } from "react-icons/go";
+import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
 const { Sider } = Layout;
-
+const logo = process.env.PUBLIC_URL + "/logo.png";
+const logoText = process.env.PUBLIC_URL + "/logo-text.png";
 const DashboardSidebar = ({ isCollapsed }) => {
+  const { pathname } = useLocation();
   return (
     <>
       <Sider
@@ -14,7 +20,7 @@ const DashboardSidebar = ({ isCollapsed }) => {
         className="responsive-sidebar"
         style={{ paddingTop: 0 }}
       >
-        <Menu defaultSelectedKeys={["1"]} mode="vertical">
+        <Menu defaultSelectedKeys={["2"]} mode="vertical">
           <Col
             type="flex"
             justify="center"
@@ -30,15 +36,16 @@ const DashboardSidebar = ({ isCollapsed }) => {
               }}
             >
               <img
-                src={process.env.PUBLIC_URL + "/logo.svg"}
-                style={{ transform: "scale(4.5)" }}
+                src={logo}
+                style={{ transform: "scale(2.5)" }}
                 alt="Tabler"
                 className="navbar-brand-image"
               />
+
               <img
-                src={process.env.PUBLIC_URL + "/logo-text.png"}
+                src={logoText}
                 style={{
-                  transform: "scale(1.8) translate(26px, 0px)",
+                  transform: "scale(1.8) translate(30px, 0px)",
                 }}
                 alt="Tabler"
                 className="navbar-brand-image"
@@ -72,15 +79,54 @@ const DashboardSidebar = ({ isCollapsed }) => {
             </div>
           </Col>
 
-          <Menu.Item key="1" icon={<MailOutlined />}>
-            Home
-          </Menu.Item>
-          <Menu.Item key="2" icon={<CalendarOutlined />}>
-            Floor plan
-          </Menu.Item>
-          <Menu.Item key="3" icon={<CalendarOutlined />}>
-            Locator tag
-          </Menu.Item>
+          {/* <Menu.Item key="1" icon={<HomeOutlined />}>
+            <Link to={{ pathname: "home" }} replace>
+              Home
+            </Link>
+          </Menu.Item> */}
+          {pathname.includes("admin") && (
+            <>
+              <Menu.Item key="2" icon={<BsBuilding />}>
+                <Link to={{ pathname: "buildings" }} replace>
+                  Buildings
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="3" icon={<BsFillPersonLinesFill />}>
+                <Link to={{ pathname: "manager-accounts" }} replace>
+                  Building Manager
+                </Link>
+              </Menu.Item>
+            </>
+          )}
+          {pathname.includes("building-manager") && (
+            <>
+              <Menu.Item key="2" icon={<IoStorefrontOutline />}>
+                <Link to={{ pathname: "stores" }} replace>
+                  Stores
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="3" icon={<GrMap />}>
+                <Link to={{ pathname: "floor-plans" }} replace>
+                  Floor plan
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="4" icon={<GoLocation />}>
+                <Link to={{ pathname: "location-type" }} replace>
+                  Locations
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="5" icon={<IoWifi />}>
+                <Link to={{ pathname: "locator-tags" }} replace>
+                  Locator tag
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="6" icon={<BsFillPersonLinesFill />}>
+                <Link to={{ pathname: "manager-accounts" }} replace>
+                  Store Owner
+                </Link>
+              </Menu.Item>
+            </>
+          )}
         </Menu>
       </Sider>
     </>
