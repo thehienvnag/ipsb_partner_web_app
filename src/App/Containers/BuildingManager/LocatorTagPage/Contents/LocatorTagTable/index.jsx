@@ -64,35 +64,35 @@ const LocatorTagTable = ({
 
   //#endregion
   const handlePaging = (number) => {
-    console.log(number);
-    if (search) {
-      console.log(search);
-      dispatch(
-        loadLocatorTags({ pageIndex: number, searchObject: search, status: "" })
-      );
-    } else {
-      dispatch(loadLocatorTags({ pageIndex: number }));
-    }
+    // console.log(number);
+    // if (search) {
+    //   console.log(search);
+    //   dispatch(
+    //     loadLocatorTags({ pageIndex: number, searchObject: search, status: "" })
+    //   );
+    // } else {
+    //   dispatch(loadLocatorTags({ pageIndex: number }));
+    // }
     setCurrentPage(number);
   };
 
   const onUpdate = async () => {
     if (valueMac !== null && valueLocationId != null && valueFloor != null) {
-      const data = await putLocatorTag({
-        ...{ id: model?.id },
-        ...{ macAddress: valueMac },
-        ...{ status: valueStatus },
-        ...{ floorPlanId: valueFloor },
-        ...{ locationId: valueLocationId },
-        ...{ lastSeen: new Datetime.now() },
-      });
-      if (data?.id !== null) {
-        message
-          .loading("Action in progress...", 3)
-          .then(() => message.success("Update success", 3))
-          .then(() => hideModalDetail())
-          .then(() => dispatch(loadAccounts({ pageIndex: currentPage })));
-      }
+      // const data = await putLocatorTag({
+      //   ...{ id: model?.id },
+      //   ...{ macAddress: valueMac },
+      //   ...{ status: valueStatus },
+      //   ...{ floorPlanId: valueFloor },
+      //   ...{ locationId: valueLocationId },
+      //   ...{ lastSeen: new Datetime.now() },
+      // });
+      // if (data?.id !== null) {
+      //   message
+      //     .loading("Action in progress...", 3)
+      //     .then(() => message.success("Update success", 3))
+      //     .then(() => hideModalDetail())
+      //     .then(() => dispatch(loadAccounts({ pageIndex: currentPage })));
+      // }
     }
   };
 
@@ -140,11 +140,11 @@ const LocatorTagTable = ({
                 value={selectedKeys[0]}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (value && value.length) {
-                    setSearch({ macAddress: value });
-                  } else {
-                    setSearch(null);
-                  }
+                  // if (value && value.length) {
+                  //   setSearch({ macAddress: value });
+                  // } else {
+                  //   setSearch(null);
+                  // }
                 }}
                 onPressEnter={() => handlePaging(1)}
                 style={{ marginBottom: 8, display: "block" }}
@@ -203,11 +203,11 @@ const LocatorTagTable = ({
                   style={{ width: "100%" }}
                   onChange={(e) => {
                     const value = e;
-                    if (value && value.length) {
-                      setSearch({ status: value });
-                    } else {
-                      setSearch(null);
-                    }
+                    // if (value && value.length) {
+                    //   setSearch({ status: value });
+                    // } else {
+                    //   setSearch(null);
+                    // }
                   }}
                 >
                   <Checkbox value="">All</Checkbox>
