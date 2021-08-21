@@ -44,13 +44,19 @@ export const getByFloorIdForStairLift = async (floorPlanId) => {
   });
   return response.data?.content;
 };
-export const getAllLoctionType = async ({
+export const getAllLocation = async ({
   pageIndex = 1,
   pageSize = 5,
   buildingId,
+  locationTypeName,
 }) => {
-  const params = { pageIndex, pageSize, buildingId };
-  console.log(params);
+  const params = {
+    pageIndex,
+    pageSize,
+    buildingId,
+    locationTypeIds: [6, 10, 11, 12, 13, 14, 15],
+    locationTypeName,
+  };
   const response = await axiosClient.get(locations, { params });
   return response.data;
 };

@@ -8,18 +8,22 @@ import CreateLocationTypeModel from "./Contents/CreateLocationTypeModel";
 
 const LocationTypePage = () => {
   const [visible, setVisible] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
   const handleCreate = () => {
     setVisible(true);
   };
   const handleCancel = () => {
     setVisible(false);
   };
+  const handleRefresh = () => {
+    setIsRefresh(!isRefresh);
+  };
   return (
     <PageWrapper>
-      <Header handleCreate={handleCreate} />
+      <Header handleCreate={handleCreate} handleRefresh={handleRefresh} />
       <PageBody>
         <Card>
-          <LocationTypeTable />
+          <LocationTypeTable isRefresh={isRefresh} />
         </Card>
         <CreateLocationTypeModel
           visible={visible}
