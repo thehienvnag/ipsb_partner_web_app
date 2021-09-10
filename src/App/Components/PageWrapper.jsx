@@ -18,6 +18,6 @@ export const PageWrapper = ({ children }) => {
  */
 export const PageBody = ({ children, noWrap = false }) => (
   <div className="page-body" style={{ padding: "5px 18px" }}>
-    <Row style={{ flexFlow: noWrap ? "nowrap" : "row wrap" }}>{children}</Row>
+    <Row style={{ flexFlow: "nowrap" }}>{children}</Row>
   </div>
 );
