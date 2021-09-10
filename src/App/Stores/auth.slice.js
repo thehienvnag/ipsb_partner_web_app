@@ -69,6 +69,7 @@ const Slice = createSlice({
 //Floor plan selector to observe data
 //#region [locatorTags, totalLocatorTags, pageSize, isLoading]
 export const selectAccount = (state) => state.auth.data;
+export const selectRole = (state) => state.auth.data?.role;
 //#endregion
 
 /// Export reducer

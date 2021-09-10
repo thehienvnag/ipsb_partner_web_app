@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { getAllLocation } from "App/Services/location.service";
-import {
-  Table,
-  Image,
-  Tag,
-  Avatar,
-  Button,
-  Typography,
-  Input,
-  Space,
-} from "antd";
+import { Table, Tag, Avatar, Button, Typography, Input, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
-const LocationTypeTable = ({ isRefresh }) => {
+const PlaceTable = ({ isRefresh, onRowSelect }) => {
   const [listLocationType, setListLocationType] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,6 +37,7 @@ const LocationTypeTable = ({ isRefresh }) => {
   return (
     <>
       <Table
+        onRow={(record) => ({ onClick: (e) => onRowSelect(record) })}
         loading={loading}
         dataSource={listLocationType}
         pagination={{
@@ -72,7 +64,7 @@ const LocationTypeTable = ({ isRefresh }) => {
               <Avatar
                 shape="square"
                 size={40}
-                src={<Image width="40px" src={value.locationType.imageUrl} />}
+                src={value.locationType.imageUrl}
               />
             );
           }}
@@ -85,11 +77,14 @@ const LocationTypeTable = ({ isRefresh }) => {
             return <Typography.Text>{value.locationType.name}</Typography.Text>;
           }}
         />
-        <Table.Column title="Status" key="status" dataIndex="status" />
         <Table.Column
-          title="Position"
-          render={(value, record, index) => {
-            return <Button type="link">View</Button>;
+          title="Status"
+          key="status"
+          dataIndex="status"
+          render={(value) => {
+            return (
+              <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
+            );
           }}
         />
       </Table>
@@ -126,4 +121,4 @@ const getColumnSearchProps = (dataIndex, handleSearch) => ({
   ),
 });
 
-export default LocationTypeTable;
+export default PlaceTable;

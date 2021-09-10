@@ -1,25 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Card } from "antd";
+import { Card, Col } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
-import { useNavigate } from "react-router-dom";
 import { loadAll } from "App/Stores/floorPlan.slice";
 import "./index.scss";
 import Header from "./Header";
 import FloorPlanTable from "./FloorPlanTable/index";
+import FloorPlanDetail from "./FloorPlanDetail";
+import DetailCard from "App/Components/DetailCard";
 
 const FloorPlanPage = () => {
   //#region state includes: [selectedItems: array]
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [selectedFloor, setSelectedFloor] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
+
+  const onRowSelect = (selected) => {
+    setVisible(true);
+    if (selectedFloor !== selected) {
+      setSelectedFloor(selected);
+    }
+  };
 
   //#endregion
   //#region handle event functions
   const handleRefresh = () => dispatch(loadAll({ pageIndex: currentPage }));
   const handleDelete = () => {};
   const handleCreate = () => {
-    navigate({ pathname: "create-new" });
+    setVisible(true);
+    setSelectedFloor(null);
+  };
+  const onCancel = () => {
+    setVisible(false);
+    setSelectedFloor(null);
   };
   //#endregion
   //#region load state of floor plans to store
@@ -31,22 +44,29 @@ const FloorPlanPage = () => {
   //#endregion
   return (
     <PageWrapper>
-      <Header
-        handleRefresh={handleRefresh}
-        handleCreate={handleCreate}
-        handleDelete={handleDelete}
-      />
       <PageBody>
-        <Card>
-          <div style={{ padding: 10 }}>
+        <Col flex="auto">
+          <Card className="card-table">
+            <Header
+              handleRefresh={handleRefresh}
+              handleCreate={handleCreate}
+              handleDelete={handleDelete}
+            />
             <FloorPlanTable
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
-              selectedItems={selectedItems}
-              setSelectedItems={setSelectedItems}
+              onRowSelect={onRowSelect}
             />
-          </div>
-        </Card>
+          </Card>
+        </Col>
+        <DetailCard
+          hasFooter={false}
+          visible={visible}
+          onCancel={onCancel}
+          span={9}
+        >
+          <FloorPlanDetail floor={selectedFloor} onCancel={onCancel} />
+        </DetailCard>
       </PageBody>
     </PageWrapper>
   );

@@ -1,4 +1,3 @@
-import FloorPlanDetailPage from "App/Containers/BuildingManager/FloorPlanDetailPage";
 import BuildingPage from "App/Containers/Admin/BuildingPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import LocatorTagPage from "App/Containers/BuildingManager/LocatorTagPage";
@@ -12,43 +11,41 @@ import StoreOwnerPage from "App/Containers/BuildingManager/StoreOwnerPage";
 import LoginPage from "App/Containers/Auth/Login";
 import { element } from "prop-types";
 import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
+import RouteNames from "App/Constants/routesName";
 const appRoutes = [
   {
-    path: "building-manager",
+    path: "",
     element: <DashboardLayout />,
     children: [
       { path: "/", element: <BmHomePage /> },
       {
-        path: "/floor-plans",
+        path: RouteNames.floorPlans,
         element: <FloorPlanPage />,
       },
+
       {
-        path: "/floor-plans/:id",
-        element: <FloorPlanDetailPage />,
-      },
-      {
-        path: "/stores",
+        path: RouteNames.stores,
         element: <StorePage />,
       },
       {
-        path: "/locator-tags",
+        path: RouteNames.locatorTags,
         element: <LocatorTagPage />,
       },
       {
-        path: "/location-type",
+        path: RouteNames.places,
         element: <LocationTypePage />,
       },
-      { path: "/manager-accounts", element: <StoreOwnerPage /> },
+      { path: RouteNames.storeAccounts, element: <StoreOwnerPage /> },
+      { path: RouteNames.buildings, element: <BuildingPage /> },
+      { path: RouteNames.managerAccounts, element: <BuildingManagerPage /> },
     ],
   },
   {
-    path: "admin",
+    path: RouteNames.admin,
     element: <DashboardLayout />,
     children: [
       { path: "/test", element: <AdHomePage /> },
       { path: "/test2", element: <AdHomePage /> },
-      { path: "/buildings", element: <BuildingPage /> },
-      { path: "/manager-accounts", element: <BuildingManagerPage /> },
     ],
   },
 

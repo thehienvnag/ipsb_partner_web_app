@@ -12,9 +12,7 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import FormItem from "antd/lib/form/FormItem";
-import { getBase64 } from "App/Utils/utils";
 import "./index.scss";
-import { GrLocation } from "react-icons/gr";
 import { getAllProductCategories } from "App/Services/productCategory.service";
 import { postStore } from "App/Services/store.service";
 import {
@@ -22,16 +20,12 @@ import {
   selectListFloorCode,
 } from "App/Stores/floorPlan.slice";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loadAccounts,
-  selectIsLoading,
-  selectListAccount,
-  selectPageSize,
-  selectTotalCount,
-} from "App/Stores/account.slice";
+import { loadAccounts, selectListAccount } from "App/Stores/account.slice";
 import { postLocations } from "App/Services/location.service";
 import { selectNewLocation } from "App/Stores/map.slice";
-import MapZoomPan from "App/Components/IndoorMap/MapZoomPan";
+import DetailCard from "App/Components/DetailCard";
+import SelectAccount from "App/Components/CustomSelect/SelectAccount";
+import SelectFloorPlan from "App/Components/CustomSelect/SelectFloorPlan";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -41,26 +35,22 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
   const listFloor = useSelector(selectListFloorCode);
   const [categories, setCategories] = useState(null);
   const [fileList, setFileList] = useState([]);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewTitle, setPreviewTitle] = useState("Preview upload image");
-  const [previewImage, setPreviewImage] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [file, setFile] = useState(null);
   const [floorPlanId, setFloorPlanId] = useState(-1);
   const newLocation = useSelector(selectNewLocation);
 
-  const listAccount = useSelector(selectListAccount);
-
   useEffect(() => {
     const initStore = () => {
       if (store) {
-        form.setFieldsValue(store);
-        setPreviewImage(store.imageUrl);
+        const accountId = `${store.accountId},${store.account.name}`;
+        const floorPlanId = `${store.floorPlanId},${store.floorPlan.floorCode}`;
+        form.setFieldsValue({ ...store, accountId, floorPlanId });
         setFileList([{ thumbUrl: store.imageUrl }]);
-        console.log(store?.floorPlanId);
+        setFloorPlanId(store.floorPlanId);
       } else {
         setFileList([]);
-        setPreviewImage(null);
+        setFloorPlanId(null);
         form.resetFields();
       }
     };
@@ -86,31 +76,9 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
     console.log(values);
   };
 
-  const handleCancelPreview = () => setPreviewVisible(false);
-
-  const handlePreview = (file) => {
-    if (file.originFileObj) {
-      getBase64(file.originFileObj, (fileSrc) => {
-        setPreviewImage(fileSrc);
-      });
-      setPreviewVisible(true);
-      setPreviewTitle(
-        file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-      );
-    }
-  };
-  // const handleChange = ({ fileList }) => {
-  //   setFileList(fileList);
-  //   setFile(fileList[0]?.originFileObj);
-  // };
-
   const handleChange = (info) => {
-    console.log("Hú", info);
     setFileList(info.fileList);
-    // getBase64(
-    //   info.fileList[0]?.originFileObj,
     setFile(info.fileList[0]?.originFileObj);
-    // );
   };
 
   const onSubmitForm = async () => {
@@ -127,6 +95,7 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
           ...{ productCategoryIds: categoryList },
           ...{ buildingId: 12 },
           ...{ imageUrl: file },
+          ...{ floorPlanId: floorPlanId },
         });
 
         if (result) {
@@ -153,51 +122,29 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
       console.log(error);
     }
   };
-
+  const onRemove = () => {};
   return (
     <>
-      <Modal
-        width="50%"
-        title="Create Store"
+      <DetailCard
         visible={visible}
-        // onOk={handleOk}
         onCancel={handleCancel}
-        onOk={onSubmitForm}
+        span={9}
+        onSave={onSubmitForm}
+        onRemove={onRemove}
       >
-        <Row>
-          <Col className="col-md-7">
+        <Row justify="space-between">
+          <Col span={11}>
             <Upload
               className="upload-wrapper"
               listType="picture-card"
               fileList={fileList}
-              onPreview={handlePreview}
               onChange={handleChange}
               beforeUpload={() => false}
             >
               {fileList.length === 0 && <UploadButton />}
             </Upload>
-            <Modal
-              width="800px"
-              visible={previewVisible}
-              title={previewTitle}
-              onCancel={handleCancelPreview}
-            >
-              <img alt="example" style={{ width: "100%" }} src={previewImage} />
-            </Modal>
 
             <Form layout="vertical" form={form}>
-              <FormItem
-                name="description"
-                label="Description"
-                rules={[{ required: true }]}
-                required
-              >
-                <TextArea
-                  style={{ width: "88%" }}
-                  rows={3}
-                  placeholder="Description..."
-                />
-              </FormItem>
               <FormItem
                 name="accountId"
                 label="Store Owner:"
@@ -208,19 +155,41 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
                   },
                 ]}
               >
-                <Select
-                  placeholder="Select store owner"
-                  style={{ width: "88%" }}
-                >
-                  {listAccount &&
-                    listAccount.map((item) => (
-                      <Option value={item.id}>{item.name}</Option>
-                    ))}
-                </Select>
+                <SelectAccount role="Store Owner" />
+              </FormItem>
+              <Form.Item
+                name="floorPlanId"
+                label="Floor plan"
+                rules={[{ required: true }]}
+                required
+              >
+                <SelectFloorPlan />
+              </Form.Item>
+
+              <FormItem
+                label="Position of store"
+                rules={[{ required: true }]}
+                required
+              >
+                <Button>Pick location</Button>
+                {/* {floorPlanId === -1 && <Button disabled>Pick location</Button>} */}
+                {/* {floorPlanId > 0 && (
+                  <MapZoomPan
+                    mode="Other"
+                    typeId={1}
+                    floorPlanId={floorPlanId}
+                    disabledPreview={true}
+                    src={
+                      listFloor &&
+                      listFloor.filter(({ id }) => floorPlanId === id)[0]
+                        ?.imageUrl
+                    }
+                  />
+                )} */}
               </FormItem>
             </Form>
           </Col>
-          <Col className="col-md-5">
+          <Col span={11}>
             <Form
               layout="vertical"
               form={form}
@@ -235,33 +204,20 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
                 <Input placeholder="Input store name" />
               </Form.Item>
               <Form.Item
-                name="floorPlanId"
-                label="Floor plan"
+                name="phone"
+                label="Store's phone"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder="Input store phone" />
+              </Form.Item>
+              <FormItem
+                name="description"
+                label="Description"
                 rules={[{ required: true }]}
                 required
               >
-                <Select
-                  defaultValue={store?.floorPlanId}
-                  placeholder="Select a floor plan"
-                  onChange={onFloorChange}
-                  allowClear
-                >
-                  {listFloor &&
-                    listFloor.map(({ id, floorCode }) => (
-                      <Option key={id} value={id} label={floorCode}>
-                        Floor {floorCode}
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="phone"
-                label="Phone number"
-                rules={[{ required: true }]}
-              >
-                <Input placeholder="Input phone number" />
-              </Form.Item>
+                <TextArea rows={3} placeholder="Description..." />
+              </FormItem>
               <FormItem
                 // name="productCategories"
                 label="Product Category"
@@ -284,32 +240,10 @@ const CreateStoreModal = ({ visible, handleCancel, store, handleRefresh }) => {
                     ))}
                 </Select>
               </FormItem>
-              <FormItem
-                label="Position of store"
-                rules={[{ required: true }]}
-                required
-              >
-                {floorPlanId === -1 && (
-                  <Button disabled>Pick location (Choose floor first!)</Button>
-                )}
-                {floorPlanId > 0 && (
-                  <MapZoomPan
-                    mode="Other"
-                    typeId={1}
-                    floorPlanId={floorPlanId}
-                    disabledPreview={true}
-                    src={
-                      listFloor &&
-                      listFloor.filter(({ id }) => floorPlanId === id)[0]
-                        ?.imageUrl
-                    }
-                  />
-                )}
-              </FormItem>
             </Form>
           </Col>
         </Row>
-      </Modal>
+      </DetailCard>
     </>
   );
 };

@@ -3,6 +3,7 @@ import { Layout } from "antd";
 import React, { useState } from "react";
 
 import { Outlet } from "react-router-dom";
+import "./DashboardLayout.scss";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 const { Footer, Content } = Layout;
@@ -15,9 +16,8 @@ const DashboardLayout = () => {
   };
   return (
     <>
-      <Layout style={{ backgroundColor: "white" }}>
+      <Layout>
         <DashboardSidebar isCollapsed={isCollapsed} />
-
         <Layout>
           <DashboardHeader handleCollapsed={handleCollapsed} />
           <Content>

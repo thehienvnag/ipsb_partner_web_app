@@ -1,134 +1,112 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { selectMenuItems } from "App/Stores/uiData.slice";
 import "./DashboardSidebar.scss";
-import { Menu, Col, Layout } from "antd";
-import { Link, useLocation } from "react-router-dom";
-import { GrMap } from "react-icons/gr";
-import { BsBuilding, BsFillPersonLinesFill } from "react-icons/bs";
-import { GoLocation } from "react-icons/go";
-import { IoWifi, IoStorefrontOutline } from "react-icons/io5";
+import { Menu, Layout, Button } from "antd";
+import { useNavigate } from "react-router-dom";
+import { FaRegCircle, FaRegDotCircle } from "react-icons/fa";
+import { BiHomeAlt } from "react-icons/bi";
 const { Sider } = Layout;
 const logo = process.env.PUBLIC_URL + "/logo.png";
-const logoText = process.env.PUBLIC_URL + "/logo-text.png";
-const DashboardSidebar = ({ isCollapsed }) => {
-  const { pathname } = useLocation();
+
+const AppMenu = ({ children, collapsed }) => {
+  const navigate = useNavigate();
+  const menuItems = useSelector(selectMenuItems);
+  return (
+    <Menu
+      defaultSelectedKeys={["2"]}
+      mode="vertical"
+      className="side-bar-dark-menu"
+    >
+      {children}
+      <Menu.Item key="-1" icon={<BiHomeAlt />} onClick={() => navigate("")}>
+        {!collapsed && "Home"}
+      </Menu.Item>
+      {!collapsed && (
+        <>
+          <li style={{ height: 25 }}></li>
+          <li class="navigation-header">
+            <span>APPS</span>
+          </li>
+        </>
+      )}
+      {menuItems.map(({ icon, title, path }, index) => (
+        <Menu.Item icon={icon} key={index} onClick={() => navigate(path)}>
+          {!collapsed && title}
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+};
+
+const DashboardSidebar = () => {
+  const [collapsed, setCollapse] = useState(false);
+  const [collapsedBtn, setCollapsedBtn] = useState(false);
+  const onMouseEnter = () => {
+    if (collapsed) {
+      setCollapse(false);
+    }
+  };
+  const onMouseLeave = () => {
+    if (!collapsedBtn) {
+      return;
+    }
+    if (!collapsed) {
+      setCollapse(true);
+    }
+  };
+  const collapsedClassName = () => {
+    if (!collapsedBtn) return "false";
+    if (collapsedBtn && !collapsed) return "false-fixed";
+    return "true";
+  };
   return (
     <>
       <Sider
-        theme="light"
         collapsedWidth={0}
-        collapsed={isCollapsed}
-        className="responsive-sidebar"
+        className={`responsive-sidebar side-bar-dark is-collapsed-${collapsedClassName()}`}
         style={{ paddingTop: 0 }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
-        <Menu defaultSelectedKeys={["2"]} mode="vertical">
-          <Col
-            type="flex"
-            justify="center"
-            align="middle"
-            style={{ margin: "10px 0" }}
-          >
-            <div
-              style={{
-                display: "flex",
-                marginLeft: 28,
-                marginTop: 50,
-                marginBottom: 45,
-              }}
-            >
-              <img
-                src={logo}
-                style={{ transform: "scale(2.5)" }}
-                alt="Tabler"
-                className="navbar-brand-image"
-              />
-
-              <img
-                src={logoText}
-                style={{
-                  transform: "scale(1.8) translate(30px, 0px)",
-                }}
-                alt="Tabler"
-                className="navbar-brand-image"
-              />
-            </div>
-            <div className="input-icon" style={{ padding: "0 10px" }}>
-              <span className="input-icon-addon" style={{ marginLeft: 10 }}>
-                {/* Download SVG icon from http://tabler-icons.io/i/search */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="icon"
-                  width={24}
-                  height={24}
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <circle cx={10} cy={10} r={7} />
-                  <line x1={21} y1={21} x2={15} y2={15} />
-                </svg>
-              </span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search…"
-              />
-            </div>
-          </Col>
-
-          {/* <Menu.Item key="1" icon={<HomeOutlined />}>
-            <Link to={{ pathname: "home" }} replace>
-              Home
-            </Link>
-          </Menu.Item> */}
-          {pathname.includes("admin") && (
-            <>
-              <Menu.Item key="2" icon={<BsBuilding />}>
-                <Link to={{ pathname: "buildings" }} replace>
-                  Buildings
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="3" icon={<BsFillPersonLinesFill />}>
-                <Link to={{ pathname: "manager-accounts" }} replace>
-                  Building Manager
-                </Link>
-              </Menu.Item>
-            </>
-          )}
-          {pathname.includes("building-manager") && (
-            <>
-              <Menu.Item key="2" icon={<IoStorefrontOutline />}>
-                <Link to={{ pathname: "stores" }} replace>
-                  Stores
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="3" icon={<GrMap />}>
-                <Link to={{ pathname: "floor-plans" }} replace>
-                  Floor plan
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="4" icon={<GoLocation />}>
-                <Link to={{ pathname: "location-type" }} replace>
-                  Locations
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="5" icon={<IoWifi />}>
-                <Link to={{ pathname: "locator-tags" }} replace>
-                  Locator tag
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="6" icon={<BsFillPersonLinesFill />}>
-                <Link to={{ pathname: "manager-accounts" }} replace>
-                  Store Owner
-                </Link>
-              </Menu.Item>
-            </>
-          )}
-        </Menu>
+        <AppMenu collapsed={collapsed}>
+          <>
+            <ul class="nav navbar-nav flex-row">
+              <li class="nav-item mr-auto">
+                <a class="navbar-brand">
+                  <img src={logo} className="brand-logo" alt="App logo" />
+                  {!collapsed && (
+                    <>
+                      <h2 class="brand-text mb-0">IPSB</h2>{" "}
+                      <Button
+                        className="button-collapse"
+                        type="link"
+                        block
+                        icon={
+                          collapsedBtn ? (
+                            <FaRegCircle color="#7367F0" />
+                          ) : (
+                            <FaRegDotCircle color="#7367F0" />
+                          )
+                        }
+                        onClick={() => {
+                          setCollapsedBtn(!collapsedBtn);
+                        }}
+                      ></Button>
+                    </>
+                  )}
+                </a>
+              </li>
+            </ul>
+          </>
+        </AppMenu>
       </Sider>
+      <div
+        style={{
+          marginRight: collapsedBtn ? 70 : 0,
+          height: "100vh",
+        }}
+      ></div>
     </>
   );
 };

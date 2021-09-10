@@ -1,16 +1,49 @@
 @import "App/Styles/Lib/tabler.min.css";
 
 .header {
-    height: 50px;
-    &:after{
-        background: linear-gradient(to right, #8ECDEA, #dfedf3);
-        content: '';
-        width: 100%;
-        /* top: var(--glostick-total-height); */
-        top: 53px;
-        position: absolute;
-        height: 2px;
-        left: 0;
+  height: 50px;
+  &:after {
+    content: "";
+    width: 99.7%;
+    /* top: var(--glostick-total-height); */
+    top: 53px;
+    position: absolute;
+    height: 2px;
+    left: 2px;
+  }
+}
+.header-dark {
+  border: 1px solid rgb(224, 222, 222);
+  margin: 12px auto 0 auto;
+  width: 97.5%;
+  box-shadow: 0 4px 20px 0 rgb(235, 235, 235);
+  border-radius: 8px;
+}
+
+.starred-menu {
+  a {
+    margin-left: 20px;
+    svg {
+      color: #626262;
+      font-size: 1.6em;
+    }
+  }
+}
+.choose-starred-menu {
+  svg{
+    color: #818181;
+    font-size: 1.6em;
+    margin-right: 10px;
+  }
+  .star-row{
+    .ant-dropdown-menu-title-content{
+      
+      display: flex;
+      justify-content: space-between;
     }
     
+  }
+  .star-icon{
+    margin-left: 40px;
+  }
 }

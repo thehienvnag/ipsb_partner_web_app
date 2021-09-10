@@ -54,17 +54,6 @@ const DropdownMenu = () => (
   </Dropdown>
 );
 
-const routes = [
-  {
-    path: "home",
-    breadcrumbName: "Home",
-  },
-  {
-    path: "location-type",
-    breadcrumbName: "Location Type",
-  },
-];
-
 /**
  * Page wrapper for new page
  * @param {object} [props] props of component
@@ -76,34 +65,23 @@ const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
   <PageHeader
     title="LOCATIONS"
     className="site-page-header"
-    subTitle="Manages the locations within the floor of the building"
-    tags={<Tag color="blue">Running</Tag>}
+    // subTitle="Manages the locations within the floor of the building"
+    // tags={<Tag color="blue">Running</Tag>}
     extra={[
       <Button
+        style={{ marginLeft: 400 }}
         key="1"
         type="dashed"
         icon={<ReloadOutlined />}
         onClick={handleRefresh}
-      >
-        Refresh
-      </Button>,
+      ></Button>,
       <Button
         key="2"
         type="primary"
         icon={<PlusOutlined />}
         onClick={handleCreate}
-      >
-        Create
-      </Button>,
-      <Button key="3" danger icon={<DeleteOutlined />} onClick={handleDelete}>
-        Delete
-      </Button>,
-      <DropdownMenu key="more" />,
+      ></Button>,
     ]}
-    avatar={{
-      src: "https://static.vecteezy.com/system/resources/previews/002/267/032/non_2x/simple-store-icon-free-vector.jpg",
-    }}
-    breadcrumb={{ routes }}
   ></PageHeader>
 );
 

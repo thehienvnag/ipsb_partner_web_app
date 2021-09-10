@@ -36,9 +36,9 @@ const LoginPage = () => {
         if (values.payload.status === "New") {
           path = "../change-password";
         } else if (values.payload.role === "Admin") {
-          path = "../admin/buildings";
+          path = "../buildings";
         } else if (values.payload.role === "Building Manager") {
-          path = "../building-manager/stores";
+          path = "../stores";
         }
         onSuccessLogin(path);
       } else {

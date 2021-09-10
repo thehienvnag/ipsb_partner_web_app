@@ -1,10 +1,19 @@
-import { Dropdown, Menu, Button } from "antd";
+import { Dropdown, Menu, Button, Tooltip } from "antd";
 import Link from "antd/lib/typography/Link";
 import { selectAccount } from "App/Stores/auth.slice";
+import {
+  // addMenuItems,
+  // selectStarredMenuItems,
+  selectMenuItems,
+} from "App/Stores/uiData.slice";
 import React from "react";
-import { useSelector } from "react-redux";
+import {
+  useSelector,
+  // useDispatch
+} from "react-redux";
 import "./DashboardHeader.scss";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+// import { BiStar } from "react-icons/bi";
 const notifications = (
   <Menu>
     <Menu.Item key="0">1st menu item</Menu.Item>
@@ -31,7 +40,7 @@ const Profile = () => {
 const DashboardHeader = ({ handleCollapsed }) => {
   const account = useSelector(selectAccount);
   return (
-    <header className="navbar navbar-expand-md navbar-light d-print-none header">
+    <header className="navbar navbar-expand-md navbar-light d-print-none header header-dark">
       <div
         style={{
           display: "flex",
@@ -50,7 +59,7 @@ const DashboardHeader = ({ handleCollapsed }) => {
         >
           <span className="navbar-toggler-icon" />
         </Button>
-        <div></div>
+        <StarredMenu />
 
         <div className="navbar-nav flex-row" style={{ marginRight: 15 }}>
           <div className="nav-item d-none d-md-flex me-3">
@@ -120,6 +129,43 @@ const DashboardHeader = ({ handleCollapsed }) => {
         </div>
       </div>
     </header>
+  );
+};
+
+const StarredMenu = () => {
+  // const dispatch = useDispatch();
+  const menuItems = useSelector(selectMenuItems);
+  // const starredMenuItems = useSelector(selectStarredMenuItems);
+  return (
+    <div className="starred-menu">
+      {menuItems.map(({ icon, title, path }) => (
+        <Tooltip placement="bottom" title={title}>
+          <RouterLink to={path}>{icon}</RouterLink>
+        </Tooltip>
+      ))}
+      {/* <Dropdown
+        overlay={
+          <Menu className="choose-starred-menu">
+            {menuItems.map(({ icon, title }, index) => (
+              <Menu.Item className="star-row" key={index} icon={icon}>
+                {title}
+                <BiStar
+                  onClick={() => dispatch(addMenuItems(title))}
+                  className="star-icon"
+                  color={
+                    starredMenuItems.includes(title) ? "#FFA24A" : "#818181"
+                  }
+                />
+              </Menu.Item>
+            ))}
+          </Menu>
+        }
+        trigger={["click"]}
+        placement="bottomLeft"
+      >
+        <Link>{<BiStar color="#FFA24A" />}</Link>
+      </Dropdown> */}
+    </div>
   );
 };
 

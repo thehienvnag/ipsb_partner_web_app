@@ -42,4 +42,12 @@
 .cropper-rotate{
   @include rotate-cropper(0);
 }
-
+.detail-card{
+  .preview-wrapper{
+    margin-bottom: 25px;
+    height: 220px;
+  }
+  h3{
+    font-size: 0.9em;
+  }
+}

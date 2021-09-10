@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, Menu } from "antd";
+import { Card, Col, Menu } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import { GlobalOutlined } from "@ant-design/icons";
 import { loadLocatorTags } from "App/Stores/locatorTag.slice";
@@ -8,12 +8,13 @@ import "./index.scss";
 import Header from "./Header";
 import LocatorTagTable from "./Contents/LocatorTagTable/index";
 import { selectCurrentFloorPlan } from "App/Stores/floorPlan.slice";
+import LocatorTagDetails from "./Contents/LocatorTagDetails";
 
 const LocatorTagPage = () => {
-  //#region state includes: [selectedItems: array]
-  const [selectedItems, setSelectedItems] = useState([]);
+  //#region state includes: []
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedMenu, setSelectedMenu] = useState("overview");
+  const [visible, setVisible] = useState(false);
+  const [locatorTag, setLocatorTag] = useState(null);
   const currentFloorPlan = useSelector(selectCurrentFloorPlan);
   //#endregion
   //#region handle event functions
@@ -21,10 +22,17 @@ const LocatorTagPage = () => {
     dispatch(loadLocatorTags({ pageIndex: currentPage }));
   };
   const handleDelete = () => {};
-  const handleCreate = () => {};
+  const handleCreate = () => {
+    setVisible(true);
+    setLocatorTag(null);
+  };
   //#endregion
   //#region load state of locator tags to store
   const dispatch = useDispatch();
+  const onRowSelect = (value) => {
+    setLocatorTag(value);
+    setVisible(true);
+  };
   // Init function
   useEffect(() => {
     dispatch(loadLocatorTags({ pageIndex: currentPage }));
@@ -32,51 +40,29 @@ const LocatorTagPage = () => {
   //#endregion
   return (
     <PageWrapper>
-      <Header
-        handleRefresh={handleRefresh}
-        handleCreate={handleCreate}
-        handleDelete={handleDelete}
-      />
       <PageBody>
-        <Card>
-          <Menu
-            selectedKeys={[selectedMenu]}
-            onSelect={(value) => setSelectedMenu(value.key)}
-            mode="horizontal"
-          >
-            <Menu.Item key="overview" icon={<GlobalOutlined />}>
-              Overview
-            </Menu.Item>
-            {/* <Menu.Item key="places" icon={<CustomerServiceOutlined />}>
-              Services
-            </Menu.Item> */}
-          </Menu>
-          <div style={{ padding: 10 }}>
-            <MenuChanged
-              selectedMenu={selectedMenu}
-              locatorTagTable={
-                <LocatorTagTable
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                  selectedItems={selectedItems}
-                  setSelectedItems={setSelectedItems}
-                />
-              }
-              // places={<ServiceTable />}
+        <Col flex="auto">
+          <Card className="card-table">
+            <Header
+              handleRefresh={handleRefresh}
+              handleCreate={handleCreate}
+              handleDelete={handleDelete}
             />
-          </div>
-        </Card>
+            <LocatorTagTable
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              onRowSelect={onRowSelect}
+            />
+          </Card>
+        </Col>
+        <LocatorTagDetails
+          visible={visible}
+          onCancel={() => setVisible(false)}
+          model={locatorTag}
+        />
       </PageBody>
     </PageWrapper>
   );
 };
 
-const MenuChanged = ({ selectedMenu, locatorTagTable, places }) => {
-  switch (selectedMenu) {
-    // case "places":
-    //   return places;
-    default:
-      return locatorTagTable;
-  }
-};
 export default LocatorTagPage;

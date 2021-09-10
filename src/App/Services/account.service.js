@@ -1,10 +1,27 @@
 import { accounts } from "../Constants/endpoints";
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
+
 /**
  * Get accounts functions
  * @param {object} [params] parameters for get request
  */
 export const getAccounts = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  role,
+  status = "Active",
+  isAll = false,
+  searchObject = {},
+}) => {
+  const params = { pageIndex, pageSize, role, status, isAll, ...searchObject };
+  const response = await axiosClient.get(accounts, { params });
+  return response.data;
+};
+/**
+ * Get accounts functions
+ * @param {object} [params] parameters for get request
+ */
+export const getBuildingManagers = async ({
   pageIndex = 1,
   pageSize = 5,
   role = "Building Manager",

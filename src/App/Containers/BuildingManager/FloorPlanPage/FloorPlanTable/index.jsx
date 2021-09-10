@@ -10,12 +10,7 @@ import {
 import Moment from "moment";
 import { useSelector } from "react-redux";
 
-const FloorPlanTable = ({
-  selectedItems,
-  setSelectedItems,
-  currentPage,
-  setCurrentPage,
-}) => {
+const FloorPlanTable = ({ onRowSelect, currentPage, setCurrentPage }) => {
   //#region selector of [listFloor, isLoading]
   const listFloor = useSelector(selectListFloor);
   const isLoading = useSelector(selectIsLoading);
@@ -26,11 +21,10 @@ const FloorPlanTable = ({
   return (
     <>
       <Table
+        onRow={(record) => ({
+          onClick: (evt) => onRowSelect(record),
+        })}
         loading={isLoading}
-        rowSelection={{
-          selectedRowKeys: selectedItems,
-          onChange: (values) => setSelectedItems(values),
-        }}
         dataSource={listFloor}
         pagination={{
           size: "small",
@@ -41,17 +35,17 @@ const FloorPlanTable = ({
         }}
       >
         <Table.Column
-          title="Position"
+          title="#Pos"
           dataIndex="floorNumber"
           key="floorNumber"
-          render={(item) => <Tag># {item}</Tag>}
+          render={(item) => <Tag>{item}</Tag>}
         />
 
         <Table.Column
           title="Floor"
           key="floorCode"
           render={(item) => (
-            <Link to={`${item.id}`}>Tầng {item.floorCode}</Link>
+            <Typography.Text>Floor {item.floorCode}</Typography.Text>
           )}
         />
         <Table.Column
@@ -74,18 +68,6 @@ const FloorPlanTable = ({
           key="status"
           render={(value) => (
             <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
-          )}
-        />
-        <Table.Column
-          title="Image"
-          key="imageUrl"
-          render={(item) => (
-            <Image
-              className="image-button"
-              width={80}
-              src={item.imageUrl}
-              preview={{ mask: "View image" }}
-            />
           )}
         />
       </Table>

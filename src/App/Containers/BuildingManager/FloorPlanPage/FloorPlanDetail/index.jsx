@@ -13,7 +13,11 @@ import {
   message,
 } from "antd";
 import { getBase64 } from "App/Utils/utils";
-import { SaveOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  SaveOutlined,
+  UploadOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import IndoorMap from "App/Components/IndoorMap/index";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -24,7 +28,7 @@ import {
   putFloorPlanForm,
 } from "App/Stores/floorPlan.slice";
 
-const Overview = ({ floor }) => {
+const FloorPlanDetail = ({ floor, onCancel }) => {
   const [componentSize, setComponentSize] = useState("default");
   const dispatch = useDispatch();
   const [src, setSrc] = useState(null);
@@ -42,6 +46,8 @@ const Overview = ({ floor }) => {
     }
     if (floor) {
       form.setFieldsValue(floor);
+    } else {
+      form.resetFields();
     }
   }, [floor]);
 
@@ -66,32 +72,18 @@ const Overview = ({ floor }) => {
   };
   return (
     <>
-      <Row justify="space-between" align="middle">
-        <Row>
-          <Button icon={<SaveOutlined />} onClick={onSave}>
-            Save
-          </Button>
-        </Row>
-      </Row>
-      <Divider style={{ margin: "10px 0 30px 0" }} />
-      <Row justify="space-between" align="stretch">
-        <Col className="col-md-4">
-          <Form
-            form={form}
-            labelCol={{
-              span: 8,
-            }}
-            wrapperCol={{
-              span: 16,
-            }}
-            layout="horizontal"
-            initialValues={{
-              size: componentSize,
-            }}
-            onValuesChange={onFormLayoutChange}
-            size={componentSize}
-          >
-            {id !== "create-new" && (
+      <Form
+        layout="vertical"
+        form={form}
+        initialValues={{
+          size: componentSize,
+        }}
+        onValuesChange={onFormLayoutChange}
+        size={componentSize}
+      >
+        <Row justify="space-between">
+          {floor && (
+            <Col span={11}>
               <>
                 <Form.Item name="status" label="Floor status">
                   <Switch checked={floor?.status === "Active"} />
@@ -103,8 +95,9 @@ const Overview = ({ floor }) => {
                   <Input />
                 </Form.Item>
               </>
-            )}
-
+            </Col>
+          )}
+          <Col span={11}>
             <Form.Item
               label="Floor position"
               required
@@ -115,6 +108,8 @@ const Overview = ({ floor }) => {
             >
               <Input />
             </Form.Item>
+          </Col>
+          <Col span={11}>
             <Form.Item
               label="Floor code"
               required
@@ -123,6 +118,8 @@ const Overview = ({ floor }) => {
             >
               <Input />
             </Form.Item>
+          </Col>
+          <Col span={11}>
             <Form.Item
               name="floorType"
               label="Floor type"
@@ -135,6 +132,8 @@ const Overview = ({ floor }) => {
                 <Select.Option value="Basement">Basement</Select.Option>
               </Select>
             </Form.Item>
+          </Col>
+          <Col span={11}>
             <Form.Item label="Floor map image" required>
               <Upload
                 multiple={false}
@@ -153,19 +152,37 @@ const Overview = ({ floor }) => {
                 <Button icon={<UploadOutlined />}>Upload</Button>
               </Upload>
             </Form.Item>
-          </Form>
-        </Col>
-        <Col className="col-md-7">
-          <Row></Row>
-          <IndoorMap
-            src={src ?? floor?.imageUrl}
-            floorPlanId={id !== "create-new" && floor?.id}
-            refresh={refresh}
-          />
-        </Col>
+          </Col>
+        </Row>
+      </Form>
+
+      <IndoorMap
+        src={src ?? floor?.imageUrl}
+        floorPlanId={id !== "create-new" && floor?.id}
+        refresh={refresh}
+      />
+      <Row justify="end" className="detail-card-footer">
+        <Button onClick={onCancel} style={{ marginRight: 10 }}>
+          Cancel
+        </Button>
+        {floor && (
+          <Button
+            key="3"
+            danger
+            style={{ marginRight: 10 }}
+            icon={<DeleteOutlined />}
+            onClick={() => {}}
+          >
+            Remove
+          </Button>
+        )}
+
+        <Button type="primary" icon={<SaveOutlined />} onClick={onSave}>
+          Save
+        </Button>
       </Row>
     </>
   );
 };
 
-export default Overview;
+export default FloorPlanDetail;

@@ -1,68 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { Table, Tag, Input, Typography, Checkbox, Space, Button } from "antd";
 import {
-  Table,
-  Tag,
-  Modal,
-  Row,
-  Col,
-  Input,
-  Form,
-  Select,
-  Typography,
-  Checkbox,
-  Space,
-  Button,
-} from "antd";
-import {
-  loadLocatorTags,
   selectIsLoading,
   selectListLocatorTag,
   selectPageSize,
   selectTotalCount,
 } from "App/Stores/locatorTag.slice";
-import { putLocatorTag } from "App/Services/locatorTag.service";
-import {
-  selectListFloor,
-  loadAll,
-  setCurrentFloor,
-} from "App/Stores/floorPlan.slice";
-import { SearchOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
+import Moment from "moment";
 
-const LocatorTagTable = ({
-  selectedItems,
-  setSelectedItems,
-  currentPage,
-  setCurrentPage,
-}) => {
+import { SearchOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+
+const LocatorTagTable = ({ currentPage, setCurrentPage, onRowSelect }) => {
   //#region selector of [listFloor, isLoading]
-  const dispatch = useDispatch();
+
   const listLocatorTag = useSelector(selectListLocatorTag);
   const isLoading = useSelector(selectIsLoading);
   const pageSize = useSelector(selectPageSize);
   const totalCount = useSelector(selectTotalCount);
 
-  const { Option } = Select;
-  const [visible, setVisible] = useState(false);
-  const [model, setModel] = useState(null);
-  const [valueMac, setMacaddress] = useState(null);
-  const [valueLocationId, setLocationId] = useState(null);
-  const [valueFloor, setFloor] = useState(null);
-  const [valueStatus, setStatus] = useState(null);
-  const [updateForm] = Form.useForm();
-
-  useEffect(() => {
-    dispatch(loadAll());
-  }, [dispatch]);
-  const listFloorPlan = useSelector(selectListFloor);
-
-  const showModal = (value) => {
-    setVisible(true);
-    setModel(value);
-  };
-  const hideModal = () => setVisible(false);
-
-  //#endregion
   const handlePaging = (number) => {
     // console.log(number);
     // if (search) {
@@ -76,34 +32,10 @@ const LocatorTagTable = ({
     setCurrentPage(number);
   };
 
-  const onUpdate = async () => {
-    if (valueMac !== null && valueLocationId != null && valueFloor != null) {
-      // const data = await putLocatorTag({
-      //   ...{ id: model?.id },
-      //   ...{ macAddress: valueMac },
-      //   ...{ status: valueStatus },
-      //   ...{ floorPlanId: valueFloor },
-      //   ...{ locationId: valueLocationId },
-      //   ...{ lastSeen: new Datetime.now() },
-      // });
-      // if (data?.id !== null) {
-      //   message
-      //     .loading("Action in progress...", 3)
-      //     .then(() => message.success("Update success", 3))
-      //     .then(() => hideModalDetail())
-      //     .then(() => dispatch(loadAccounts({ pageIndex: currentPage })));
-      // }
-    }
-  };
-
   return (
     <>
       <Table
         loading={isLoading}
-        rowSelection={{
-          selectedRowKeys: selectedItems,
-          onChange: (values) => setSelectedItems(values),
-        }}
         dataSource={listLocatorTag}
         pagination={{
           size: "small",
@@ -113,17 +45,14 @@ const LocatorTagTable = ({
           onChange: handlePaging,
         }}
         onRow={(record, recordIndex) => ({
-          onClick: (event) => {
-            showModal(record);
-            updateForm.setFieldsValue(record);
-          },
+          onClick: (event) => onRowSelect(record),
         })}
       >
         <Table.Column
           title="#No"
           // dataIndex="locatorTagNumber"
           key="locatorTagNumber"
-          render={(item, record, index) => <Tag>#{index + 1}</Tag>}
+          render={(item, record, index) => <Tag>{index + 1}</Tag>}
         />
 
         <Table.Column
@@ -139,7 +68,7 @@ const LocatorTagTable = ({
                 placeholder={`Search MAC address`}
                 value={selectedKeys[0]}
                 onChange={(e) => {
-                  const value = e.target.value;
+                  // const value = e.target.value;
                   // if (value && value.length) {
                   //   setSearch({ macAddress: value });
                   // } else {
@@ -179,36 +108,38 @@ const LocatorTagTable = ({
           title="Floor Plan"
           key="floorPlanCode"
           render={(item) => (
-            <Typography> {item.floorPlan.floorCode} </Typography>
+            <Typography> Floor {item.floorPlan.floorCode} </Typography>
           )}
         />
-
+        <Table.Column
+          title="Update date"
+          dataIndex="updateTime"
+          key="updateTime"
+          render={(value) => (
+            <Typography.Text>{Moment(value).format("lll")}</Typography.Text>
+          )}
+        />
+        <Table.Column
+          title="Last seen"
+          dataIndex="lastSeen"
+          key="lastSeen"
+          render={(value) => (
+            <Typography.Text>{Moment(value).format("lll")}</Typography.Text>
+          )}
+        />
         <Table.Column
           title="Status"
           dataIndex="status"
           key="status"
-          render={(value) => {
-            if (!value) {
-              value =
-                Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
-            }
-            return (
-              <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
-            );
-          }}
+          render={(value) => (
+            <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
+          )}
           filterDropdown={() => (
             <div style={{ padding: 8 }}>
               <Space>
                 <Checkbox.Group
                   style={{ width: "100%" }}
-                  onChange={(e) => {
-                    const value = e;
-                    // if (value && value.length) {
-                    //   setSearch({ status: value });
-                    // } else {
-                    //   setSearch(null);
-                    // }
-                  }}
+                  onChange={(value) => {}}
                 >
                   <Checkbox value="">All</Checkbox>
                   <Checkbox value="Active">Active</Checkbox>
@@ -232,131 +163,6 @@ const LocatorTagTable = ({
           )}
         />
       </Table>
-      <Modal
-        width={700}
-        title={`Detail of locator tag ID ${model?.id}`}
-        visible={visible}
-        onOk={onUpdate}
-        onCancel={hideModal}
-        okText="Save"
-        cancelText="Cancel"
-      >
-        <Form form={updateForm}>
-          <Row justify="space-between">
-            <Col span={12}>
-              <Col span={21}>
-                <Form.Item
-                  name="macAddress"
-                  label="MAC Address: "
-                  required
-                  tooltip="This is MAC Address of locator tag"
-                >
-                  <Input
-                    //value={model?.macAddress}
-                    placeholder="Input MAC Address of locator tag"
-                    onChange={(e) => {
-                      setMacaddress(e);
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={21}>
-                <Form.Item
-                  name="locationId"
-                  label="Location ID of locator tag: "
-                  required
-                  tooltip="This is location ID of locator tag"
-                >
-                  <Input
-                    value={model?.location.id}
-                    placeholder="Input location ID of locator tag"
-                    onChange={(value) => {
-                      // setInput(!input);
-                      setLocationId(value);
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col>
-                <Form.Item
-                  label="Floor in building:"
-                  required
-                  tooltip="This is the location of the locator tag on which floor of building"
-                >
-                  <Select
-                    placeholder="Select Floor"
-                    style={{ width: 141 }}
-                    defaultValue={model?.floorPlan.floorCode}
-                    onChange={(e) => {
-                      const value = e;
-                      setFloor(value);
-                    }}
-                  >
-                    {listFloorPlan &&
-                      listFloorPlan.map((item) => (
-                        <Option value={item.id}>{item.floorCode}</Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col>
-                <Form.Item
-                  label="Status:"
-                  required
-                  tooltip="This is status of locator tag"
-                >
-                  <Select
-                    defaultValue={
-                      model?.status === "Active" ? "Active" : "Inactive"
-                    }
-                    style={{ width: 205 }}
-                    onChange={(value) => {
-                      setStatus(value);
-                    }}
-                  >
-                    <Option value="1">Active</Option>
-                    <Option value="2">Inactive</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Col>
-          </Row>
-        </Form>
-        <div style={{ width: "94%" }}>
-          <Row justify={"space-between"}>
-            <Col span={10}>
-              <Form.Item
-                label="Update date"
-                required
-                tooltip="This is the most recent date the locator tag was updated"
-              >
-                <Input
-                  disabled={true}
-                  value={model?.updateTime}
-                  onChange={() => {
-                    // setInput(!input);
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={10}>
-              <Form.Item
-                label="Last date scanned"
-                required
-                tooltip="This is the last date the location tag was scanned"
-              >
-                <Input
-                  disabled={true}
-                  value={model?.lastSeen}
-                  onChange={() => {
-                    // setInput(!input);
-                  }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </div>
-      </Modal>
     </>
   );
 };
