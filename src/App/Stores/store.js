@@ -10,6 +10,8 @@ import mapReducer from "./map.slice";
 import indoorMapReducer from "./indoorMap.slice";
 import authReducer from "./auth.slice";
 import uiDataReducer from "./uiData.slice";
+import couponReducer from "./coupon.slice";
+import productReducer from "./product.slice";
 
 export const Store = configureStore({
   reducer: {
@@ -24,5 +26,7 @@ export const Store = configureStore({
     indoorMap: indoorMapReducer,
     map: mapReducer,
     uiData: uiDataReducer,
+    coupon: couponReducer,
+    product: productReducer,
   },
 });
