@@ -46,8 +46,8 @@ const Slice = createSlice({
   },
   reducers: {
     setAuthInfo: (state, { payload }) => {
-      const { id, name, email, phone, imageUrl } = payload;
-      state.data = { id, name, email, phone, imageUrl };
+      const { id, name, email, phone, imageUrl, role } = payload;
+      state.data = { id, name, email, phone, imageUrl, role };
     },
     logout: (state, action) => {
       state.data = null;
@@ -60,8 +60,8 @@ const Slice = createSlice({
       state.isLoading = true;
     },
     [checkWebLogin.fulfilled]: (state, { payload }) => {
-      const { id, name, email, phone, imageUrl } = payload;
-      state.data = { id, name, email, phone, imageUrl };
+      const { id, name, email, phone, imageUrl, role } = payload;
+      state.data = { id, name, email, phone, imageUrl, role };
       state.isLoading = false;
     },
     [checkWebLogin.rejected]: (state, action) => {
@@ -71,8 +71,8 @@ const Slice = createSlice({
       state.isLoading = true;
     },
     [refreshUserInfo.fulfilled]: (state, { payload }) => {
-      const { id, name, email, phone, imageUrl } = payload;
-      state.data = { id, name, email, phone, imageUrl };
+      const { id, name, email, phone, imageUrl, role } = payload;
+      state.data = { id, name, email, phone, imageUrl, role };
       state.isLoading = false;
     },
     //#endregion

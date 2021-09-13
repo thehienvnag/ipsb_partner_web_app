@@ -15,6 +15,7 @@ const RoleGuard = ({ role, component }) => {
       navigate("../");
     }
   }, [currentRole, navigate, role]);
+
   return (
     <>
       {component ||
