@@ -12,6 +12,8 @@ import LoginPage from "App/Containers/Auth/Login";
 import { element } from "prop-types";
 import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
 import RouteNames from "App/Constants/routesName";
+import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
+
 const appRoutes = [
   {
     path: "",
@@ -38,6 +40,7 @@ const appRoutes = [
       { path: RouteNames.storeAccounts, element: <StoreOwnerPage /> },
       { path: RouteNames.buildings, element: <BuildingPage /> },
       { path: RouteNames.managerAccounts, element: <BuildingManagerPage /> },
+      { path: RouteNames.managerCoupons, element: <ManageCouponPage /> },
     ],
   },
   {
