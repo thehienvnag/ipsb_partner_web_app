@@ -1,11 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getBuildingByManagerId } from "App/Services/building.service";
-import { changePassword, checkLogin } from "../Services/auth.service";
+import {
+  changePassword,
+  checkLogin,
+  refreshToken as refreshTokenService,
+} from "../Services/auth.service";
 import { initBuildingIdLoggin } from "../Stores/building.slice";
 
 //#region Async thunks check login
-const checkWebLogin = createAsyncThunk(
-  "checkLogin/checkWebLogin",
+export const checkWebLogin = createAsyncThunk(
+  "auth/checkWebLogin",
   async (params = {}, thunkAPI) => {
     const data = await checkLogin(params);
     if (!data) {
@@ -32,8 +36,8 @@ const checkWebLogin = createAsyncThunk(
 //#endregion
 
 //#region Async thunks change password
-const checkChangePassword = createAsyncThunk(
-  "changePassword/checkChangePassword",
+export const checkChangePassword = createAsyncThunk(
+  "auth/checkChangePassword",
   async (params = {}, thunkAPI) => {
     const data = await changePassword(params);
     if (data !== 204) {
@@ -50,19 +54,29 @@ const Slice = createSlice({
     data: null,
     isLoading: false,
   },
-  reducers: {},
+  reducers: {
+    logout: (state, action) => {
+      state.data = null;
+      sessionStorage.removeItem("accessToken");
+    },
+  },
   extraReducers: {
     //#region Load floor plan state
     [checkWebLogin.pending]: (state, action) => {
       state.isLoading = true;
     },
-    [checkWebLogin.fulfilled]: (state, { payload }) => {
-      state.data = payload;
+    [checkWebLogin.fulfilled]: (
+      state,
+      { payload: { id, name, email, phone, imageUrl, accessToken } }
+    ) => {
+      state.data = { id, name, email, phone, imageUrl };
+      sessionStorage.setItem("accessToken", accessToken);
       state.isLoading = false;
     },
     [checkWebLogin.rejected]: (state, action) => {
       state.isLoading = false;
     },
+
     //#endregion
   },
 });
@@ -73,6 +87,7 @@ export const selectAccount = (state) => state.auth.data;
 export const selectRole = (state) => state.auth.data?.role;
 //#endregion
 
+const { logout } = Slice.actions;
+export { logout };
 /// Export reducer
-export { checkWebLogin, checkChangePassword };
 export default Slice.reducer;

@@ -1,12 +1,12 @@
-import axiosClient, { postFormData , putFormData} from "../Utils/axiosClient";
-import { products } from "App/Constants/endpoints";
+import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
+import { products } from "App/Utils/Constants/endpoints";
 
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
- * @param {number} [params.storeId] store id which contains products 
+ * @param {number} [params.storeId] store id which contains products
  */
 export const getAllProduct = async ({
   pageIndex = 1,
@@ -26,9 +26,9 @@ export const getAllProductOfStore = async ({
   storeId,
   searchObject = {},
 }) => {
-  const params = {status, storeId, ...searchObject };
+  const params = { status, storeId, ...searchObject };
   console.log(params);
-  const response = await axiosClient.get(products, { isAll: true , params  });
+  const response = await axiosClient.get(products, { isAll: true, params });
   return response.data;
 };
 
@@ -49,7 +49,7 @@ export const postProduct = async (data) => {
  * Page wrapper for new page
  * @param {object} [data] values post
  */
- export const putProduct = async (data) => {
+export const putProduct = async (data) => {
   try {
     const dataPut = await putFormData(products + "/" + data.id, data);
     return dataPut;
@@ -57,4 +57,3 @@ export const postProduct = async (data) => {
     console.log(error?.message);
   }
 };
-

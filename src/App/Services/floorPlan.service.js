@@ -1,5 +1,5 @@
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
-import { floorPlans } from "../Constants/endpoints";
+import { floorPlans } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request

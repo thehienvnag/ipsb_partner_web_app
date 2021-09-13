@@ -1,5 +1,4 @@
 export default class RouteNames {
-  static withId = (route) => `${route}/:id`;
   //#region Building Managers
   static buildingManager = "building-manager";
   static floorPlans = "/floor-plans";

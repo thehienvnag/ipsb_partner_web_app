@@ -1,4 +1,4 @@
-import { accounts } from "../Constants/endpoints";
+import { accounts } from "../Utils/Constants/endpoints";
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 
 /**

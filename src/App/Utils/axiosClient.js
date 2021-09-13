@@ -1,8 +1,5 @@
 import axios from "axios";
 import queryString from "query-string";
-
-// import { getFirebase } from "react-redux-firebase";
-
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
@@ -11,6 +8,13 @@ const axiosClient = axios.create({
   },
   paramsSerializer: (params) => queryString.stringify(params),
 });
+axios.interceptors.request.use(
+  /// Success request callback handler
+  (config) => {
+    config.headers["Authorization"] = sessionStorage.getItem("accessToken");
+    return config;
+  }
+);
 
 export const postFormData = async (endpoint, values) => {
   const formData = new FormData();

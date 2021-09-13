@@ -11,7 +11,7 @@ import StoreOwnerPage from "App/Containers/BuildingManager/StoreOwnerPage";
 import LoginPage from "App/Containers/Auth/Login";
 import { element } from "prop-types";
 import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
-import RouteNames from "App/Constants/routesName";
+import RouteNames from "App/Utils/Constants/routesName";
 import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
 
 const appRoutes = [

@@ -10,3 +10,7 @@ export const locationTypes = "/location-types";
 export const productCategories = "/product-categories";
 export const coupons = "/coupons";
 export const products = "/products";
+export const login = "/login";
+export const changePassword = "/change-password";
+export const loginWithFirebase = "/login-with-firebase";
+export const refreshToken = "/refresh-token";

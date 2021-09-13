@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { BiStoreAlt, BiMapAlt, BiMapPin, BiBuildings } from "react-icons/bi";
 import { RiSignalTowerFill } from "react-icons/ri";
 import { AiOutlineTeam } from "react-icons/ai";
-import RouteNames from "App/Constants/routesName";
+import RouteNames from "App/Utils/Constants/routesName";
 
 //#region Menu final data
 const adminItems = [

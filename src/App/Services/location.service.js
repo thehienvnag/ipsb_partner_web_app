@@ -1,5 +1,5 @@
 import axiosClient from "../Utils/axiosClient";
-import { locations } from "../Constants/endpoints";
+import { locations } from "../Utils/Constants/endpoints";
 
 /**
  * Page wrapper for new page

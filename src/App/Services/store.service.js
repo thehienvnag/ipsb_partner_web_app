@@ -1,5 +1,5 @@
 import axiosClient, { postFormData } from "../Utils/axiosClient";
-import { stores } from "../Constants/endpoints";
+import { stores } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request

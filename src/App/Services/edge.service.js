@@ -1,5 +1,5 @@
 import axiosClient from "../Utils/axiosClient";
-import { edges } from "../Constants/endpoints";
+import { edges } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
