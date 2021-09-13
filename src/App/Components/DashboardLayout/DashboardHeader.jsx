@@ -12,7 +12,7 @@ import {
   // useDispatch
 } from "react-redux";
 import "./DashboardHeader.scss";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useMatch } from "react-router-dom";
 // import { BiStar } from "react-icons/bi";
 const notifications = (
   <Menu>
@@ -143,28 +143,6 @@ const StarredMenu = () => {
           <RouterLink to={path}>{icon}</RouterLink>
         </Tooltip>
       ))}
-      {/* <Dropdown
-        overlay={
-          <Menu className="choose-starred-menu">
-            {menuItems.map(({ icon, title }, index) => (
-              <Menu.Item className="star-row" key={index} icon={icon}>
-                {title}
-                <BiStar
-                  onClick={() => dispatch(addMenuItems(title))}
-                  className="star-icon"
-                  color={
-                    starredMenuItems.includes(title) ? "#FFA24A" : "#818181"
-                  }
-                />
-              </Menu.Item>
-            ))}
-          </Menu>
-        }
-        trigger={["click"]}
-        placement="bottomLeft"
-      >
-        <Link>{<BiStar color="#FFA24A" />}</Link>
-      </Dropdown> */}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
-import { buildings } from "../Constants/endpoints";
+import { buildings } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
@@ -14,8 +14,7 @@ export const getBuildings = async ({
   searchObject = {},
 }) => {
   const params = { pageIndex, pageSize, isAll, status, ...searchObject };
-  const response = await axiosClient.get(buildings, { params });
-  return response.data;
+  return axiosClient.get(buildings, { params });
 };
 
 /**
@@ -31,8 +30,7 @@ export const getBuildingByManagerId = async ({
   managerId,
 }) => {
   const params = { pageIndex, pageSize, managerId };
-  const response = await axiosClient.get(buildings, { params });
-  return response.data;
+  return axiosClient.get(buildings, { params });
 };
 
 /**
@@ -40,12 +38,7 @@ export const getBuildingByManagerId = async ({
  * @param {object} [data] values post
  */
 export const postBuilding = async (data) => {
-  try {
-    const dataPost = await postFormData(buildings, data);
-    return dataPost;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return postFormData(buildings, data);
 };
 
 /**
@@ -54,12 +47,7 @@ export const postBuilding = async (data) => {
  */
 export const putBuilding = async (data) => {
   const { id } = data;
-  try {
-    const dataPost = await putFormData(buildings + "/" + id, data);
-    return dataPost;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return putFormData(buildings + "/" + id, data);
 };
 
 /**
@@ -67,10 +55,5 @@ export const putBuilding = async (data) => {
  * @param {object} [data] values post
  */
 export const testPoseWithoutFile = async (data) => {
-  try {
-    const response = await axiosClient.post(buildings, data);
-    return response.data;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return axiosClient.post(buildings, data);
 };

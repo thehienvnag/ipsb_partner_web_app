@@ -1,5 +1,5 @@
 import axiosClient, { postFormData } from "../Utils/axiosClient";
-import { stores } from "../Constants/endpoints";
+import { stores } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
@@ -13,9 +13,7 @@ export const getAllStore = async ({
   buildingId,
 }) => {
   const params = { pageIndex, pageSize, buildingId };
-  console.log(params);
-  const response = await axiosClient.get(stores, { params });
-  return response.data;
+  return axiosClient.get(stores, { params });
 };
 
 /**
@@ -23,10 +21,5 @@ export const getAllStore = async ({
  * @param {object} [data] values post
  */
 export const postStore = async (data) => {
-  try {
-    const dataPost = await postFormData(stores, data);
-    return dataPost;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return postFormData(stores, data);
 };
