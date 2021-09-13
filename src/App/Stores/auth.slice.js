@@ -1,30 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getBuildingByManagerId } from "App/Services/building.service";
-import { changePassword, checkLogin } from "../Services/auth.service";
-import { initBuildingIdLoggin } from "../Stores/building.slice";
+import {
+  changePassword,
+  checkLogin,
+  refreshToken,
+} from "../Services/auth.service";
 //#region Async thunks check login
 const checkWebLogin = createAsyncThunk(
-  "checkLogin/checkWebLogin",
+  "auth/checkWebLogin",
   async (params = {}, thunkAPI) => {
     const data = await checkLogin(params);
     if (!data) {
-      return thunkAPI.rejectWithValue("Incorrect email or password");
+      return thunkAPI.rejectWithValue();
     }
-    if (data.role === "Building Manager") {
-      const dataNew = await getBuildingByManagerId({ managerId: data.id });
-      if (dataNew.content.length > 0) {
-        thunkAPI.dispatch(initBuildingIdLoggin(dataNew));
-      } else {
-        return thunkAPI.rejectWithValue(
-          "You have not been authorized to manage any buildings in the system"
-        );
-      }
-    } else if (data.role === "Store Owner") {
-      return thunkAPI.rejectWithValue(
-        "Your account is not authorized to log in on this site"
-      );
-    }
-
     return data;
   }
 );
@@ -32,13 +19,21 @@ const checkWebLogin = createAsyncThunk(
 
 //#region Async thunks change password
 const checkChangePassword = createAsyncThunk(
-  "changePassword/checkChangePassword",
+  "auth/checkChangePassword",
   async (params = {}, thunkAPI) => {
     const data = await changePassword(params);
     if (data !== 204) {
       return thunkAPI.rejectWithValue("Change password unsuccessfully");
     }
     return data;
+  }
+);
+//#endregion
+//#region Async thunks refresh user info
+export const refreshUserInfo = createAsyncThunk(
+  "auth/refreshUserInfo",
+  async (params = {}, thunkAPI) => {
+    return await refreshToken();
   }
 );
 //#endregion
@@ -49,17 +44,35 @@ const Slice = createSlice({
     data: null,
     isLoading: false,
   },
-  reducers: {},
+  reducers: {
+    setAuthInfo: (state, { payload }) => {
+      const { id, name, email, phone, imageUrl } = payload;
+      state.data = { id, name, email, phone, imageUrl };
+    },
+    logout: (state, action) => {
+      state.data = null;
+      sessionStorage.removeItem("accessToken");
+    },
+  },
   extraReducers: {
     //#region Load floor plan state
     [checkWebLogin.pending]: (state, action) => {
       state.isLoading = true;
     },
     [checkWebLogin.fulfilled]: (state, { payload }) => {
-      state.data = payload;
+      const { id, name, email, phone, imageUrl } = payload;
+      state.data = { id, name, email, phone, imageUrl };
       state.isLoading = false;
     },
     [checkWebLogin.rejected]: (state, action) => {
+      state.isLoading = false;
+    },
+    [refreshUserInfo.pending]: (state, { payload }) => {
+      state.isLoading = true;
+    },
+    [refreshUserInfo.fulfilled]: (state, { payload }) => {
+      const { id, name, email, phone, imageUrl } = payload;
+      state.data = { id, name, email, phone, imageUrl };
       state.isLoading = false;
     },
     //#endregion
@@ -70,8 +83,10 @@ const Slice = createSlice({
 //#region [locatorTags, totalLocatorTags, pageSize, isLoading]
 export const selectAccount = (state) => state.auth.data;
 export const selectRole = (state) => state.auth.data?.role;
+export const selectLoading = (state) => state.auth.isLoading;
 //#endregion
 
 /// Export reducer
-export { checkWebLogin, checkChangePassword };
+const { logout, setAuthInfo } = Slice.actions;
+export { checkWebLogin, checkChangePassword, logout, setAuthInfo };
 export default Slice.reducer;

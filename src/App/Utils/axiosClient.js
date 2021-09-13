@@ -1,7 +1,8 @@
+import { refreshToken } from "App/Services/auth.service";
 import axios from "axios";
 import queryString from "query-string";
-
-// import { getFirebase } from "react-redux-firebase";
+import createAuthRefreshInterceptor from "axios-auth-refresh";
+import { logout, setAuthInfo } from "App/Stores/auth.slice";
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -10,6 +11,34 @@ const axiosClient = axios.create({
     "Access-Control-Allow-Origin": "*",
   },
   paramsSerializer: (params) => queryString.stringify(params),
+});
+
+// Instantiate the interceptor (you can chain it as it returns the axios instance)
+const refreshAuthLogic = (failedRequest) =>
+  refreshToken()
+    .then((data) => {
+      failedRequest.response.config.headers["Authorization"] =
+        "Bearer " + data.accessToken;
+    })
+    .catch((err) => {
+      if (err.response.status === 401) {
+        import("App/Stores/store").then(({ Store }) =>
+          Store.dispatch(logout())
+        );
+      }
+    });
+createAuthRefreshInterceptor(axiosClient, refreshAuthLogic);
+
+axiosClient.interceptors.request.use((config) => {
+  config.headers["Authorization"] =
+    "Bearer " + sessionStorage.getItem("accessToken");
+  return config;
+});
+axiosClient.interceptors.response.use((response) => {
+  if (response.status === 401) {
+    import("App/Stores/store").then(({ Store }) => Store.dispatch(logout()));
+  }
+  return response.data;
 });
 
 export const postFormData = async (endpoint, values) => {
@@ -21,8 +50,7 @@ export const postFormData = async (endpoint, values) => {
   const config = {
     headers: { "Content-Type": "multipart/form-data" },
   };
-  const response = await axiosClient.post(endpoint, formData, config);
-  return response.data;
+  return axiosClient.post(endpoint, formData, config);
 };
 
 export const putFormData = async (endpoint, values) => {
@@ -34,8 +62,7 @@ export const putFormData = async (endpoint, values) => {
   const config = {
     headers: { "Content-Type": "multipart/form-data" },
   };
-  const response = await axiosClient.put(endpoint, formData, config);
-  return response.data;
+  return axiosClient.put(endpoint, formData, config);
 };
 
 export default axiosClient;

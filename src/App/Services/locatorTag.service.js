@@ -1,5 +1,5 @@
 import axiosClient from "../Utils/axiosClient";
-import { locatorTags } from "../Constants/endpoints";
+import { locatorTags } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
@@ -15,9 +15,7 @@ export const getLocatorTags = async ({
   searchObject = {},
 }) => {
   const params = { pageIndex, pageSize, status, floorPlanId, ...searchObject };
-  console.log(params);
-  const response = await axiosClient.get(locatorTags, { params });
-  return response.data;
+  return axiosClient.get(locatorTags, { params });
 };
 
 /**
@@ -25,10 +23,5 @@ export const getLocatorTags = async ({
  * @param {object} [data] values post
  */
 export const postLocatorTag = async (data) => {
-  try {
-    const dataPost = await axiosClient.post(locatorTags, data);
-    return dataPost;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return axiosClient.post(locatorTags, data);
 };

@@ -1,12 +1,12 @@
-import axiosClient, { postFormData , putFormData} from "../Utils/axiosClient";
-import { products } from "App/Constants/endpoints";
+import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
+import { products } from "App/Utils/Constants/endpoints";
 
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
- * @param {number} [params.storeId] store id which contains products 
+ * @param {number} [params.storeId] store id which contains products
  */
 export const getAllProduct = async ({
   pageIndex = 1,
@@ -16,9 +16,7 @@ export const getAllProduct = async ({
   searchObject = {},
 }) => {
   const params = { pageIndex, pageSize, status, storeId, ...searchObject };
-  console.log(params);
-  const response = await axiosClient.get(products, { params });
-  return response.data;
+  return axiosClient.get(products, { params });
 };
 
 export const getAllProductOfStore = async ({
@@ -26,10 +24,8 @@ export const getAllProductOfStore = async ({
   storeId,
   searchObject = {},
 }) => {
-  const params = {status, storeId, ...searchObject };
-  console.log(params);
-  const response = await axiosClient.get(products, { isAll: true , params  });
-  return response.data;
+  const params = { status, storeId, ...searchObject };
+  return axiosClient.get(products, { isAll: true, params });
 };
 
 /**
@@ -37,24 +33,13 @@ export const getAllProductOfStore = async ({
  * @param {object} [data] values post
  */
 export const postProduct = async (data) => {
-  try {
-    const dataPost = await postFormData(products, data);
-    return dataPost;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return postFormData(products, data);
 };
 
 /**
  * Page wrapper for new page
  * @param {object} [data] values post
  */
- export const putProduct = async (data) => {
-  try {
-    const dataPut = await putFormData(products + "/" + data.id, data);
-    return dataPut;
-  } catch (error) {
-    console.log(error?.message);
-  }
+export const putProduct = async (data) => {
+  return putFormData(products + "/" + data.id, data);
 };
-

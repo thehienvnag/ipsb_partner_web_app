@@ -6,6 +6,7 @@ const loadAccounts = createAsyncThunk(
   "account/loadAccounts",
   async (params = {}, thunkAPI) => {
     const data = await getAccounts(params);
+    console.log(data);
     return data;
   }
 );

@@ -15,6 +15,7 @@ const Slice = createSlice({
   name: "building",
   initialState: {
     inChargeBuilding: { id: 12 },
+    data: null,
   },
   reducers: {
     initBuildingIdLoggin: (state, { payload }) => {

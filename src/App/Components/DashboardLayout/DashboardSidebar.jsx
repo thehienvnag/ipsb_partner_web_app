@@ -14,7 +14,7 @@ const AppMenu = ({ children, collapsed }) => {
   const menuItems = useSelector(selectMenuItems);
   return (
     <Menu
-      defaultSelectedKeys={["2"]}
+      defaultSelectedKeys={["-1"]}
       mode="vertical"
       className="side-bar-dark-menu"
     >
