@@ -11,8 +11,7 @@ import { locations } from "../Constants/endpoints";
  */
 export const getByFloorPlan = async ({ isAll = true, floorPlanId }) => {
   const params = { isAll, floorPlanId, status: "Active" };
-  const response = await axiosClient.get(locations, { params });
-  return response.data;
+  return axiosClient.get(locations, { params });
 };
 
 /**
@@ -20,8 +19,7 @@ export const getByFloorPlan = async ({ isAll = true, floorPlanId }) => {
  * @param {object} [data] parameters for get request
  */
 export const postLocations = async (list) => {
-  const response = await axiosClient.post(locations, list);
-  return response.data;
+  return axiosClient.post(locations, list);
 };
 
 /**
@@ -29,8 +27,7 @@ export const postLocations = async (list) => {
  * @param {Array} [data] parameters for get request
  */
 export const deleteLocations = async (ids) => {
-  const response = await axiosClient.delete(locations, { data: { ids: ids } });
-  return response.status === 204;
+  return axiosClient.delete(locations, { data: { ids: ids } });
 };
 
 /**
@@ -39,10 +36,10 @@ export const deleteLocations = async (ids) => {
  * @param {number} [params.floorPlanId] building id which contains floor plans
  */
 export const getByFloorIdForStairLift = async (floorPlanId) => {
-  const response = await axiosClient.get(locations, {
-    params: { floorPlanId, locationTypeIds: [3, 4], isAll: true },
+  const params = { floorPlanId, locationTypeIds: [3, 4], isAll: true };
+  return axiosClient.get(locations, {
+    params,
   });
-  return response.data?.content;
 };
 export const getAllLocation = async ({
   pageIndex = 1,
@@ -57,6 +54,5 @@ export const getAllLocation = async ({
     locationTypeIds: [6, 10, 11, 12, 13, 14, 15],
     locationTypeName,
   };
-  const response = await axiosClient.get(locations, { params });
-  return response.data;
+  return axiosClient.get(locations, { params });
 };

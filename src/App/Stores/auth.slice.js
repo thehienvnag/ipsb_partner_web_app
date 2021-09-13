@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getBuildingByManagerId } from "App/Services/building.service";
 import { changePassword, checkLogin } from "../Services/auth.service";
 import { initBuildingIdLoggin } from "../Stores/building.slice";
+
 //#region Async thunks check login
 const checkWebLogin = createAsyncThunk(
   "checkLogin/checkWebLogin",

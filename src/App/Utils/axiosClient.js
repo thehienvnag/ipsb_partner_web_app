@@ -21,8 +21,7 @@ export const postFormData = async (endpoint, values) => {
   const config = {
     headers: { "Content-Type": "multipart/form-data" },
   };
-  const response = await axiosClient.post(endpoint, formData, config);
-  return response.data;
+  return axiosClient.post(endpoint, formData, config);
 };
 
 export const putFormData = async (endpoint, values) => {
@@ -34,8 +33,7 @@ export const putFormData = async (endpoint, values) => {
   const config = {
     headers: { "Content-Type": "multipart/form-data" },
   };
-  const response = await axiosClient.put(endpoint, formData, config);
-  return response.data;
+  return axiosClient.put(endpoint, formData, config);
 };
 
 export default axiosClient;

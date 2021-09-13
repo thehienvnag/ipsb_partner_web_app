@@ -9,8 +9,7 @@ import { edges } from "../Constants/endpoints";
  */
 export const getByFloorPlan = async ({ isAll = true, floorPlanId }) => {
   const params = { isAll, floorPlanId };
-  const response = await axiosClient.get(edges, { params });
-  return response.data;
+  return axiosClient.get(edges, { params });
 };
 
 /**
@@ -18,8 +17,7 @@ export const getByFloorPlan = async ({ isAll = true, floorPlanId }) => {
  * @param {object} [data] parameters for get request
  */
 export const postEdges = async (list) => {
-  const response = await axiosClient.post(edges, list);
-  return response.data;
+  return axiosClient.post(edges, list);
 };
 
 /**
@@ -27,6 +25,5 @@ export const postEdges = async (list) => {
  * @param {Array} [ids] parameters for get request
  */
 export const deleteEdges = async (ids) => {
-  const response = await axiosClient.delete(edges, { data: { ids: ids } });
-  return response.status === 204;
+  return axiosClient.delete(edges, { data: { ids: ids } });
 };
