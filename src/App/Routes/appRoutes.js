@@ -19,7 +19,7 @@ const appRoutes = [
     children: [
       {
         path: "/",
-        element: <RoleGuard role="Building Manager" />,
+        element: <RoleGuard />,
       },
       {
         path: RouteNames.floorPlans,
