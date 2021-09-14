@@ -8,5 +8,6 @@ export const buildings = "/buildings";
 export const accounts = "/accounts";
 export const locationTypes = "/location-types";
 export const productCategories = "/product-categories";
+export const productGroups = "/product-groups";
 export const coupons = "/coupons";
 export const products = "/products";
