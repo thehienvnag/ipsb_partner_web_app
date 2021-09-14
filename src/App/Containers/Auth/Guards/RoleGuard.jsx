@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
-import { selectRole } from "App/Stores/auth.slice";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { refreshUserInfo, selectRole } from "App/Stores/auth.slice";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import BmHomePage from "App/Containers/BuildingManager/HomePage";
 import AdHomePage from "App/Containers/Admin/HomePage";
 
 const RoleGuard = ({ role, component }) => {
+  const dispatch = useDispatch();
   const currentRole = useSelector(selectRole);
   const navigate = useNavigate();
   useEffect(() => {
@@ -14,7 +16,7 @@ const RoleGuard = ({ role, component }) => {
     } else if (currentRole !== role) {
       navigate("../");
     }
-  }, [currentRole, navigate, role]);
+  }, [dispatch, currentRole, navigate, role]);
 
   return (
     <>

@@ -8,11 +8,11 @@ const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": "https://localhost:44367",
   },
   paramsSerializer: (params) => queryString.stringify(params),
 });
-
+axiosClient.defaults.withCredentials = true;
 // Instantiate the interceptor (you can chain it as it returns the axios instance)
 const refreshAuthLogic = (failedRequest) =>
   refreshToken()
@@ -34,10 +34,12 @@ axiosClient.interceptors.request.use((config) => {
     "Bearer " + sessionStorage.getItem("accessToken");
   return config;
 });
+
 axiosClient.interceptors.response.use((response) => {
   if (response.status === 401) {
     import("App/Stores/store").then(({ Store }) => Store.dispatch(logout()));
   }
+  console.log("interceptor");
   return response.data;
 });
 

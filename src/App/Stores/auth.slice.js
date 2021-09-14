@@ -8,7 +8,9 @@ import {
 const checkWebLogin = createAsyncThunk(
   "auth/checkWebLogin",
   async (params = {}, thunkAPI) => {
+    console.log(params);
     const data = await checkLogin(params);
+
     if (!data) {
       return thunkAPI.rejectWithValue();
     }
@@ -33,7 +35,11 @@ const checkChangePassword = createAsyncThunk(
 export const refreshUserInfo = createAsyncThunk(
   "auth/refreshUserInfo",
   async (params = {}, thunkAPI) => {
-    return await refreshToken();
+    const data = await refreshToken();
+    if (!data) {
+      return thunkAPI.rejectWithValue();
+    }
+    return data;
   }
 );
 //#endregion
@@ -43,15 +49,21 @@ const Slice = createSlice({
   initialState: {
     data: null,
     isLoading: false,
+    isLogginOut: true,
   },
   reducers: {
     setAuthInfo: (state, { payload }) => {
-      const { id, name, email, phone, imageUrl, role } = payload;
-      state.data = { id, name, email, phone, imageUrl, role };
+      const { id, name, email, phone, imageUrl, role, accessToken, status } =
+        payload;
+      state.data = { id, name, email, phone, imageUrl, role, status };
+      sessionStorage.setItem("accessToken", accessToken);
     },
     logout: (state, action) => {
       state.data = null;
+      state.isLogginOut = true;
       sessionStorage.removeItem("accessToken");
+      document.cookie =
+        "X-Refresh-Token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     },
   },
   extraReducers: {
@@ -60,20 +72,23 @@ const Slice = createSlice({
       state.isLoading = true;
     },
     [checkWebLogin.fulfilled]: (state, { payload }) => {
-      const { id, name, email, phone, imageUrl, role } = payload;
-      state.data = { id, name, email, phone, imageUrl, role };
+      const { id, name, email, phone, imageUrl, role, accessToken, status } =
+        payload;
+      state.data = { id, name, email, phone, imageUrl, role, status };
+      sessionStorage.setItem("accessToken", accessToken);
       state.isLoading = false;
+      state.isLogginOut = false;
     },
     [checkWebLogin.rejected]: (state, action) => {
       state.isLoading = false;
     },
-    [refreshUserInfo.pending]: (state, { payload }) => {
-      state.isLoading = true;
-    },
+    [refreshUserInfo.pending]: (state, { payload }) => {},
+    [refreshUserInfo.rejected]: (state, { payload }) => {},
     [refreshUserInfo.fulfilled]: (state, { payload }) => {
-      const { id, name, email, phone, imageUrl, role } = payload;
-      state.data = { id, name, email, phone, imageUrl, role };
-      state.isLoading = false;
+      const { id, name, email, phone, imageUrl, role, accessToken, status } =
+        payload;
+      state.data = { id, name, email, phone, imageUrl, role, status };
+      sessionStorage.setItem("accessToken", accessToken);
     },
     //#endregion
   },
@@ -84,6 +99,7 @@ const Slice = createSlice({
 export const selectAccount = (state) => state.auth.data;
 export const selectRole = (state) => state.auth.data?.role;
 export const selectLoading = (state) => state.auth.isLoading;
+export const selectIsLogginOut = (state) => state.auth.isLogginOut;
 //#endregion
 
 /// Export reducer

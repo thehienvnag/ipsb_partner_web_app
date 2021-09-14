@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
 import "./index.scss";
 import { Form, Input, Button, Checkbox, message, Card } from "antd";
@@ -9,7 +9,11 @@ import {
   EyeTwoTone,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { checkWebLogin, selectLoading } from "App/Stores/auth.slice";
+import {
+  checkWebLogin,
+  refreshUserInfo,
+  selectLoading,
+} from "App/Stores/auth.slice";
 import { useNavigate } from "react-router-dom";
 // const logo = process.env.PUBLIC_URL + "/logo.png";
 
@@ -20,6 +24,7 @@ const LoginPage = () => {
 
   const onFinish = (values) => {
     message.loading("Action in progress...", 1);
+    console.log(values);
     dispatch(checkWebLogin(values)).then((values) => {
       if (values.type !== checkWebLogin.rejected.toString()) {
         let path = "";

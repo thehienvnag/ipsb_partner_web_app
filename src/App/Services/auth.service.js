@@ -8,6 +8,7 @@ import { auth } from "../Utils/Constants/endpoints";
  */
 export const checkLogin = async ({ email, password }) => {
   const data = { email, password };
+  console.log(data);
   return axiosClient.post(auth + "/login", data);
 };
 
@@ -26,9 +27,5 @@ export const changePassword = async ({ accountId, password }) => {
  * Refresh access token
  */
 export const refreshToken = async () => {
-  const res = await axiosClient.get(auth + "/refresh-token", {
-    skipAuthRefresh: true,
-  });
-  sessionStorage.setItem("accessToken", res.data.accessToken);
-  return res;
+  return axiosClient.post(auth + "/refresh-token", {});
 };

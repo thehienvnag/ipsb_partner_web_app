@@ -11,6 +11,7 @@ import LoginPage from "App/Containers/Auth/Login";
 import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
 import RouteNames from "App/Utils/Constants/routesName";
 import RoleGuard from "App/Containers/Auth/Guards/RoleGuard";
+import LoggedIn from "App/Containers/Auth/Guards/LoggedIn";
 const appRoutes = [
   {
     path: "",
@@ -62,11 +63,11 @@ const appRoutes = [
   },
   {
     path: "login",
-    element: <LoginPage />,
+    element: <LoggedIn component={<LoginPage />} />,
   },
   {
     path: "change-password",
-    element: <ChangePasswordPage />,
+    element: <LoggedIn component={<ChangePasswordPage />} />,
   },
 ];
 

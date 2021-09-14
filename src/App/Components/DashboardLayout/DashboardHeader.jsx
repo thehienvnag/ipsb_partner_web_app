@@ -1,6 +1,6 @@
 import { Dropdown, Menu, Button, Tooltip } from "antd";
 import Link from "antd/lib/typography/Link";
-import { selectAccount } from "App/Stores/auth.slice";
+import { logout, selectAccount } from "App/Stores/auth.slice";
 import {
   // addMenuItems,
   // selectStarredMenuItems,
@@ -13,6 +13,7 @@ import {
 } from "react-redux";
 import "./DashboardHeader.scss";
 import { Link as RouterLink, useNavigate, useMatch } from "react-router-dom";
+import { useDispatch } from "react-redux";
 // import { BiStar } from "react-icons/bi";
 const notifications = (
   <Menu>
@@ -23,15 +24,16 @@ const notifications = (
 
 const Profile = () => {
   const navigate = useNavigate();
-  const logOut = () => {
-    navigate("../../login");
+  const dispatch = useDispatch();
+  const logOutFunc = () => {
+    dispatch(logout());
   };
   return (
     <Menu>
       <Menu.Item key="0">Profile &amp; account</Menu.Item>
       <Menu.Item key="1">Feedback</Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="3" onClick={logOut}>
+      <Menu.Item key="3" onClick={logOutFunc}>
         Logout
       </Menu.Item>
     </Menu>
