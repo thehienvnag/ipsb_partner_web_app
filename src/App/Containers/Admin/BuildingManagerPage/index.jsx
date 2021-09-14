@@ -27,7 +27,7 @@ const BuildingManagerPage = () => {
     setCurrentPage(number);
   };
   const handleRefresh = () => {
-    dispatch(loadAccounts({ pageIndex: currentPage }));
+    dispatch(loadAccounts({ pageIndex: currentPage,role: "Building Manager" }));
   };
 
   const handleCreate = () => {
