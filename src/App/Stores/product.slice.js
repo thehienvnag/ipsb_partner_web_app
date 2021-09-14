@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllProductOfStore, postProduct, putProduct} from "../Services/product.service";
+import { getAllProduct, postProduct, putProduct} from "../Services/product.service";
 
 //#region Async thunks coupon
 const loadProducts = createAsyncThunk(
@@ -11,7 +11,7 @@ const loadProducts = createAsyncThunk(
     //   //Object.assign(params, { storeId: store.inChargeStore.id });
     //   Object.assign(params, { storeId: 4 });
     // }
-    const data = await getAllProductOfStore(params);
+    const data = await getAllProduct(params);
     return data;
   }
 );

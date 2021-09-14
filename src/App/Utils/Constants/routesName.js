@@ -15,5 +15,6 @@ export default class RouteNames {
   //#endregion
   //#region Store Owners
   static managerCoupons = "/manage-coupons";
+  static managerProducts = "/manage-products";
   //#endregion
 }

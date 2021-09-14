@@ -8,12 +8,12 @@ import { postCoupon, putCoupon } from "App/Services/coupon.service";
 const { Option } = Select;
 const { TextArea } = Input;
 const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
-const [form] = Form.useForm();
-const [fileList, setFileList] = useState([]);
-const [products, setProducts] = useState(null);
-const [productListInclude, setProductListInclude] = useState([]);
-const [productListExclude, setProductListExclude] = useState([]);
-  
+  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+  const [products, setProducts] = useState(null);
+  const [productListInclude, setProductListInclude] = useState([]);
+  const [productListExclude, setProductListExclude] = useState([]);
+
   useEffect(() => {
     if (model) {
       form.setFieldsValue(model);
@@ -54,12 +54,13 @@ const [productListExclude, setProductListExclude] = useState([]);
   const create = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values.name , values.code, values.description);
     if (fileList == null) {
       message.error("Add image for Coupon", 4);
-    }else if(values.code == null && fileList.length == 0 && values.amount == null){
+    } else if (values.code == null || fileList.length == 0 || values.amount == null || values.description == null
+      || values.discountType == null || values.publishDate == null || values.expireDate == null) {
       message.error("All Fields need to Fill !!", 4);
-    } else if(values.code != null && fileList.length > 0 && values.amount != null){
+    } else if (values.code != null && fileList.length > 0 && values.amount != null && values.description != null
+      && values.discountType != null && values.publishDate != null && values.expireDate != null) {
       message.loading("Action in progress...", 3);
       const data = await postCoupon({
         ...values,
@@ -68,11 +69,11 @@ const [productListExclude, setProductListExclude] = useState([]);
         ...{ productExclude: productListExclude },
         ...{ imageUrl: fileList[0]?.originFileObj },
       });
-      if (data === "Request failed with status code 409") {
-        message.error("Email existed", 3);
-      } else if (data?.id !== null) {
+      if (data?.id !== null) {
         message.success("Create success", 3);
         form.resetFields();
+      } else {
+        message.error("Email existed", 3);
       }
     }
   };
@@ -81,9 +82,11 @@ const [productListExclude, setProductListExclude] = useState([]);
     const values = form.getFieldsValue();
     if (fileList == null) {
       message.error("Add image for Coupon", 4);
-    }else if(values.code == null && fileList.length == 0 && values.amount == null){
+    } else if (values.code == null || fileList.length == 0 || values.amount == null || values.description == null
+      || values.discountType == null || values.publishDate == null || values.expireDate == null) {
       message.error("All Fields need to Fill !!", 4);
-    } else if(values.code != null && fileList.length > 0 && values.amount != null){
+    } else if (values.code != null && fileList.length > 0 && values.amount != null && values.description != null
+      && values.discountType != null) {
       message.loading("Action in progress...", 3);
       const data = await putCoupon({
         ...values,
@@ -93,10 +96,10 @@ const [productListExclude, setProductListExclude] = useState([]);
         ...{ productExclude: productListExclude },
         ...{ imageUrl: fileList[0]?.originFileObj },
       });
-      if (data === "Request failed with status code 409") {
-        message.error("Email existed", 3);
-      } else if (data?.id !== null) {
+      if (data?.id !== null) {
         message.success("Update success", 3);
+      } else {
+        message.error("Create Failed", 3);
       }
     }
   };
@@ -188,52 +191,52 @@ const [productListExclude, setProductListExclude] = useState([]);
                 },
               ]}
             >
-              <Input placeholder="Pick coupon publishDate" type="datetime-local" disabled={visibleDate}/>
+              <Input placeholder="Pick coupon publishDate" type="datetime-local" disabled={visibleDate} />
             </Form.Item>
             <Form.Item
-                label="Products Exclude:"
-                rules={[{ required: true }]}
-                required
-                rules={[
-                  {
-                    required: true,
-                    message: "Select products exclude",
-                  },
-                ]}
+              label="Products Exclude:"
+              rules={[{ required: true }]}
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "Select products exclude",
+                },
+              ]}
+            >
+              <Select
+                value={model?.productExclude.split(",")}
+                mode="multiple"
+                style={{ width: "100%" }}
+                placeholder="Select products exclude"
+                onChange={handleChangeSelectExclude}
+                optionLabelProp="label"
               >
-                <Select
-                  value={model?.productExclude.split(",")}
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Select products exclude"
-                  onChange={handleChangeSelectExclude}
-                  optionLabelProp="label"
-                >
-                  {products &&
-                    products.map(({ id, name }) => (
-                      <Option value={"" + id} label={name}>
-                        {name}
-                      </Option>
-                    ))}
-                </Select>
+                {products &&
+                  products.map(({ id, name }) => (
+                    <Option value={"" + id} label={name}>
+                      {name}
+                    </Option>
+                  ))}
+              </Select>
             </Form.Item>
             <Form.Item
-                name="status"
-                label="Choose status:"
-                style={{ marginTop: 4 }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Choose status",
-                  },
-                ]}
-              >
-                <Select placeholder="Select status">
-                  <Option value="New">New</Option>
-                  <Option value="Active">Active</Option>
-                  <Option value="Inactive">Inactive</Option>
-                </Select>
-              </Form.Item>
+              name="status"
+              label="Choose status:"
+              style={{ marginTop: 4 }}
+              rules={[
+                {
+                  required: true,
+                  message: "Choose status",
+                },
+              ]}
+            >
+              <Select placeholder="Select status">
+                <Option value="New">New</Option>
+                <Option value="Active">Active</Option>
+                <Option value="Inactive">Inactive</Option>
+              </Select>
+            </Form.Item>
           </Col>
 
           <Col span={12}>
@@ -261,7 +264,7 @@ const [productListExclude, setProductListExclude] = useState([]);
                 },
               ]}
             >
-            <TextArea rows={1} placeholder="Description..." />
+              <TextArea rows={1} placeholder="Description..." />
             </Form.Item>
             <Form.Item
               name="code"
@@ -301,9 +304,7 @@ const [productListExclude, setProductListExclude] = useState([]);
                 },
               ]}
             >
-              <Input
-                placeholder="Input coupon amount"
-              />
+              <Input placeholder="Input coupon amount" type="number" />
             </Form.Item>
             <Form.Item
               name="expireDate"
@@ -316,35 +317,35 @@ const [productListExclude, setProductListExclude] = useState([]);
                 },
               ]}
             >
-              <Input placeholder="Pick coupon expireDate" type="datetime-local" disabled={visibleDate}/>
+              <Input placeholder="Pick coupon expireDate" type="datetime-local" disabled={visibleDate} />
             </Form.Item>
             <Form.Item
-                label="Products Include:"
-                rules={[{ required: true }]}
-                required
-                rules={[
-                  {
-                    required: true,
-                    message: "Select products include",
-                  },
-                ]}
+              label="Products Include:"
+              rules={[{ required: true }]}
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "Select products include",
+                },
+              ]}
+            >
+              <Select
+                value={model?.productInclude.split(",")}
+                mode="multiple"
+                style={{ width: "100%" }}
+                placeholder="Select products include"
+                onChange={handleChangeSelectInclude}
+                optionLabelProp="label"
               >
-                <Select
-                  value={model?.productInclude.split(",")}
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Select products include"
-                  onChange={handleChangeSelectInclude}
-                  optionLabelProp="label"
-                >
-                  {products &&
-                    products.map(({ id, name }) => (
-                      <Option value={"" + id} label={name}>
-                        {name}
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
+                {products &&
+                  products.map(({ id, name }) => (
+                    <Option value={"" + id} label={name}>
+                      {name}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
           </Col>
         </Row>
       </Form>

@@ -12,6 +12,8 @@ import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
 import RouteNames from "App/Utils/Constants/routesName";
 import RoleGuard from "App/Containers/Auth/Guards/RoleGuard";
 import LoggedIn from "App/Containers/Auth/Guards/LoggedIn";
+import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
+import ManageProductPage from "App/Containers/StoreOwner/ManageProductPage";
 const appRoutes = [
   {
     path: "",
@@ -58,6 +60,14 @@ const appRoutes = [
       {
         path: RouteNames.managerAccounts,
         element: <RoleGuard role="Admin" component={<BuildingManagerPage />} />,
+      },
+      {
+        path: RouteNames.managerCoupons,
+        element: <RoleGuard role="Store Owner" component={<ManageCouponPage />} />,
+      },
+      {
+        path: RouteNames.managerProducts,
+        element: <RoleGuard role="Store Owner" component={<ManageProductPage />} />,
       },
     ],
   },
