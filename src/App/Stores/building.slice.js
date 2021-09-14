@@ -5,8 +5,11 @@ import { getBuildings } from "App/Services/building.service";
 const loadBuildings = createAsyncThunk(
   "building/loadBuildings",
   async (params = {}, thunkAPI) => {
-    const data = await getBuildings(params);
-    return data;
+    try {
+      return await getBuildings(params);
+    } catch (error) {
+      return thunkAPI.rejectWithValue();
+    }
   }
 );
 //#endregion

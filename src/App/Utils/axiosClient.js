@@ -19,6 +19,7 @@ const refreshAuthLogic = (failedRequest) =>
     .then((data) => {
       failedRequest.response.config.headers["Authorization"] =
         "Bearer " + data.accessToken;
+      sessionStorage.setItem("accessToken", data.accessToken);
     })
     .catch((err) => {
       if (err.response.status === 401) {
@@ -35,13 +36,12 @@ axiosClient.interceptors.request.use((config) => {
   return config;
 });
 
-axiosClient.interceptors.response.use((response) => {
-  if (response.status === 401) {
-    import("App/Stores/store").then(({ Store }) => Store.dispatch(logout()));
-  }
-  console.log("interceptor");
-  return response.data;
-});
+axiosClient.interceptors.response.use(
+  async (response) => {
+    return response.data;
+  },
+  async (err) => {}
+);
 
 export const postFormData = async (endpoint, values) => {
   const formData = new FormData();
