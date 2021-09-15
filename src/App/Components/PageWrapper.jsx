@@ -1,5 +1,6 @@
 import React from "react";
 import "./DashboardLayout/DashboardLayout.scss";
+import { Row } from "antd";
 /**
  * Page wrapper for new page
  * @param {object} props Component props
@@ -7,25 +8,16 @@ import "./DashboardLayout/DashboardLayout.scss";
  * @param {String}[props.className = ""] Class name
  * @param {React.ReactElement[]} [props.children = []] Elements inside
  */
-export const PageWrapper = ({
-  type = "container-xl",
-  className = "",
-  children,
-}) => {
-  return (
-    <div className={type + " page " + className}>
-      {children && children.find((item) => item.type !== PageBody)}
-      {children && children.find((item) => item.type === PageBody)}
-    </div>
-  );
+export const PageWrapper = ({ children }) => {
+  return <>{children}</>;
 };
 /**
  * Page wrapper for new page
  * @param {object} props Component props
  * @param {React.ReactElement[] | React.ReactElement} [props.children = []] Elements inside
  */
-export const PageBody = ({ children }) => (
-  <div className="page-body" style={{ marginTop: 25 }}>
-    <div className="row row-deck row-cards">{children}</div>
+export const PageBody = ({ children, noWrap = false }) => (
+  <div className="page-body" style={{ padding: "5px 18px" }}>
+    <Row style={{ flexFlow: "nowrap" }}>{children}</Row>
   </div>
 );

@@ -57,37 +57,9 @@ const FloorPlanMenu = () => {
   );
 };
 
-const menu = (
-  <Menu>
-    <Menu.Item key="menu-1">
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="http://www.alipay.com/"
-      >
-        1st menu item
-      </a>
-    </Menu.Item>
-    <Menu.Item key="menu-2">
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="http://www.taobao.com/"
-      >
-        2nd menu item
-      </a>
-    </Menu.Item>
-    <Menu.Item key="menu-3">
-      <a target="_blank" rel="noopener noreferrer" href="http://www.tmall.com/">
-        3rd menu item
-      </a>
-    </Menu.Item>
-  </Menu>
-);
-
 const FloorPlanDropdownMenu = () => {
   return (
-    <Space wrap>
+    <Space wrap style={{ marginLeft: 250 }}>
       <Dropdown.Button
         overlay={<FloorPlanMenu></FloorPlanMenu>}
         placement="bottomCenter"
@@ -99,87 +71,37 @@ const FloorPlanDropdownMenu = () => {
   );
 };
 
-const DropdownMenu = () => (
-  <Dropdown key="more" overlay={menu}>
-    <Button
-      style={{
-        border: "none",
-        padding: 0,
-      }}
-    >
-      <EllipsisOutlined
-        style={{
-          fontSize: 20,
-          verticalAlign: "top",
-        }}
-      />
-    </Button>
-  </Dropdown>
-);
-
-const routes = [
-  {
-    path: "home",
-    breadcrumbName: "Home",
-  },
-  {
-    path: "locator-tags",
-    breadcrumbName: "Locator Tags",
-  },
-];
-
 /**
  * Page wrapper for new page
  * @param {object} [props] props of component
  * @param {PropTypes.func} [props.handleDelete] current page size of get request
  * @param {PropTypes.func} [props.handleRefresh] floor plan id which contains locator tags
  */
-const Header = ({ handleDelete, handleRefresh }) => {
-  const [visible, setVisible] = useState(false);
-  const hideModal = () => setVisible(false);
-  const handleCreate = () => setVisible(true);
-
+const Header = ({ handleCreate, handleDelete, handleRefresh }) => {
   return (
     <>
       <PageHeader
         title="LOCATOR TAGS"
         className="site-page-header"
-        subTitle="Manages locator tags inside your building"
-        tags={<Tag color="blue">Running</Tag>}
+        // subTitle="Manages locator tags inside your building"
+        // tags={<Tag color="blue">Running</Tag>}
         extra={[
+          <FloorPlanDropdownMenu />,
           <Button
             key="1"
             type="dashed"
             icon={<ReloadOutlined />}
             onClick={handleRefresh}
-          >
-            Refresh
-          </Button>,
+          ></Button>,
           <Button
             key="2"
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleCreate}
-          >
-            Create
-          </Button>,
-          <Button
-            key="3"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={handleDelete}
-          >
-            Delete
-          </Button>,
-          <DropdownMenu key="more" />,
+          ></Button>,
         ]}
-        avatar={{
-          src: "https://icon-library.com/images/d345179a9c_25276.png",
-        }}
-        breadcrumb={{ routes }}
-        footer={[<FloorPlanDropdownMenu />]}
       ></PageHeader>
-      <CreateLocatorTag visible={visible} hideModal={hideModal} />
+      {/* <CreateLocatorTag visible={visible} hideModal={hideModal} /> */}
     </>
   );
 };

@@ -1,5 +1,5 @@
 import axiosClient from "../Utils/axiosClient";
-import { auth } from "../Constants/endpoints";
+import { auth } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [data] parameters for post request
@@ -8,10 +8,8 @@ import { auth } from "../Constants/endpoints";
  */
 export const checkLogin = async ({ email, password }) => {
   const data = { email, password };
-  try {
-    const response = await axiosClient.post(auth + "/login", data);
-    return response.data;
-  } catch (e) {}
+  console.log(data);
+  return axiosClient.post(auth + "/login", data);
 };
 
 /**
@@ -22,7 +20,12 @@ export const checkLogin = async ({ email, password }) => {
  */
 export const changePassword = async ({ accountId, password }) => {
   const data = { accountId, password };
-  console.log("ACCOUNTID: ", accountId);
-  const response = await axiosClient.put(auth + "/change-password", data);
-  return response.status;
+  return axiosClient.put(auth + "/change-password", data);
+};
+
+/**
+ * Refresh access token
+ */
+export const refreshToken = async () => {
+  return axiosClient.post(auth + "/refresh-token", {});
 };

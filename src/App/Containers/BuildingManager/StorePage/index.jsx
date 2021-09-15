@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import "./index.scss";
 import Header from "./Header/index";
-import { Card } from "antd";
+import { Card, Col } from "antd";
 import { PageWrapper, PageBody } from "App/Components/PageWrapper";
 import StoreTable from "./Contents/StoreTable/index";
-import CreateStoreModal from "./Contents/CreateStoreModal";
+import StoreDetails from "./Contents/StoreDetails";
 
 const StorePage = () => {
   const [visible, setVisible] = useState(false);
@@ -27,12 +27,14 @@ const StorePage = () => {
 
   return (
     <PageWrapper>
-      <Header handleCreate={handleCreate} />
       <PageBody>
-        <Card>
-          <StoreTable onRowClick={onRowClick} call={call} />
-        </Card>
-        <CreateStoreModal
+        <Col flex="auto">
+          <Card className="card-table">
+            <Header handleCreate={handleCreate} />
+            <StoreTable onRowClick={onRowClick} call={call} />
+          </Card>
+        </Col>
+        <StoreDetails
           visible={visible}
           handleCancel={handleCancel}
           store={store}

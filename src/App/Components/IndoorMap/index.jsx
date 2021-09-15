@@ -102,10 +102,7 @@ const MapZoomPan = ({
     }
     setTypeSelect(typeId);
   }, [dispatch, floorPlanId, typeId, refresh]);
-  const handleChangeType = (type) => {
-    console.log(type);
-    setTypeSelect(type);
-  };
+  const handleChangeType = (type) => setTypeSelect(type);
   if (!src) {
     return (
       <Wrapper>
@@ -130,8 +127,9 @@ const MapZoomPan = ({
         <TransformWrapper
           doubleClick={{ disabled: true }}
           pinch={{ disabled: true }}
-          minScale={0.3}
-          maxScale={4}
+          minScale={0.2}
+          maxScale={0.5}
+          initialScale={0.5}
         >
           <TransformComponent>
             <ImageRealSize

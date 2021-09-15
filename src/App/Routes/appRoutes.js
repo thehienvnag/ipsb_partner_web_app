@@ -1,65 +1,83 @@
-import FloorPlanDetailPage from "App/Containers/BuildingManager/FloorPlanDetailPage";
 import BuildingPage from "App/Containers/Admin/BuildingPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import LocatorTagPage from "App/Containers/BuildingManager/LocatorTagPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
-import AdHomePage from "../Containers/Admin/HomePage/index";
 import BmHomePage from "../Containers/BuildingManager/HomePage/index";
 import StorePage from "../Containers/BuildingManager/StorePage/index";
 import LocationTypePage from "../Containers/BuildingManager/LocationTypePage/index";
 import BuildingManagerPage from "App/Containers/Admin/BuildingManagerPage";
 import StoreOwnerPage from "App/Containers/BuildingManager/StoreOwnerPage";
 import LoginPage from "App/Containers/Auth/Login";
-import { element } from "prop-types";
 import ChangePasswordPage from "App/Containers/Auth/ChangePassword";
+import RouteNames from "App/Utils/Constants/routesName";
+import RoleGuard from "App/Containers/Auth/Guards/RoleGuard";
+import LoggedIn from "App/Containers/Auth/Guards/LoggedIn";
+import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
+import ManageProductPage from "App/Containers/StoreOwner/ManageProductPage";
 const appRoutes = [
   {
-    path: "building-manager",
+    path: "",
     element: <DashboardLayout />,
     children: [
-      { path: "/", element: <BmHomePage /> },
       {
-        path: "/floor-plans",
-        element: <FloorPlanPage />,
+        path: "/",
+        element: <RoleGuard />,
       },
       {
-        path: "/floor-plans/:id",
-        element: <FloorPlanDetailPage />,
+        path: RouteNames.floorPlans,
+        element: (
+          <RoleGuard role="Building Manager" component={<FloorPlanPage />} />
+        ),
       },
       {
-        path: "/stores",
-        element: <StorePage />,
+        path: RouteNames.stores,
+        element: (
+          <RoleGuard role="Building Manager" component={<StorePage />} />
+        ),
       },
       {
-        path: "/locator-tags",
-        element: <LocatorTagPage />,
+        path: RouteNames.locatorTags,
+        element: (
+          <RoleGuard role="Building Manager" component={<LocatorTagPage />} />
+        ),
       },
       {
-        path: "/location-type",
-        element: <LocationTypePage />,
+        path: RouteNames.places,
+        element: (
+          <RoleGuard role="Building Manager" component={<LocationTypePage />} />
+        ),
       },
-      { path: "/manager-accounts", element: <StoreOwnerPage /> },
+      {
+        path: RouteNames.storeAccounts,
+        element: (
+          <RoleGuard role="Building Manager" component={<StoreOwnerPage />} />
+        ),
+      },
+      {
+        path: RouteNames.buildings,
+        element: <RoleGuard role="Admin" component={<BuildingPage />} />,
+      },
+      {
+        path: RouteNames.managerAccounts,
+        element: <RoleGuard role="Admin" component={<BuildingManagerPage />} />,
+      },
+      {
+        path: RouteNames.managerCoupons,
+        element: <RoleGuard role="Store Owner" component={<ManageCouponPage />} />,
+      },
+      {
+        path: RouteNames.managerProducts,
+        element: <RoleGuard role="Store Owner" component={<ManageProductPage />} />,
+      },
     ],
   },
-  {
-    path: "admin",
-    element: <DashboardLayout />,
-    children: [
-      { path: "/test", element: <AdHomePage /> },
-      { path: "/test2", element: <AdHomePage /> },
-      { path: "/buildings", element: <BuildingPage /> },
-      { path: "/manager-accounts", element: <BuildingManagerPage /> },
-    ],
-  },
-
   {
     path: "login",
-    element: <LoginPage />,
+    element: <LoggedIn component={<LoginPage />} />,
   },
-
   {
     path: "change-password",
-    element: <ChangePasswordPage />,
+    element: <LoggedIn component={<ChangePasswordPage />} />,
   },
 ];
 

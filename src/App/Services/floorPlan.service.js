@@ -1,5 +1,5 @@
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
-import { floorPlans } from "../Constants/endpoints";
+import { floorPlans } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
@@ -18,8 +18,7 @@ export const getAll = async ({ pageIndex = 1, pageSize = 5, buildingId }) => {
  * @param {number} [params.id] building id which contains floor plans
  */
 export const getById = async (id) => {
-  const response = await axiosClient.get(`${floorPlans}/${id}`);
-  return response.data;
+  return axiosClient.get(`${floorPlans}/${id}`);
 };
 
 /**
@@ -27,22 +26,12 @@ export const getById = async (id) => {
  * @param {object} [data] values post
  */
 export const postFloorPlan = async (data) => {
-  try {
-    const dataPost = await postFormData(floorPlans, data);
-    return dataPost;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return await postFormData(floorPlans, data);
 };
 /**
  * Page wrapper for new page
  * @param {object} [data] values post
  */
 export const putFloorPlan = async (data) => {
-  try {
-    const dataPut = await putFormData(floorPlans + "/" + data.id, data);
-    return dataPut;
-  } catch (error) {
-    console.log(error?.message);
-  }
+  return putFormData(floorPlans + "/" + data.id, data);
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAllStore } from "App/Services/store.service";
-import { Table, Image, Tag, Typography, Avatar } from "antd";
+import { Table, Tag, Typography, Avatar } from "antd";
 
 const StoreTable = ({ onRowClick, call }) => {
   const [data, setData] = useState({ list: null, isLoading: false });
@@ -53,9 +53,9 @@ const StoreTable = ({ onRowClick, call }) => {
           render={(value) => {
             return (
               <Avatar
-                shape="square"
-                size={100}
-                src={<Image width="90px" src={value} />}
+                // shape="square"
+                size={40}
+                src={value}
               />
             );
           }}
@@ -80,7 +80,14 @@ const StoreTable = ({ onRowClick, call }) => {
             return <Typography.Text>{value.account.name}</Typography.Text>;
           }}
         />
-        <Table.Column title="Status" key="status" dataIndex="status" />
+        <Table.Column
+          title="Status"
+          dataIndex="status"
+          key="status"
+          render={(value) => (
+            <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
+          )}
+        />
       </Table>
     </>
   );
