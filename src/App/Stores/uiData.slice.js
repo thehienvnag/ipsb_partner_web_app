@@ -3,7 +3,7 @@ import { BiStoreAlt, BiMapAlt, BiMapPin, BiBuildings, BiGift } from "react-icons
 import { RiProductHuntFill, RiProductHuntLine, RiSignalTowerFill } from "react-icons/ri";
 import { AiOutlineTeam } from "react-icons/ai";
 import RouteNames from "App/Utils/Constants/routesName";
-import { FaProductHunt, FaYandexInternational } from "react-icons/fa";
+import { FaProductHunt, FaTrash, FaYandexInternational } from "react-icons/fa";
 import { GrProductHunt } from "react-icons/gr";
 
 //#region Menu final data
@@ -38,6 +38,11 @@ const storeOwnerItems = [
     icon: <FaYandexInternational />,
     title: "Product",
     path: RouteNames.managerProducts,
+  },
+  {
+    icon: <FaTrash />,
+    title: "Ckeditor",
+    path: RouteNames.testCkeditor,
   },
 ];
 //#endregion

@@ -7,7 +7,9 @@ const SOHomePage = () => {
   return (
     <PageWrapper>
       <PageBody>
-        <Card className="col-md-12"></Card>
+        <Card className="col-md-12">
+          <h1>ok</h1>
+        </Card>
       </PageBody>
     </PageWrapper>
   );

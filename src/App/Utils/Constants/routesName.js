@@ -16,5 +16,6 @@ export default class RouteNames {
   //#region Store Owners
   static managerCoupons = "/manage-coupons";
   static managerProducts = "/manage-products";
+  static testCkeditor = "/testCkeditor";
   //#endregion
 }
