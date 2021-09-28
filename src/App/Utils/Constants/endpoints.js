@@ -11,3 +11,4 @@ export const productCategories = "/product-categories";
 export const productGroups = "/product-groups";
 export const coupons = "/coupons";
 export const products = "/products";
+export const couponInUses = "/coupon-in-uses";

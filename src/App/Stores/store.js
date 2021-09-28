@@ -12,6 +12,7 @@ import authReducer from "./auth.slice";
 import uiDataReducer from "./uiData.slice";
 import couponReducer from "./coupon.slice";
 import productReducer from "./product.slice";
+import couponInUseProducer from "./couponInUse.slice";
 
 export const Store = configureStore({
   reducer: {
@@ -28,5 +29,6 @@ export const Store = configureStore({
     uiData: uiDataReducer,
     coupon: couponReducer,
     product: productReducer,
+    couponInUse:couponInUseProducer,
   },
 });
