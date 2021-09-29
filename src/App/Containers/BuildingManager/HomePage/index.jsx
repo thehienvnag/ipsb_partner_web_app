@@ -212,7 +212,7 @@ const BmHomePage = () => {
                     yAxisID: 'y',
                   },]
                 }}
-
+                plugins={[ChartDataLabels]}
                 options={
                   {
                     responsive: true,
