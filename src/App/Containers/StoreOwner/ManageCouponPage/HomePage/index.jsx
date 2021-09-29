@@ -4,16 +4,14 @@ import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import "./index.scss";
 import { Pie, defaults, Bar } from 'react-chartjs-2'
 import { Row, Col } from 'antd';
-import { loadCouponInUses, selectListCouponInUse } from "App/Stores/couponInUse.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllCouponInUse } from "App/Services/couponInUse.service";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 defaults.plugins.title.font.size = 20
-// defaults.plugins.tooltip = false
 
 const SOHomePage = () => {
   const dispatch = useDispatch();
-  // const listCouponInUse = useSelector(selectListCouponInUse);
   // for pie chart
   const [labels, setLabel] = useState([]);
   const [dataSetPieLabels, setDataPieLabels] = useState([]);
@@ -25,24 +23,10 @@ const SOHomePage = () => {
   const [dataNumberOfUseBar, setNumberOfUseBarLabels] = useState([]);
   // end bar chart
 
-  // console.log("alo : ", listCouponInUse);
-  // var nameArray = [];
-  // var numberOfAppearanceArray = [];
-  // if (listCouponInUse != null) {
-  //   var key = "couponId";
-  //   const newArray = [...new Map(listCouponInUse.map(item => [item[key], item])).values()];
-  //   newArray.forEach(element => {
-  //     var count = listCouponInUse.filter((obj) => obj.couponId === element.couponId).length;
-  //     nameArray.push(element.coupon.name);
-  //     numberOfAppearanceArray.push(count);
-  //   });
-  // }
-
   const getCouponInUse = async (storeId) => {
     const data = await getAllCouponInUse({
       storeId: storeId,
     });
-    // setDataStore(data.content);
     return data.content;
   };
   
@@ -52,11 +36,10 @@ const SOHomePage = () => {
     var averageRateScore = 0;
     var totalRatescore = 0;
     var newArray = [];
-    console.log("================================");
-    console.log(listCouponInUse);
+    
     const data = [...new Map(listCouponInUse.map(item =>
       [item[key], item])).values()];
-    console.log(data);
+
     data.forEach(element => {
       totalRatescore = 0;
       returnArray = listCouponInUse.filter((obj) => obj.couponId === element.couponId);
@@ -76,59 +59,17 @@ const SOHomePage = () => {
     dataSetLabels(newData.map(_ => _.avgRateScore), newData.map(_ => _.numberOfAppearance));
   }
 
-  // var key = "couponId";
-  // var returnArray = [];
-  // var anotherNewArray = [];
-  // var nameArray = [];
-  // var numberOfAppearanceArray = [];
-  // var averageScoreArray = [];
-  // if (listCouponInUse != null) {
-  //   const newArray = [...new Map(listCouponInUse.map(item =>
-  //     [item[key], item])).values()];
-  //   var averageRateScore = 0;
-  //   newArray.forEach(element => {
-  //     var totalRatescore = 0;
-  //     returnArray = listCouponInUse.filter((obj) => obj.couponId === element.couponId);
-  //     var count = returnArray.length;
-  //     returnArray.forEach(newElement => {
-  //       totalRatescore += newElement.rateScore;
-  //     });
-  //     averageRateScore = totalRatescore /= count;
-
-  //     anotherNewArray.push({couponId : element.id, 
-  //       numberOfAppearance : count, name : element.coupon.name, 
-  //       avgRateScore : averageRateScore});
-  //     // nameArray.push(element.coupon.name);
-  //     // numberOfAppearanceArray.push(count);
-  //     // averageScoreArray.push(averageRateScore);
-  //   });
-
-  //   // anotherNewArray.sort((a, b) => a.avgRateScore < b.avgRateScore ? 1 : -1);
-  //   // nameArray = anotherNewArray.map(_ => _.name);
-  //   // numberOfAppearanceArray = anotherNewArray.map(_ => _.numberOfAppearance);
-  //   // averageScoreArray = anotherNewArray.map(_ => _.avgRateScore);
-
-  // }
-
   const dataLabels = (nameArray) => {
     setLabel(nameArray);
-    //setLabel(['Red', 'Blue', 'Yellow', 'Green', 'Purple']);
-    //setLabelBar(['Giảm 100%', 'Giảm 80%', 'Giảm 60%', 'Giảm 50%', 'Giảm 40%', 'Giảm 30%']);
     setLabelBar(nameArray);
   };
   const dataSetLabels = (averageScoreArray, numberOfAppearanceArray) => {
     setDataPieLabels(numberOfAppearanceArray);
-    //setDataPieLabels([12, 19, 3, 5, 5]);
-    //setDataBarLabels([4.5, 4.1, 4.8, 4.4, 4.2, 4.3]);
     setDataBarLabels(averageScoreArray);
     setNumberOfUseBarLabels(numberOfAppearanceArray);
   };
   useEffect(() => {
-    // dispatch(loadCouponInUses());
     getCouponInUse(18).then((value) => getReturnArray(value));
-    // getReturnArray();
-    // dataLabels();
-    // dataSetLabels();
   }, [dispatch]);
 
   const loadChartPie = () => {
@@ -157,48 +98,9 @@ const SOHomePage = () => {
           hoverBorderColor: '#000'
         },
       ],
-      dataSetPieLabels: ['ngon', 'ngon', 'ngon', 'ngon', 'ngon'],
+
     }
   };
-
-  const option = {
-    tooltips: {
-      callbacks: {
-        label: function (tooltipItem, data) {
-          var dataset = data.datasets[tooltipItem.datasetIndex];
-          var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-          var total = meta.total;
-          var currentValue = dataset.data[tooltipItem.index];
-          var percentage = parseFloat((currentValue / total * 100).toFixed(1));
-          return currentValue + ' (' + percentage + '%)';
-        },
-        title: function (tooltipItem, data) {
-          return data.labels[tooltipItem[0].index];
-        }
-      }
-    },
-    maintainAspectRatio: true,
-    plugins: {
-      title: {
-        display: true,
-        text: "Most used coupons",
-        position: "top"
-      },
-      legend: {
-        display: true,
-        position: 'bottom',
-      },
-    },
-    scales: { // vẽ ra mấy cái đánh số từ 0 --> 1
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-          },
-        },
-      ],
-    },
-  }
 
   return (
     <PageWrapper>
@@ -210,7 +112,45 @@ const SOHomePage = () => {
                 height={180}
                 width={180}
                 data={loadChartPie}
-                options={option}
+                plugins={[ChartDataLabels]}
+                options={{
+                  maintainAspectRatio: true,
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: "Most used coupons",
+                      position: "top"
+                    },
+                    legend: {
+                      display: true,
+                      position: 'bottom',
+                    },
+                    datalabels: {
+                      formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        let percentage = (value*100 / sum).toFixed(2)+"%";
+                        return percentage;
+                      },
+                      color: 'black',
+                      font: {
+                        weight : 'bold',
+                        size: 11                        }
+                      }
+                  },
+                  scales: { // vẽ ra mấy cái đánh số từ 0 --> 1
+                    yAxes: [
+                      {
+                        ticks: {
+                          beginAtZero: true,
+                        },
+                      },
+                    ],
+                  },
+                }}
               />
             </Col>
             <Col span={1} />
@@ -225,13 +165,7 @@ const SOHomePage = () => {
                     // yAxisID: 'B',
                     borderColor: 'rgba(54, 162, 235, 0.6)',
                     backgroundColor: [
-                      // 'rgba(255, 99, 132, 0.6)',
-                      // 'rgba(54, 162, 235, 0.6)',
                       'rgba(255, 206, 86, 0.6)',
-                      // 'rgba(75, 192, 192, 0.6)',
-                      // 'rgba(153, 102, 255, 0.6)',
-                      // 'rgba(255, 159, 64, 0.6)',
-                      // 'rgba(255, 99, 132, 0.6)'
                     ],
                     data: dataSetBarLabels,
                     fill: false,
@@ -240,15 +174,8 @@ const SOHomePage = () => {
                     label: 'Times of use',
                     // yAxisID: 'A',
                     borderColor: 'rgba(255, 99, 132, 0.6)',
-                    // backgroundColor: "pink",
                     backgroundColor: [
-                      // 'rgba(255, 99, 132, 0.6)',
-                    //   'rgba(54, 162, 235, 0.6)',
-                    //   'rgba(255, 206, 86, 0.6)',
-                    //   'rgba(75, 192, 192, 0.6)',
                       'rgba(153, 102, 255, 0.6)',
-                    //   'rgba(255, 159, 64, 0.6)',
-                    //   'rgba(255, 99, 132, 0.6)'
                     ],
                     data: dataNumberOfUseBar,
                     type: 'line',
@@ -256,7 +183,7 @@ const SOHomePage = () => {
                     yAxisID: 'y',
                   },]
                 }}
-
+                //plugins={[ChartDataLabels]}
                 options={
                 {
                   responsive: true,
@@ -264,12 +191,11 @@ const SOHomePage = () => {
                     mode: 'index',
                     intersect: false,
                   },
-                  // stacked: false,
                   plugins: {
                     title: {
                       display: true,
                       text: 'Highest Rated Coupons'
-                    }
+                    },
                   },
                   scales: {
                     y: {
@@ -281,10 +207,8 @@ const SOHomePage = () => {
                       type: 'linear',
                       display: true,
                       position: 'left',
-              
-                      // grid line settings
                       grid: {
-                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        drawOnChartArea: false,
                       },
                     },
                   }

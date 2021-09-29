@@ -3,57 +3,47 @@ import Card from "App/Components/Card";
 import { PageHeader } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import "./index.scss";
-import { Pie, defaults, Bar } from 'react-chartjs-2'
+import { Pie, defaults, Bar } from 'react-chartjs-2';
 import { Row, Col } from 'antd';
-import { loadCouponInUses, selectListCouponInUse } from "App/Stores/couponInUse.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { getStoreByBuildingId } from "App/Services/store.service";
 import { getAllCouponInUse } from "App/Services/couponInUse.service";
-import { element } from "prop-types";
-import { couponInUses } from "App/Utils/Constants/endpoints";
+import { getVisitPointByBuildingId } from "App/Services/visitPoint.service";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const BmHomePage = () => {
   const dispatch = useDispatch();
-  const listCouponInUse = useSelector(selectListCouponInUse);
-  // const [dataStore, setDataStore] = useState([]);
-  const [dataCoupon, setDataCoupon] = useState([]);
-  // const [dataCouponTotal, setDataCouponTotal] = useState(null);
-  
-
 
   // for pie chart
   const [labels, setLabel] = useState([]);
-  const [dataSetPieLabels, setDataPieLabels] = useState([]);
+  const [dataPieLabels, setDataPieLabels] = useState([]);
   // end pie chart
 
   // for bar chart
   const [labelBars, setLabelBar] = useState([]);
   const [dataSetBarLabels, setDataBarLabels] = useState([]);
   const [dataNumberOfUseBar, setNumberOfUseBarLabels] = useState([]);
-  // const [nameArray, setNameArray] = useState([]);
-  // const [numberOfUsesArray, setNumberOfUsesArray] = useState([]);
   // end bar chart
 
   const dataLabels = (data) => {
-    // setLabel(nameArray);
-    setLabel(['Red', 'Blue', 'Yellow', 'Green', 'Purple']);
-    //setLabelBar(['Giảm 100%', 'Giảm 80%', 'Giảm 60%', 'Giảm 50%', 'Giảm 40%', 'Giảm 30%']);
     setLabelBar(data);
   };
   const dataSetLabels = (data) => {
-    // setDataPieLabels(numberOfAppearanceArray);
-    setDataPieLabels([12, 19, 3, 5, 5]);
-    // setDataBarLabels(data);
-    // setNumberOfUseBarLabels([4.5, 4.1, 4.8, 4.4, 4.2, 4.3]);
-    // setDataBarLabels(numberOfUsesArray);
     setNumberOfUseBarLabels(data);
   };
+
+  const getdataPieLabels = (data) => {
+    setLabel(data);
+  }
+
+  const getdataSetPieLabels = (data) => {
+    setDataPieLabels(data);
+  }
 
   const getAllStoreByBuildingId = async () => {
     const data = await getStoreByBuildingId({
       buildingId: 12,
     });
-    // setDataStore(data.content);
     return data.content;
   };
 
@@ -65,65 +55,52 @@ const BmHomePage = () => {
     var lengCoupon = newDataCoupon.length;
 
     return {name : storeName, numberOfUses: lengCoupon};
-    // setDataCoupon(data.content);
-    // setDataCouponTotal(data.totalCount);
-    //console.log("=========total: "+ data.totalCount);
   };
-  // console.log("dataCoupon : ", dataCoupon);
 
-  // var newArray = [];
-  // var returnArray = [];
+  const getAllVisitPoinByBuildingIdAndLocationType = async () => {
+    const data = await getVisitPointByBuildingId({
+      buildingId: 12,
+      locationTypeId: 1
+    });
+    return data.content;
+  };
 
-  // var nameArray = [];
-  // var numberOfUsesArray = [];
-  // console.log("dataStore: " + JSON.stringify(dataStore));
+  const getVisitPointArray = async(dataStore) => {
+    var key = "locationId";
+    var returnArray = [];
+    var newArray = [];
 
-  //dataStore = JSON.stringify(dataStore);
+    const data = [...new Map(dataStore.map(item =>
+      [item[key], item])).values()];
+
+    console.log(data);
+    data.forEach(element => {
+      
+      returnArray = dataStore.filter((obj) => obj.locationId === element.locationId);
+      console.log(returnArray);
+      var count = returnArray.length;
+      newArray.push({name : element.location.store.name, numberOfAppearance : count});
+      });
+      
+      newArray.sort((a, b) => a.numberOfAppearance < b.numberOfAppearance ? 1 : -1);
+      const newData =  newArray.slice(0, 10);
+      getdataPieLabels(newData.map(_ => _.name));
+      getdataSetPieLabels(newData.map(_ => _.numberOfAppearance));  
+  }
+
   const getReturnArray = async (dataStore) => {
-    console.log(dataStore);
+    // console.log(dataStore);
     const data = await Promise.all(dataStore.map(element => getCouponInUse(element.id, element.name)));
     data.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
-    const newData = data.slice(0, 5);
+    const newData = data.slice(0, 10);
     dataLabels(newData.map(element => element.name));
     dataSetLabels(newData.map(element => element.numberOfUses));
-    // setNameArray( data.map(element => element.name));
-    // setNumberOfUsesArray(data.map(element => element.numberOfUses));
-    
-    // dataStore.forEach(element => {
-      // var id = JSON.stringify(element.id);
-      // var name = JSON.stringify(element.name);
-    //  console.log("=======================================================id======: " + id);
-      // getCouponInUse(id); 
-      //console.log("du lieu ne: ", dataCoupon.size);
-      // console.log("=========total: "+ dataCouponTotal);
-      
-      // console.log("số lượng: " + lengCoupon);
-      // console.log("new data coupon: " + newDataCoupon);
-      // newArray = dataCoupon.filter((obj) => obj.id === element.id);
-      // returnArray.push({ name: name, numberOfUses: lengCoupon });
-    // })
-    // console.log("return array : ", returnArray);
    }
-
-  // if (returnArray != null) {
-    // console.log("return array ngoai loop: ", returnArray);
-    // returnArray.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
-    // nameArray = returnArray.map(_ => _.name);
-    // numberOfUsesArray = returnArray.map(_ => _.numberOfUses);
-  // }
-
-  // console.log("return array : ", returnArray);
-  // console.log("nameArray : ", nameArray);
-  // console.log("so lan su dung : ", numberOfUsesArray);
-
-
-
-
   
   useEffect(() => {
     getAllStoreByBuildingId().then((value) => getReturnArray(value)).catch((e) => console.log(e));
-    // getReturnArray();
-    // getAllStoreByBuildingId();
+    getAllVisitPoinByBuildingIdAndLocationType()
+    .then((value) => getVisitPointArray(value)).catch((e) => console.log(e));
     dataLabels();
     dataSetLabels();
   }, [dispatch]);
@@ -131,7 +108,7 @@ const BmHomePage = () => {
 
   return (
     <PageWrapper>
-      {/* <PageHeader title="Overview" subTitle="Building Manager" /> */}
+      {/* <PageHeader title="Overview" subTitle="Building Manager"/> */}
       <PageBody>
         <Card className="col-md-12">
           <Row>
@@ -143,7 +120,7 @@ const BmHomePage = () => {
                   labels: labels,
                   datasets: [
                     {
-                      data: dataSetPieLabels,
+                      data: dataPieLabels,
                       label: '# of votes',
                       backgroundColor: [
                         'rgba(221, 56, 56, 1)',
@@ -166,8 +143,12 @@ const BmHomePage = () => {
                   ],
                 }
                 }
+                plugins={[ChartDataLabels]}
                 options={
                   {
+                    tooltips: {
+                      enabled: false
+                    },
                     maintainAspectRatio: true,
                     plugins: {
                       title: {
@@ -179,10 +160,29 @@ const BmHomePage = () => {
                         display: true,
                         position: 'bottom',
                       },
+                      datalabels: {
+                        formatter: (value, ctx) => {
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let percentage = (value*100 / sum).toFixed(2)+"%";
+                          return percentage;
+                        },
+                        color: 'black',
+                        font: {
+                          weight : 'bold',
+                          size: 11                        }
+                        }
                     },
                     scales: { // vẽ ra mấy cái đánh số từ 0 --> 1
+                      x:{
+                        stacked: true,
+                      },
                       yAxes: [
                         {
+                          stacked : true,
                           ticks: {
                             beginAtZero: true,
                           },
@@ -201,37 +201,11 @@ const BmHomePage = () => {
                 data={{
                   labels: labelBars,
                   datasets: [
-                  //   {
-                  //   label: 'Rate Score',
-                  //   // yAxisID: 'B',
-                  //   borderColor: 'rgba(54, 162, 235, 0.6)',
-                  //   backgroundColor: [
-                  //     // 'rgba(255, 99, 132, 0.6)',
-                  //     // 'rgba(54, 162, 235, 0.6)',
-                  //     'rgba(255, 206, 86, 0.6)',
-                  //     // 'rgba(75, 192, 192, 0.6)',
-                  //     // 'rgba(153, 102, 255, 0.6)',
-                  //     // 'rgba(255, 159, 64, 0.6)',
-                  //     // 'rgba(255, 99, 132, 0.6)'
-                  //   ],
-                  //   data: dataSetBarLabels,
-                  //   fill: false,
-                  //   yAxisID: 'y1',
-                  // }, 
                   {
                     label: 'Times of use',
-                    // yAxisID: 'A',
                     borderColor: '#e37b4c',
-                    // backgroundColor: "pink",
                     backgroundColor: [
                       '#e37b4c'
-                      // 'rgba(255, 99, 132, 0.6)',
-                        // 'rgba(54, 162, 235, 0.6)',
-                        // 'rgba(255, 206, 86, 0.6)',
-                        // 'rgba(75, 192, 192, 0.6)',
-                      // 'rgba(153, 102, 255, 0.6)',
-                        // 'rgba(255, 159, 64, 0.6)',
-                        // 'rgba(255, 99, 132, 0.6)'
                     ],
                     data: dataNumberOfUseBar,
                     fill: false,
@@ -246,7 +220,6 @@ const BmHomePage = () => {
                       mode: 'index',
                       intersect: false,
                     },
-                    // stacked: false,
                     plugins: {
                       title: {
                         display: true,
@@ -259,16 +232,6 @@ const BmHomePage = () => {
                         display: true,
                         position: 'left',
                       },
-                      // y1: {
-                      //   type: 'linear',
-                      //   display: true,
-                      //   position: 'left',
-
-                      //   // grid line settings
-                      //   grid: {
-                      //     drawOnChartArea: false, // only want the grid lines for one axis to show up
-                      //   },
-                      // },
                     }
                   }
                 }
