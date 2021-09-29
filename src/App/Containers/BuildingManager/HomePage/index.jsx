@@ -10,14 +10,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { getStoreByBuildingId } from "App/Services/store.service";
 import { getAllCouponInUse } from "App/Services/couponInUse.service";
 import { element } from "prop-types";
+import { couponInUses } from "App/Utils/Constants/endpoints";
 
 const BmHomePage = () => {
   const dispatch = useDispatch();
   const listCouponInUse = useSelector(selectListCouponInUse);
-  const [dataStore, setDataStore] = useState([]);
+  // const [dataStore, setDataStore] = useState([]);
   const [dataCoupon, setDataCoupon] = useState([]);
-  const [dataCouponTotal, setDataCouponTotal] = useState(null);
+  // const [dataCouponTotal, setDataCouponTotal] = useState(null);
   
+
+
   // for pie chart
   const [labels, setLabel] = useState([]);
   const [dataSetPieLabels, setDataPieLabels] = useState([]);
@@ -27,81 +30,99 @@ const BmHomePage = () => {
   const [labelBars, setLabelBar] = useState([]);
   const [dataSetBarLabels, setDataBarLabels] = useState([]);
   const [dataNumberOfUseBar, setNumberOfUseBarLabels] = useState([]);
+  // const [nameArray, setNameArray] = useState([]);
+  // const [numberOfUsesArray, setNumberOfUsesArray] = useState([]);
   // end bar chart
 
-  const dataLabels = () => {
+  const dataLabels = (data) => {
     // setLabel(nameArray);
     setLabel(['Red', 'Blue', 'Yellow', 'Green', 'Purple']);
     //setLabelBar(['Giảm 100%', 'Giảm 80%', 'Giảm 60%', 'Giảm 50%', 'Giảm 40%', 'Giảm 30%']);
-    setLabelBar(nameArray);
+    setLabelBar(data);
   };
-  const dataSetLabels = () => {
+  const dataSetLabels = (data) => {
     // setDataPieLabels(numberOfAppearanceArray);
     setDataPieLabels([12, 19, 3, 5, 5]);
-    setDataBarLabels([4.5, 4.1, 4.8, 4.4, 4.2, 4.3]);
-    setNumberOfUseBarLabels([4.5, 4.1, 4.8, 4.4, 4.2, 4.3]);
+    // setDataBarLabels(data);
+    // setNumberOfUseBarLabels([4.5, 4.1, 4.8, 4.4, 4.2, 4.3]);
     // setDataBarLabels(numberOfUsesArray);
-    // setNumberOfUseBarLabels(numberOfAppearanceArray);
+    setNumberOfUseBarLabels(data);
   };
 
   const getAllStoreByBuildingId = async () => {
     const data = await getStoreByBuildingId({
       buildingId: 12,
     });
-    setDataStore(data.content);
+    // setDataStore(data.content);
+    return data.content;
   };
 
-  const getCouponInUse = async (storeId) => {
+  const getCouponInUse = async (storeId, storeName) => {
     const data = await getAllCouponInUse({
       storeId: storeId,
     });
-    setDataCoupon(data.content);
-    setDataCouponTotal(data.totalCount);
+    var newDataCoupon = data.content;
+    var lengCoupon = newDataCoupon.length;
+
+    return {name : storeName, numberOfUses: lengCoupon};
+    // setDataCoupon(data.content);
+    // setDataCouponTotal(data.totalCount);
     //console.log("=========total: "+ data.totalCount);
   };
   // console.log("dataCoupon : ", dataCoupon);
 
-  var newArray = [];
-  var returnArray = [];
+  // var newArray = [];
+  // var returnArray = [];
 
-  var nameArray = [];
-  var numberOfUsesArray = [];
+  // var nameArray = [];
+  // var numberOfUsesArray = [];
   // console.log("dataStore: " + JSON.stringify(dataStore));
 
   //dataStore = JSON.stringify(dataStore);
-  const getReturnArray = async () => {
-    dataStore.forEach(element => {
-      var id = JSON.stringify(element.id);
-      var name = JSON.stringify(element.name);
+  const getReturnArray = async (dataStore) => {
+    console.log(dataStore);
+    const data = await Promise.all(dataStore.map(element => getCouponInUse(element.id, element.name)));
+    data.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
+    const newData = data.slice(0, 5);
+    dataLabels(newData.map(element => element.name));
+    dataSetLabels(newData.map(element => element.numberOfUses));
+    // setNameArray( data.map(element => element.name));
+    // setNumberOfUsesArray(data.map(element => element.numberOfUses));
+    
+    // dataStore.forEach(element => {
+      // var id = JSON.stringify(element.id);
+      // var name = JSON.stringify(element.name);
     //  console.log("=======================================================id======: " + id);
-      getCouponInUse(id); 
+      // getCouponInUse(id); 
       //console.log("du lieu ne: ", dataCoupon.size);
       // console.log("=========total: "+ dataCouponTotal);
-      var newDataCoupon = JSON.stringify(dataCoupon);
-      var lengCoupon = newDataCoupon.length;
-       console.log("số lượng: " + lengCoupon);
-       console.log("new data coupon: " + newDataCoupon);
+      
+      // console.log("số lượng: " + lengCoupon);
+      // console.log("new data coupon: " + newDataCoupon);
       // newArray = dataCoupon.filter((obj) => obj.id === element.id);
-      returnArray.push({ name: name, numberOfUses: lengCoupon });
-    })
+      // returnArray.push({ name: name, numberOfUses: lengCoupon });
+    // })
     // console.log("return array : ", returnArray);
    }
 
-    console.log("Hello");
   // if (returnArray != null) {
     // console.log("return array ngoai loop: ", returnArray);
-    returnArray.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
-    nameArray = returnArray.map(_ => _.name);
-    numberOfUsesArray = returnArray.map(_ => _.numberOfUses);
+    // returnArray.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
+    // nameArray = returnArray.map(_ => _.name);
+    // numberOfUsesArray = returnArray.map(_ => _.numberOfUses);
   // }
 
   // console.log("return array : ", returnArray);
   // console.log("nameArray : ", nameArray);
   // console.log("so lan su dung : ", numberOfUsesArray);
 
+
+
+
+  
   useEffect(() => {
-    getAllStoreByBuildingId();
-    getReturnArray();
+    getAllStoreByBuildingId().then((value) => getReturnArray(value)).catch((e) => console.log(e));
+    // getReturnArray();
     // getAllStoreByBuildingId();
     dataLabels();
     dataSetLabels();
@@ -179,38 +200,40 @@ const BmHomePage = () => {
                 // width={300}
                 data={{
                   labels: labelBars,
-                  datasets: [{
-                    label: 'Rate Score',
-                    // yAxisID: 'B',
-                    borderColor: 'rgba(54, 162, 235, 0.6)',
-                    backgroundColor: [
-                      // 'rgba(255, 99, 132, 0.6)',
-                      // 'rgba(54, 162, 235, 0.6)',
-                      'rgba(255, 206, 86, 0.6)',
-                      // 'rgba(75, 192, 192, 0.6)',
-                      // 'rgba(153, 102, 255, 0.6)',
-                      // 'rgba(255, 159, 64, 0.6)',
-                      // 'rgba(255, 99, 132, 0.6)'
-                    ],
-                    data: dataSetBarLabels,
-                    fill: false,
-                    yAxisID: 'y1',
-                  }, {
+                  datasets: [
+                  //   {
+                  //   label: 'Rate Score',
+                  //   // yAxisID: 'B',
+                  //   borderColor: 'rgba(54, 162, 235, 0.6)',
+                  //   backgroundColor: [
+                  //     // 'rgba(255, 99, 132, 0.6)',
+                  //     // 'rgba(54, 162, 235, 0.6)',
+                  //     'rgba(255, 206, 86, 0.6)',
+                  //     // 'rgba(75, 192, 192, 0.6)',
+                  //     // 'rgba(153, 102, 255, 0.6)',
+                  //     // 'rgba(255, 159, 64, 0.6)',
+                  //     // 'rgba(255, 99, 132, 0.6)'
+                  //   ],
+                  //   data: dataSetBarLabels,
+                  //   fill: false,
+                  //   yAxisID: 'y1',
+                  // }, 
+                  {
                     label: 'Times of use',
                     // yAxisID: 'A',
-                    borderColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: '#e37b4c',
                     // backgroundColor: "pink",
                     backgroundColor: [
+                      '#e37b4c'
                       // 'rgba(255, 99, 132, 0.6)',
-                      //   'rgba(54, 162, 235, 0.6)',
-                      //   'rgba(255, 206, 86, 0.6)',
-                      //   'rgba(75, 192, 192, 0.6)',
-                      'rgba(153, 102, 255, 0.6)',
-                      //   'rgba(255, 159, 64, 0.6)',
-                      //   'rgba(255, 99, 132, 0.6)'
+                        // 'rgba(54, 162, 235, 0.6)',
+                        // 'rgba(255, 206, 86, 0.6)',
+                        // 'rgba(75, 192, 192, 0.6)',
+                      // 'rgba(153, 102, 255, 0.6)',
+                        // 'rgba(255, 159, 64, 0.6)',
+                        // 'rgba(255, 99, 132, 0.6)'
                     ],
                     data: dataNumberOfUseBar,
-                    type: 'line',
                     fill: false,
                     yAxisID: 'y',
                   },]
@@ -234,18 +257,18 @@ const BmHomePage = () => {
                       y: {
                         type: 'linear',
                         display: true,
-                        position: 'right',
-                      },
-                      y1: {
-                        type: 'linear',
-                        display: true,
                         position: 'left',
-
-                        // grid line settings
-                        grid: {
-                          drawOnChartArea: false, // only want the grid lines for one axis to show up
-                        },
                       },
+                      // y1: {
+                      //   type: 'linear',
+                      //   display: true,
+                      //   position: 'left',
+
+                      //   // grid line settings
+                      //   grid: {
+                      //     drawOnChartArea: false, // only want the grid lines for one axis to show up
+                      //   },
+                      // },
                     }
                   }
                 }

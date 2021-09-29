@@ -6,13 +6,14 @@ import { Pie, defaults, Bar } from 'react-chartjs-2'
 import { Row, Col } from 'antd';
 import { loadCouponInUses, selectListCouponInUse } from "App/Stores/couponInUse.slice";
 import { useDispatch, useSelector } from "react-redux";
+import { getAllCouponInUse } from "App/Services/couponInUse.service";
 
 defaults.plugins.title.font.size = 20
 // defaults.plugins.tooltip = false
 
 const SOHomePage = () => {
   const dispatch = useDispatch();
-  const listCouponInUse = useSelector(selectListCouponInUse);
+  // const listCouponInUse = useSelector(selectListCouponInUse);
   // for pie chart
   const [labels, setLabel] = useState([]);
   const [dataSetPieLabels, setDataPieLabels] = useState([]);
@@ -24,7 +25,7 @@ const SOHomePage = () => {
   const [dataNumberOfUseBar, setNumberOfUseBarLabels] = useState([]);
   // end bar chart
 
-  console.log("alo : ", listCouponInUse);
+  // console.log("alo : ", listCouponInUse);
   // var nameArray = [];
   // var numberOfAppearanceArray = [];
   // if (listCouponInUse != null) {
@@ -36,18 +37,28 @@ const SOHomePage = () => {
   //     numberOfAppearanceArray.push(count);
   //   });
   // }
-  var key = "couponId";
-  var returnArray = [];
-  var anotherNewArray = [];
-  var nameArray = [];
-  var numberOfAppearanceArray = [];
-  var averageScoreArray = [];
-  if (listCouponInUse != null) {
-    const newArray = [...new Map(listCouponInUse.map(item =>
-      [item[key], item])).values()];
+
+  const getCouponInUse = async (storeId) => {
+    const data = await getAllCouponInUse({
+      storeId: storeId,
+    });
+    // setDataStore(data.content);
+    return data.content;
+  };
+  
+  const getReturnArray = async (listCouponInUse) => {
+    var key = "couponId";
+    var returnArray = [];
     var averageRateScore = 0;
-    newArray.forEach(element => {
-      var totalRatescore = 0;
+    var totalRatescore = 0;
+    var newArray = [];
+    console.log("================================");
+    console.log(listCouponInUse);
+    const data = [...new Map(listCouponInUse.map(item =>
+      [item[key], item])).values()];
+    console.log(data);
+    data.forEach(element => {
+      totalRatescore = 0;
       returnArray = listCouponInUse.filter((obj) => obj.couponId === element.couponId);
       var count = returnArray.length;
       returnArray.forEach(newElement => {
@@ -55,28 +66,57 @@ const SOHomePage = () => {
       });
       averageRateScore = totalRatescore /= count;
 
-      anotherNewArray.push({couponId : element.id, 
+      newArray.push({couponId : element.id, 
         numberOfAppearance : count, name : element.coupon.name, 
         avgRateScore : averageRateScore});
-      // nameArray.push(element.coupon.name);
-      // numberOfAppearanceArray.push(count);
-      // averageScoreArray.push(averageRateScore);
     });
-
-    anotherNewArray.sort((a, b) => a.avgRateScore < b.avgRateScore ? 1 : -1);
-    nameArray = anotherNewArray.map(_ => _.name);
-    numberOfAppearanceArray = anotherNewArray.map(_ => _.numberOfAppearance);
-    averageScoreArray = anotherNewArray.map(_ => _.avgRateScore);
-
+    
+    const newData = newArray.sort((a, b) => a.avgRateScore < b.avgRateScore ? 1 : -1);
+    dataLabels(newData.map(_ => _.name));
+    dataSetLabels(newData.map(_ => _.avgRateScore), newData.map(_ => _.numberOfAppearance));
   }
 
-  const dataLabels = () => {
+  // var key = "couponId";
+  // var returnArray = [];
+  // var anotherNewArray = [];
+  // var nameArray = [];
+  // var numberOfAppearanceArray = [];
+  // var averageScoreArray = [];
+  // if (listCouponInUse != null) {
+  //   const newArray = [...new Map(listCouponInUse.map(item =>
+  //     [item[key], item])).values()];
+  //   var averageRateScore = 0;
+  //   newArray.forEach(element => {
+  //     var totalRatescore = 0;
+  //     returnArray = listCouponInUse.filter((obj) => obj.couponId === element.couponId);
+  //     var count = returnArray.length;
+  //     returnArray.forEach(newElement => {
+  //       totalRatescore += newElement.rateScore;
+  //     });
+  //     averageRateScore = totalRatescore /= count;
+
+  //     anotherNewArray.push({couponId : element.id, 
+  //       numberOfAppearance : count, name : element.coupon.name, 
+  //       avgRateScore : averageRateScore});
+  //     // nameArray.push(element.coupon.name);
+  //     // numberOfAppearanceArray.push(count);
+  //     // averageScoreArray.push(averageRateScore);
+  //   });
+
+  //   // anotherNewArray.sort((a, b) => a.avgRateScore < b.avgRateScore ? 1 : -1);
+  //   // nameArray = anotherNewArray.map(_ => _.name);
+  //   // numberOfAppearanceArray = anotherNewArray.map(_ => _.numberOfAppearance);
+  //   // averageScoreArray = anotherNewArray.map(_ => _.avgRateScore);
+
+  // }
+
+  const dataLabels = (nameArray) => {
     setLabel(nameArray);
     //setLabel(['Red', 'Blue', 'Yellow', 'Green', 'Purple']);
     //setLabelBar(['Giảm 100%', 'Giảm 80%', 'Giảm 60%', 'Giảm 50%', 'Giảm 40%', 'Giảm 30%']);
     setLabelBar(nameArray);
   };
-  const dataSetLabels = () => {
+  const dataSetLabels = (averageScoreArray, numberOfAppearanceArray) => {
     setDataPieLabels(numberOfAppearanceArray);
     //setDataPieLabels([12, 19, 3, 5, 5]);
     //setDataBarLabels([4.5, 4.1, 4.8, 4.4, 4.2, 4.3]);
@@ -84,9 +124,11 @@ const SOHomePage = () => {
     setNumberOfUseBarLabels(numberOfAppearanceArray);
   };
   useEffect(() => {
-    dispatch(loadCouponInUses());
-    dataLabels();
-    dataSetLabels();
+    // dispatch(loadCouponInUses());
+    getCouponInUse(18).then((value) => getReturnArray(value));
+    // getReturnArray();
+    // dataLabels();
+    // dataSetLabels();
   }, [dispatch]);
 
   const loadChartPie = () => {
