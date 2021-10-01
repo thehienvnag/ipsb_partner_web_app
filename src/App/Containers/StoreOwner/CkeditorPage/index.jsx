@@ -23,7 +23,7 @@ const TestCkeditorPage = () => {
                     uploadUrl: 'https://example.com/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images&responseType=json',
                   },
                   //plugins: [ CKFinder],
-                  //toolbar: [ 'ckfinder', 'imageUpload', '|', 'heading', '|', 'bold', 'italic', '|', 'undo', 'redo' ]
+                  // toolbar: [ 'ckfinder', 'imageUpload', '|', 'heading', '|', 'bold', 'italic', '|', 'undo', 'redo' ]
                 }
                 }
                 data="<p>Hello from CKEditor 5!</p>"
