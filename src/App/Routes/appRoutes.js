@@ -14,6 +14,7 @@ import RoleGuard from "App/Containers/Auth/Guards/RoleGuard";
 import LoggedIn from "App/Containers/Auth/Guards/LoggedIn";
 import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
 import ManageProductPage from "App/Containers/StoreOwner/ManageProductPage";
+import TestCkeditorPage from "App/Containers/StoreOwner/CkeditorPage";
 const appRoutes = [
   {
     path: "",
@@ -68,6 +69,10 @@ const appRoutes = [
       {
         path: RouteNames.managerProducts,
         element: <RoleGuard role="Store Owner" component={<ManageProductPage />} />,
+      },
+      {
+        path: RouteNames.testCkeditor,
+        element: <RoleGuard role="Store Owner" component={<TestCkeditorPage />} />,
       },
     ],
   },

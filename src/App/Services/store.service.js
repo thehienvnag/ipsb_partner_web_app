@@ -16,6 +16,16 @@ export const getAllStore = async ({
   return axiosClient.get(stores, { params });
 };
 
+export const getStoreByBuildingId = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  isAll = true,
+  buildingId,
+}) => {
+  const params = { pageIndex, pageSize, buildingId, isAll };
+  return axiosClient.get(stores, { params });
+};
+
 /**
  * Page wrapper for new page
  * @param {object} [data] values post
