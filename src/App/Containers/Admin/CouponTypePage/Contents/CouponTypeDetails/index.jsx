@@ -28,7 +28,7 @@ const CouponTypeDetails = ({ visible, onCancel, couponTypeModel, statusBool}) =>
       const data = await postCouponType({
         ...values,
       });
-      if (data!== null) {
+      if (data !== null) {
         message.success("Create success", 3);
         form.resetFields();
       }else{
@@ -40,6 +40,8 @@ const CouponTypeDetails = ({ visible, onCancel, couponTypeModel, statusBool}) =>
   const update = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    console.log("========================================");
+    console.log(values);
     if (values.name == null || values.description == null) {
       message.error("All Fields need to Fill !!", 4);
     } else if (values.name != null && values.description != null) {
@@ -50,7 +52,6 @@ const CouponTypeDetails = ({ visible, onCancel, couponTypeModel, statusBool}) =>
       });
       if (data !== null) {
         message.success("Update success", 3);
-        form.resetFields();
       }else{
         message.error("Update failed", 4);
       }

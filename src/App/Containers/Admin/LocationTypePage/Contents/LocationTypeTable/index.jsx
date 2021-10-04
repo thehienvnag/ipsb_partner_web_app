@@ -105,6 +105,51 @@ const LocationTypeTable = ({ currentPage, handlePaging, onRowSelect }) => {
         key="description"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
       />
+      <Table.Column
+        title="Status"
+        dataIndex="status"
+        key="status"
+        render={(value) => {
+          if (!value) {
+            value =
+              Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
+          }
+          return <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>;
+        }}
+        filterDropdown={() => (
+          <div style={{ padding: 8 }}>
+            <Space>
+              <Checkbox.Group
+                style={{ width: "100%" }}
+                onChange={(e) => {
+                  const value = e;
+                  if (value && value.length) {
+                    setSearch({ status: value });
+                  } else {
+                    setSearch(null);
+                  }
+                }}
+              >
+                <Checkbox value="">All</Checkbox>
+                <Checkbox value="Active">Active</Checkbox>
+                <Checkbox value="New">New</Checkbox>
+                <Checkbox value="Inactive">Inactive</Checkbox>
+              </Checkbox.Group>
+              <Button
+                type="primary"
+                onClick={() => {
+                  handlePaging(1);
+                }}
+                icon={<SearchOutlined />}
+                size="small"
+                style={{ width: 100 }}
+              >
+                Filter
+              </Button>
+            </Space>
+          </div>
+        )}
+      />
     </Table>
   );
 };

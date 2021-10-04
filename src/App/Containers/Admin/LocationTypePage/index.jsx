@@ -13,7 +13,7 @@ const LocationTypePageV2 = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [locationTypeModel, setLocationType] = useState(null);
   const [visible, setVisible] = useState(false);
-
+  const [status, setStatus] = useState(false);
   const handlePaging = (number, search) => {
     if (search) {
       dispatch(
@@ -32,11 +32,13 @@ const LocationTypePageV2 = () => {
   const handleCreate = () => {
     setLocationType(null);
     setVisible(true);
+    setStatus(true);
   };
 
   const onRowSelect = (value) => {
     setLocationType(value);
     setVisible(true);
+    setStatus(false);
   };
   return (
     <PageWrapper>
@@ -59,6 +61,7 @@ const LocationTypePageV2 = () => {
           visible={visible}
           onCancel={() => setVisible(false)}
           locationTypeModel={locationTypeModel}
+          statusBool={status}
         />
       </PageBody>
     </PageWrapper>

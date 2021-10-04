@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Input, Form, Upload, message } from "antd";
+import { Row, Col, Input, Form, Upload, message, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DetailCard from "App/Components/DetailCard";
-import { postLocationType,putLocationType } from "App/Services/locationType.service";
+import { postLocationType, putLocationType } from "App/Services/locationType.service";
 
 const { TextArea } = Input;
-const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
+const { Option } = Select;
+const LocationTypeDetails = ({ visible, onCancel, locationTypeModel, statusBool }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const handleChange = (info) => {
@@ -27,10 +28,9 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
   const create = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values);
-    if (fileList == null) { 
+    if (fileList == null || fileList.length == 0) {
       message.error("Add image for Locationtpe", 4);
-    } else if (values.name == null  || values.description == null) {
+    } else if (values.name == null || values.description == null) {
       message.error("All Fields need to Fill !!", 4);
     } else if (values.name != null && fileList.length > 0 && values.description != null) {
       message.loading("Action in progress...", 3);
@@ -38,10 +38,10 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
         ...values,
         ...{ imageUrl: fileList[0]?.originFileObj },
       });
-      if (data?.id !== null) {
+      if (data !== null) {
         message.success("Create success", 3);
         form.resetFields();
-      }else{
+      } else {
         message.error("Create failed", 4);
       }
     }
@@ -50,8 +50,9 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
   const update = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    console.log("========================================");
     console.log(values);
-    if (fileList == null) {
+    if (fileList == null || fileList.length == 0 ) {
       message.error("Add image for Locationtpe", 4);
     } else if (values.name == null || fileList.length == 0 || values.description == null) {
       message.error("All Fields need to Fill !!", 4);
@@ -62,9 +63,10 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
         ...{ id: locationTypeModel.id },
         ...{ imageUrl: fileList[0]?.originFileObj },
       });
-      if (data?.id !== null) {
+      if (data !== null) {
         message.success("Update success", 3);
-        form.resetFields();
+      }else{
+        message.error("Update failed", 4);
       }
     }
   };
@@ -79,12 +81,12 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
   return (
     <DetailCard visible={visible} onCancel={onCancel} onSave={onSave} span={9}>
       <Form form={form} layout="vertical">
-        <Row justify="space-between" style={{ marginBottom: 10 }}>
+        <Row justify="space-between" >
           <Col span={10}>
-            <Form.Item 
-            name="imageUrl" 
-            label="Add image" 
-            required>
+            <Form.Item
+              name="imageUrl"
+              label="Add image"
+              required>
               <Upload
                 className="upload-wrapper"
                 listType="picture-card"
@@ -94,6 +96,16 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
               >
                 {!fileList.length && <UploadButton />}
               </Upload>
+            </Form.Item>
+            <Form.Item
+              name="status"
+              label="Choose status:"
+            >
+              <Select placeholder="Select status" disabled={statusBool} defaultValue="Active">
+                <Option value="New">New</Option>
+                <Option value="Active">Active</Option>
+                <Option value="Inactive">Inactive</Option>
+              </Select>
             </Form.Item>
           </Col>
 
@@ -125,7 +137,7 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel }) => {
                 },
               ]}
             >
-              <TextArea rows={3} placeholder="Input description" />
+              <TextArea rows={7} placeholder="Input description" />
             </Form.Item>
           </Col>
         </Row>
