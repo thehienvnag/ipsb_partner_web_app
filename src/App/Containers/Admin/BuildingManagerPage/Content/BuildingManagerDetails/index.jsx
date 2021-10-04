@@ -37,34 +37,47 @@ const BuildingManagerDetails = ({ visible, onCancel, buildingManager }) => {
   const create = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    if (values.imageUrl == null) {
+    if (fileList == null) {
       message.error("Add image for Building Manager", 4);
-    } else if (values !== null && values.imageUrl != null) {
+    } else if (values.name == null || values.phone == null || values.email == null ) {
+      message.error("All Fields need to Fill !!", 4);
+    } else if (fileList != null && values.name != null && values.phone != null && values.email != null ) {
       message.loading("Action in progress...", 3);
       const data = await postAccount({
         ...values,
         ...{ role: "Building Manager" },
+        ...{ imageUrl: fileList[0]?.originFileObj },
       });
       if (data === "Request failed with status code 409") {
         message.error("Email existed", 3);
-      } else if (data?.id !== null) {
+      } else if (data !== null) {
         message.success("Create success", 3);
+        form.resetFields();
+        setFileList([]);
+      } else {
+        message.error("Create failed", 4);
       }
     }
   };
   const update = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    if (values.imageUrl == null) {
+    console.log(values);
+    if (fileList == null) {
       message.error("Add image for Building Manager", 4);
-    } else if (values !== null && values.imageUrl != null) {
+    }else if (values.name == null || values.phone == null || values.email == null) {
+      message.error("All Fields need to Fill !!", 4);
+    } else if (fileList != null && values.name != null && values.phone != null && values.email != null) {
       message.loading("Action in progress...", 3);
       const data = await putAccount({
         ...values,
-        // ...{ imageUrl: file },
+        ...{ id: buildingManager.id },
         ...{ role: "Building Manager" },
       });
-      if (data?.id !== null) {
+      if (data === null) {
+        message.error("Update failed", 4);
+      } else {
+        message.success("Update success", 3);
       }
     }
   };

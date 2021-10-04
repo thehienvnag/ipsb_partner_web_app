@@ -54,6 +54,7 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
   const create = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    
     if (fileList == null) {
       message.error("Add image for Coupon", 4);
     } else if (values.code == null || fileList.length == 0 || values.amount == null || values.description == null
