@@ -15,6 +15,7 @@ import productReducer from "./product.slice";
 import couponInUseReducer from "./couponInUse.slice";
 import locationTypeV2Reducer from "./location_type_2.slice";
 import couponTypeReducer from "./couponType.slice";
+import facilityReducer from "./facility.slice";
 
 export const Store = configureStore({
   reducer: {
@@ -34,5 +35,6 @@ export const Store = configureStore({
     couponInUse:couponInUseReducer,
     locationType:locationTypeV2Reducer,
     couponType:couponTypeReducer,
+    facility:facilityReducer,
   },
 });

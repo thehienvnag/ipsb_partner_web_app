@@ -7,6 +7,7 @@ export default class RouteNames {
   static locatorTags = "/locator-tags";
   static places = "/places";
   static storeAccounts = "/store-accounts";
+  static facilities = "/facilities";
   //#endregion
   //#region Admin
   static admin = "admin";

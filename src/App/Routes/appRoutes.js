@@ -17,6 +17,7 @@ import ManageProductPage from "App/Containers/StoreOwner/ManageProductPage";
 import TestCkeditorPage from "App/Containers/StoreOwner/CkeditorPage";
 import LocationTypePageV2 from "App/Containers/Admin/LocationTypePage";
 import CouponTypePage from "App/Containers/Admin/CouponTypePage";
+import FacilityPage from "App/Containers/BuildingManager/FacilityPage";
 const appRoutes = [
   {
     path: "",
@@ -54,6 +55,12 @@ const appRoutes = [
         path: RouteNames.storeAccounts,
         element: (
           <RoleGuard role="Building Manager" component={<StoreOwnerPage />} />
+        ),
+      },
+      {
+        path: RouteNames.facilities,
+        element: (
+          <RoleGuard role="Building Manager" component={<FacilityPage />} />
         ),
       },
       {
