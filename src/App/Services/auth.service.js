@@ -3,12 +3,30 @@ import { auth } from "../Utils/Constants/endpoints";
 /**
  * Page wrapper for new page
  * @param {object} [data] parameters for post request
+ * @param {string} [data.token] access token
+ */
+export const authorizeToken = async ({ token }) => {
+  const params = { token };
+  return axiosClient.get(auth + "/authorize-token", { params });
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] parameters for post request
+ * @param {string} [data.email] email of account
+ */
+export const checkForgotPassword = async ({ email }) => {
+  return axiosClient.post(auth + "/forgot-password", { email });
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] parameters for post request
  * @param {string} [data.email] email of account
  * @param {string} [data.password] password of account
  */
 export const checkLogin = async ({ email, password }) => {
   const data = { email, password };
-  console.log(data);
   return axiosClient.post(auth + "/login", data);
 };
 

@@ -15,6 +15,8 @@ import LoggedIn from "App/Containers/Auth/Guards/LoggedIn";
 import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
 import ManageProductPage from "App/Containers/StoreOwner/ManageProductPage";
 import TestCkeditorPage from "App/Containers/StoreOwner/CkeditorPage";
+import ForgotPasswordPage from "App/Containers/Auth/ForgotPassword";
+import ForgotPasswordSuccessPage from "App/Containers/Auth/ForgotPasswordSuccess";
 const appRoutes = [
   {
     path: "",
@@ -64,15 +66,21 @@ const appRoutes = [
       },
       {
         path: RouteNames.managerCoupons,
-        element: <RoleGuard role="Store Owner" component={<ManageCouponPage />} />,
+        element: (
+          <RoleGuard role="Store Owner" component={<ManageCouponPage />} />
+        ),
       },
       {
         path: RouteNames.managerProducts,
-        element: <RoleGuard role="Store Owner" component={<ManageProductPage />} />,
+        element: (
+          <RoleGuard role="Store Owner" component={<ManageProductPage />} />
+        ),
       },
       {
         path: RouteNames.testCkeditor,
-        element: <RoleGuard role="Store Owner" component={<TestCkeditorPage />} />,
+        element: (
+          <RoleGuard role="Store Owner" component={<TestCkeditorPage />} />
+        ),
       },
     ],
   },
@@ -82,7 +90,23 @@ const appRoutes = [
   },
   {
     path: "change-password",
+    element: <LoggedIn component={<LoginPage />} />,
+  },
+  {
+    path: "forgot-password-success",
+    element: <LoggedIn component={<LoginPage />} />,
+  },
+  {
+    path: "change-password/:token",
     element: <LoggedIn component={<ChangePasswordPage />} />,
+  },
+  {
+    path: "forgot-password",
+    element: <LoggedIn component={<ForgotPasswordPage />} />,
+  },
+  {
+    path: "forgot-password-success/:token",
+    element: <LoggedIn component={<ForgotPasswordSuccessPage />} />,
   },
 ];
 

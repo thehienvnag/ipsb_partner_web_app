@@ -38,9 +38,15 @@ axiosClient.interceptors.request.use((config) => {
 
 axiosClient.interceptors.response.use(
   async (response) => {
-    return response.data;
-  },
-  async (err) => {}
+    console.log("RESPONSE INSIDE AXIOS, ", response);
+
+    if (response.data === "") {
+      return response?.status;
+    }
+
+    return response?.data;
+  }
+  //async (err) => {}
 );
 
 export const postFormData = async (endpoint, values) => {
