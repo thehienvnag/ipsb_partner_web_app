@@ -23,3 +23,13 @@ yarn-debug.log*
 yarn-error.log*
 
 package-lock.json
+
+.VSCodeCounter
+
+.VSCodeCounter/2021-10-08_14-52-43/details.md
+
+.VSCodeCounter/2021-10-08_14-52-43/results.csv
+
+.VSCodeCounter/2021-10-08_14-52-43/results.md
+
+.VSCodeCounter/2021-10-08_14-52-43/results.txt
