@@ -2,7 +2,6 @@ import BuildingPage from "App/Containers/Admin/BuildingPage";
 import FloorPlanPage from "App/Containers/BuildingManager/FloorPlanPage";
 import LocatorTagPage from "App/Containers/BuildingManager/LocatorTagPage";
 import DashboardLayout from "../Components/DashboardLayout/DashboardLayout";
-import BmHomePage from "../Containers/BuildingManager/HomePage/index";
 import StorePage from "../Containers/BuildingManager/StorePage/index";
 import LocationTypePage from "../Containers/BuildingManager/LocationTypePage/index";
 import BuildingManagerPage from "App/Containers/Admin/BuildingManagerPage";
@@ -18,6 +17,8 @@ import TestCkeditorPage from "App/Containers/StoreOwner/CkeditorPage";
 import LocationTypePageV2 from "App/Containers/Admin/LocationTypePage";
 import CouponTypePage from "App/Containers/Admin/CouponTypePage";
 import FacilityPage from "App/Containers/BuildingManager/FacilityPage";
+import ForgotPasswordPage from "App/Containers/Auth/ForgotPassword";
+import ForgotPasswordSuccessPage from "App/Containers/Auth/ForgotPasswordSuccess";
 const appRoutes = [
   {
     path: "",
@@ -81,15 +82,21 @@ const appRoutes = [
       },
       {
         path: RouteNames.managerCoupons,
-        element: <RoleGuard role="Store Owner" component={<ManageCouponPage />} />,
+        element: (
+          <RoleGuard role="Store Owner" component={<ManageCouponPage />} />
+        ),
       },
       {
         path: RouteNames.managerProducts,
-        element: <RoleGuard role="Store Owner" component={<ManageProductPage />} />,
+        element: (
+          <RoleGuard role="Store Owner" component={<ManageProductPage />} />
+        ),
       },
       {
         path: RouteNames.testCkeditor,
-        element: <RoleGuard role="Store Owner" component={<TestCkeditorPage />} />,
+        element: (
+          <RoleGuard role="Store Owner" component={<TestCkeditorPage />} />
+        ),
       },
     ],
   },
@@ -99,7 +106,23 @@ const appRoutes = [
   },
   {
     path: "change-password",
+    element: <LoggedIn component={<LoginPage />} />,
+  },
+  {
+    path: "forgot-password-success",
+    element: <LoggedIn component={<LoginPage />} />,
+  },
+  {
+    path: "change-password/:token",
     element: <LoggedIn component={<ChangePasswordPage />} />,
+  },
+  {
+    path: "forgot-password",
+    element: <LoggedIn component={<ForgotPasswordPage />} />,
+  },
+  {
+    path: "forgot-password-success/:token",
+    element: <LoggedIn component={<ForgotPasswordSuccessPage />} />,
   },
 ];
 

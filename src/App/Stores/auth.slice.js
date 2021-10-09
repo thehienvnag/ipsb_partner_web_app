@@ -4,6 +4,7 @@ import {
   checkLogin,
   refreshToken,
 } from "../Services/auth.service";
+
 //#region Async thunks check login
 const checkWebLogin = createAsyncThunk(
   "auth/checkWebLogin",
@@ -24,6 +25,9 @@ const checkChangePassword = createAsyncThunk(
   "auth/checkChangePassword",
   async (params = {}, thunkAPI) => {
     const data = await changePassword(params);
+    console.log("DATA INSIDE CHANGEPASSWORD STATUS");
+    console.log(data);
+    console.log(data.status);
     if (data !== 204) {
       return thunkAPI.rejectWithValue("Change password unsuccessfully");
     }

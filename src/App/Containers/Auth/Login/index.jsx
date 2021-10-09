@@ -23,13 +23,12 @@ const LoginPage = () => {
   const loading = useSelector(selectLoading);
 
   const onFinish = (values) => {
-    message.loading("Action in progress...", 1);
-    console.log(values);
+    message.loading("Action in progress...", 0.5);
     dispatch(checkWebLogin(values)).then((values) => {
       if (values.type !== checkWebLogin.rejected.toString()) {
         let path = "";
         if (values.payload.status === "New") {
-          path = "../change-password";
+          path = "../change-password/" + values.payload.accessToken;
         } else {
           path = "../";
         }
@@ -43,7 +42,7 @@ const LoginPage = () => {
 
   return (
     <Form
-      style={{ margin: "auto", transform: "translateY(100px)" }}
+      style={{ margin: "auto", paddingTop: 100 }}
       name="normal_login"
       className="login-form"
       initialValues={{
@@ -61,12 +60,13 @@ const LoginPage = () => {
           rules={[
             {
               required: true,
-              message: "Please input your Email!",
+              message: "Please input your email!",
             },
           ]}
         >
           <Input
-            prefix={<UserOutlined className="site-form-item-icon" />}
+            className="col-md-12 shadow-sm p-2 background-white rounded"
+            prefix={<UserOutlined className="site-form-item-icon pt-2" />}
             placeholder="Email"
           />
         </Form.Item>
@@ -75,12 +75,13 @@ const LoginPage = () => {
           rules={[
             {
               required: true,
-              message: "Please input your Password!",
+              message: "Please input your password!",
             },
           ]}
         >
           <Input.Password
-            prefix={<LockOutlined className="site-form-item-icon" />}
+            className="col-md-12 shadow-sm p-2 background-white rounded"
+            prefix={<LockOutlined className="site-form-item-icon pt-2" />}
             placeholder="Password"
             iconRender={(visible) =>
               visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
@@ -92,7 +93,7 @@ const LoginPage = () => {
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
-          <a className="login-form-forgot" href="">
+          <a className="login-form-forgot" href="../forgot-password">
             Forgot password
           </a>
         </Form.Item>
