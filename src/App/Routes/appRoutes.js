@@ -15,6 +15,9 @@ import LoggedIn from "App/Containers/Auth/Guards/LoggedIn";
 import ManageCouponPage from "App/Containers/StoreOwner/ManageCouponPage";
 import ManageProductPage from "App/Containers/StoreOwner/ManageProductPage";
 import TestCkeditorPage from "App/Containers/StoreOwner/CkeditorPage";
+import LocationTypePageV2 from "App/Containers/Admin/LocationTypePage";
+import CouponTypePage from "App/Containers/Admin/CouponTypePage";
+import FacilityPage from "App/Containers/BuildingManager/FacilityPage";
 const appRoutes = [
   {
     path: "",
@@ -55,12 +58,26 @@ const appRoutes = [
         ),
       },
       {
+        path: RouteNames.facilities,
+        element: (
+          <RoleGuard role="Building Manager" component={<FacilityPage />} />
+        ),
+      },
+      {
         path: RouteNames.buildings,
         element: <RoleGuard role="Admin" component={<BuildingPage />} />,
       },
       {
+        path: RouteNames.locationTypes,
+        element: <RoleGuard role="Admin" component={<LocationTypePageV2 />} />,
+      },
+      {
         path: RouteNames.managerAccounts,
         element: <RoleGuard role="Admin" component={<BuildingManagerPage />} />,
+      },
+      {
+        path: RouteNames.couponTypes,
+        element: <RoleGuard role="Admin" component={<CouponTypePage />} />,
       },
       {
         path: RouteNames.managerCoupons,

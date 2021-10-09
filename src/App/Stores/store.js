@@ -12,7 +12,10 @@ import authReducer from "./auth.slice";
 import uiDataReducer from "./uiData.slice";
 import couponReducer from "./coupon.slice";
 import productReducer from "./product.slice";
-import couponInUseProducer from "./couponInUse.slice";
+import couponInUseReducer from "./couponInUse.slice";
+import locationTypeV2Reducer from "./location_type_2.slice";
+import couponTypeReducer from "./couponType.slice";
+import facilityReducer from "./facility.slice";
 
 export const Store = configureStore({
   reducer: {
@@ -23,12 +26,15 @@ export const Store = configureStore({
     location: locationReducer,
     account: accountReducer,
     locatorTag: locatorTagReducer,
-    locationType: locationTypeReducer,
+    // locationType: locationTypeReducer,
     indoorMap: indoorMapReducer,
     map: mapReducer,
     uiData: uiDataReducer,
     coupon: couponReducer,
     product: productReducer,
-    couponInUse:couponInUseProducer,
+    couponInUse:couponInUseReducer,
+    locationType:locationTypeV2Reducer,
+    couponType:couponTypeReducer,
+    facility:facilityReducer,
   },
 });

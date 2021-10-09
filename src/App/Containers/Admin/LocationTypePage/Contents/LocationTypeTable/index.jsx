@@ -1,41 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Button,
-  Input,
-  Space,
   Avatar,
-  Checkbox,
   Table,
   Tag,
   Typography,
+  Input,
+  Space,
+  Button,
+  Checkbox,
 } from "antd";
-
+import { SearchOutlined } from "@ant-design/icons";
 import {
+  loadLocationTypes,
+  selectListLocationType,
   selectIsLoading,
-  selectPageSize,
   selectTotalCount,
-  loadProducts,
-  selectListProduct,
-} from "App/Stores/product.slice";
-import Moment from "moment";
-import { truncate } from "App/Utils/utils";
+  selectPageSize
+}
+  from "App/Stores/location_type_2.slice";
 
-const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
+const LocationTypeTable = ({ currentPage, handlePaging, onRowSelect }) => {
   const dispatch = useDispatch();
-  const listProduct = useSelector(selectListProduct);
+
+  const listLocationType = useSelector(selectListLocationType);
   const isLoading = useSelector(selectIsLoading);
   const pageSize = useSelector(selectPageSize);
   const totalCount = useSelector(selectTotalCount);
   const [search, setSearch] = useState(null);
+
   useEffect(() => {
-    dispatch(loadProducts());
+    dispatch(loadLocationTypes());
   }, [dispatch]);
+
   return (
     <Table
       loading={isLoading}
-      dataSource={listProduct}
+      dataSource={listLocationType}
       pagination={{
         size: "small",
         current: currentPage,
@@ -49,24 +50,26 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
     >
       <Table.Column
         title="#No"
-        key="couponIndex"
+        key="locationTypeIndex"
         render={(item, record, index) => <Tag>{index + 1}</Tag>}
       />
       <Table.Column
         title="Image"
         dataIndex="imageUrl"
         key="imageUrl"
-        render={(item) => <Avatar src={item} size={40} />}
+        // width={150}
+        render={(item) => <Avatar src={item} size={50} />}
       />
       <Table.Column
         title="Name"
         dataIndex="name"
         key="name"
+        // width={250}
         render={(item) => <Typography.Text>{item}</Typography.Text>}
         filterDropdown={({ selectedKeys }) => (
           <div style={{ padding: 8 }}>
             <Input
-              placeholder={`Search product name`}
+              placeholder={`Search LocationType name`}
               value={selectedKeys[0]}
               onChange={(e) => {
                 const value = e.target.value;
@@ -96,66 +99,12 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
         )}
         filterIcon={<SearchOutlined />}
       />
-
       <Table.Column
         title="Description"
         dataIndex="description"
         key="description"
-        render={(item) => <Typography.Text>{truncate(item,120)}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search description`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ description: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
-        )}
-        filterIcon={<SearchOutlined />}
-      />
-
-      <Table.Column
-        title="ProductCate"
-        dataIndex="productCategory"
-        key="productCategory"
-        render={(item) => <Typography.Text>{item.name}</Typography.Text>}
-      />
-      <Table.Column
-        title="Price"
-        dataIndex="price"
-        key="price"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
       />
-      {/* <Table.Column
-        title="ProductGroup"
-        dataIndex="productGroup"
-        key="productGroup"
-        render={(item) => <Typography.Text>{item.name}</Typography.Text>}
-        
-      /> */}
-
       <Table.Column
         title="Status"
         dataIndex="status"
@@ -182,11 +131,10 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
                 }}
               >
                 <Checkbox value="">All</Checkbox>
-                <Checkbox value="New">New</Checkbox>
                 <Checkbox value="Active">Active</Checkbox>
+                <Checkbox value="New">New</Checkbox>
                 <Checkbox value="Inactive">Inactive</Checkbox>
               </Checkbox.Group>
-
               <Button
                 type="primary"
                 onClick={() => {
@@ -206,4 +154,4 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
   );
 };
 
-export default ProductTable;
+export default LocationTypeTable;

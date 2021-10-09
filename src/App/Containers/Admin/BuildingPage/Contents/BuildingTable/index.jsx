@@ -34,6 +34,8 @@ const BuildingTable = ({ currentPage, handlePaging, onRowSelect }) => {
     dispatch(loadBuildings());
     dispatch(loadAccounts({ isAll: true }));
   }, [dispatch]);
+  console.log("=========================");
+  console.log(listBuilding);
   return (
     <Table
       loading={isLoading}

@@ -5,6 +5,10 @@ export function getBase64(img, callback) {
   reader.readAsDataURL(img);
 }
 
+export const truncate = (str, n) => {
+  return str?.length > n ? str.substr(0, n - 1) + "..." : str;
+};
+
 export const pipe =
   (...fns) =>
   (x) =>

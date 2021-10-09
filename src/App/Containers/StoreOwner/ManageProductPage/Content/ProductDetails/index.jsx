@@ -81,7 +81,6 @@ const ProductDetails = ({ visible, onCancel, model, visibleDate }) => {
         ...{ productGroupId: proGroupSelect },
         ...{ imageUrl: fileList[0]?.originFileObj },
       });
-      console.log("alo", data);
       if (data?.id == null) {
         message.error("Create Failed", 3);
       } else if (data?.id !== null) {

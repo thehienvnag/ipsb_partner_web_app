@@ -1,18 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { BiStoreAlt, BiMapAlt, BiMapPin, BiBuildings, BiGift } from "react-icons/bi";
-import { RiProductHuntFill, RiProductHuntLine, RiSignalTowerFill } from "react-icons/ri";
-import { AiOutlineTeam } from "react-icons/ai";
+import { RiSignalTowerFill,RiCoupon3Fill } from "react-icons/ri";
+import { AiOutlineTeam} from "react-icons/ai";
 import RouteNames from "App/Utils/Constants/routesName";
-import { FaProductHunt, FaTrash, FaYandexInternational } from "react-icons/fa";
-import { GrProductHunt } from "react-icons/gr";
+import { FaTrash, FaYandexInternational, FaCity } from "react-icons/fa";
+
 
 //#region Menu final data
 const adminItems = [
   { icon: <BiBuildings />, title: "Buildings", path: RouteNames.buildings },
   {
     icon: <AiOutlineTeam />,
-    title: "Building Managers",
+    title: "Building Managers", 
     path: RouteNames.managerAccounts,
+  },
+  {
+    icon: <BiMapPin/>,
+    title: "Location Types", 
+    path: RouteNames.locationTypes,
+  },
+  {
+    icon: <RiCoupon3Fill />,
+    title: "Coupon Types", 
+    path: RouteNames.couponTypes,
   },
 ];
 const buildingManagerItems = [
@@ -29,6 +39,7 @@ const buildingManagerItems = [
     title: "Store Owners",
     path: RouteNames.storeAccounts,
   },
+  { icon: <FaCity />, title: "Facilitys", path: RouteNames.facilities},
 ];
 const storeOwnerItems = [
   { icon: <BiGift />, 

@@ -7,11 +7,14 @@ export default class RouteNames {
   static locatorTags = "/locator-tags";
   static places = "/places";
   static storeAccounts = "/store-accounts";
+  static facilities = "/facilities";
   //#endregion
   //#region Admin
   static admin = "admin";
   static buildings = "/buildings";
   static managerAccounts = "/manage-accounts";
+  static locationTypes = "/locationTypes";
+  static couponTypes = "/couponTypes";
   //#endregion
   //#region Store Owners
   static managerCoupons = "/manage-coupons";

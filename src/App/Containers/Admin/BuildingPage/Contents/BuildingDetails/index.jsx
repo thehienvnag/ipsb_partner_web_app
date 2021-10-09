@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { Row, Col, Input, Form, Upload, Select, Modal, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { selectListAccount } from "App/Stores/account.slice";
 import { postBuilding, putBuilding } from "App/Services/building.service";
 import DetailCard from "App/Components/DetailCard";
-
 import SelectAccount from "App/Components/CustomSelect/SelectAccount";
+
 const { TextArea } = Input;
 const BuildingDetails = ({ visible, onCancel, building }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const handleChange = (info) => setFileList(info.fileList);
+
   const create = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    console.log(values);
     if (values.imageUrl == null) {
       message.error("Add image for building", 4);
     } else if (values != null && values.imageUrl != null) {
@@ -22,10 +22,14 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
       const data = await postBuilding({
         ...values,
         ...{ adminId: 2 },
-        // ...{ imageUrl: file },
+        ...{ imageUrl: fileList[0]?.originFileObj },
       });
-      if (data?.id != null) {
-        message.success("Update success", 3);
+      if (data != null) {
+        message.success("Create success", 3);
+        form.resetFields();
+        setFileList([]);
+      } else {
+        message.error("Create failed", 4);
       }
     }
   };
@@ -33,26 +37,34 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
   const update = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values);
     if (values.imageUrl == null) {
       message.error("Add image for building manager", 4);
-    } else if (values !== null && values.imageUrl != null) {
+    } else if (values.name == null || values.numberOfFloor == null
+      || values.address == null || values.imageUrl == null) {
+      message.error("All Fields need to Fill !!", 4);
+    } else if (values.name !== null && values.numberOfFloor != null
+      && values.imageUrl != null && values.address != null) {
       message.loading("Action in progress...", 3);
       const data = await putBuilding({
         ...values,
-        // ...{ imageUrl: file },
-        // ...{ id: buildingId },
+        ...{ id: building.id },
         ...{ adminId: 2 },
         ...{ status: "Active" },
       });
-      if (data?.id !== null) {
+      if (data !== null) {
         message.success("Update success", 3);
+      } else {
+        message.error("Update failed", 4);
       }
     }
   };
+
   const onSave = () => {
-    form.validateFields();
-    console.log(form.getFieldsValue());
+    if (building) {
+      update();
+    } else {
+      create();
+    }
   };
   useEffect(() => {
     if (building) {
@@ -70,7 +82,7 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
   return (
     <DetailCard visible={visible} onCancel={onCancel} onSave={onSave} span={9}>
       <Form form={form} layout="vertical">
-        <Row justify="space-between" style={{ marginBottom: 10 }}>
+        <Row justify="space-between">
           <Col span={10}>
             <Form.Item name="imageUrl" label="Add image:" required>
               <Upload
@@ -82,6 +94,18 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
               >
                 {!fileList.length && <UploadButton />}
               </Upload>
+            </Form.Item>
+            <Form.Item
+              name="managerId"
+              label="Manager:"
+              rules={[
+                {
+                  required: true,
+                  message: "Please choose manager!",
+                },
+              ]}
+            >
+              <SelectAccount role="Building Manager" />
             </Form.Item>
           </Col>
 
@@ -132,19 +156,6 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
                 type="number"
                 maxLength={3}
               />
-            </Form.Item>
-
-            <Form.Item
-              name="managerId"
-              label="Manager:"
-              rules={[
-                {
-                  required: true,
-                  message: "Please choose manager!",
-                },
-              ]}
-            >
-              <SelectAccount role="Building Manager" />
             </Form.Item>
           </Col>
         </Row>
