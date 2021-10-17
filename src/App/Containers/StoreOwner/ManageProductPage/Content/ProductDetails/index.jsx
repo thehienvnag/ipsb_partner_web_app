@@ -1,115 +1,56 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Input, Form, Upload, Select, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React, { useEffect } from "react";
+import { Row, Col, Input, Form, message } from "antd";
 import DetailCard from "App/Components/DetailCard";
-import { getAllProductCategories } from "App/Services/productCategory.service";
-import { getAllProductGroups } from "App/Services/productGroup.service";
+import RichEditor from "App/Components/RichEditor";
+import SelectCategory from "App/Components/CustomSelect/SelectCategory";
+import SelectProductGroup from "App/Components/CustomSelect/SelectProductGroup";
+import ImagePicker from "App/Components/CustomImagePicker/ImagePicker";
 import { postProduct, putProduct } from "App/Services/product.service";
-const { Option } = Select;
-const { TextArea } = Input;
+import { useSelector } from "react-redux";
+import { selectStoreId } from "App/Stores/auth.slice";
+const ProductDetails = ({ visible, onCancel, model }) => {
+  const storeId = useSelector(selectStoreId);
 
-const ProductDetails = ({ visible, onCancel, model, visibleDate }) => {
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
-  const [categories, setCategories] = useState(null);
-  const [productGroups, setProductGroups] = useState(null);
-  const [categorySelect, setCategorySelect] = useState(null);
-  const [proGroupSelect, setProGroupSelect] = useState(null);
 
   useEffect(() => {
     if (model) {
       form.setFieldsValue(model);
-      setFileList([{ thumbUrl: model.imageUrl }]);
     } else {
       form.resetFields();
-      setFileList([]);
     }
-    const loadProductCategories = async () => {
-      const productCategories = await getAllProductCategories();
-      setCategories(
-        productCategories?.content?.map(({ id, name }) => ({ id, name }))
-      );
-    };
-    loadProductCategories();
-
-    const loadProductGroups = async () => {
-      const productGroups = await getAllProductGroups();
-      setProductGroups(
-        productGroups?.content?.map(({ id, name }) => ({ id, name }))
-      );
-    };
-    loadProductGroups();
-    setCategorySelect(null);
-    setProGroupSelect(null);
   }, [model]);
 
-  const handleChangeProCate = (info) => {
-    setCategorySelect(info);
+  const onSave = async () => {
+    try {
+      const values = await form.validateFields();
+      const requestData = { ...values, storeId };
+      console.log(requestData);
+      if (model) {
+        update(requestData);
+      } else {
+        create(requestData);
+      }
+    } catch (error) {}
   };
-
-  const handleChangeProGroup = (info) => {
-    setProGroupSelect(info);
-  };
-
-  const handleChange = (info) => {
-    setFileList(info.fileList);
-  };
-
-  const onSave = () => {
-    if (model) {
-      update();
-    } else {
-      create();
-    }
-  };
-  const create = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-
-    if (fileList == null) {
-      message.error("Add image for Product", 4);
-    } else if (values.name == null || fileList.length == 0 || proGroupSelect == null || categorySelect == null
-      || values.price == null || values.description == null) {
-      message.error("All Fields need to Fill !!", 4);
-    } else if (values.name != null && fileList.length > 0 && proGroupSelect != null && categorySelect != null
-      && values.price != null && values.description != null) {
+  const create = async (values) => {
+    if (values) {
       message.loading("Action in progress...", 3);
-      const data = await postProduct({
-        ...values,
-        ...{ storeId: 15 },
-        ...{ productCategoryId: categorySelect },
-        ...{ productGroupId: proGroupSelect },
-        ...{ imageUrl: fileList[0]?.originFileObj },
-      });
-      if (data?.id == null) {
-        message.error("Create Failed", 3);
-      } else if (data?.id !== null) {
+      const data = await postProduct(values);
+      if (data?.id) {
         message.success("Create success", 3);
-        form.resetFields();
-        setFileList([]);
+      } else {
+        message.error("Create Failed", 3);
       }
     }
   };
-  const update = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    if (fileList == null) {
-      message.error("Add image for Product", 4);
-    } else if (values.name == null || fileList.length == 0 || values.price == null || values.description == null) {
-      message.error("All Fields need to Fill !!", 4);
-    } else if (values.name != null && fileList.length > 0 && values.price != null && values.description != null) {
+  const update = async (values) => {
+    if (values) {
       message.loading("Action in progress...", 3);
-      const data = await putProduct({
-        ...values,
-        ...{ storeId: 15 },
-        ...{ id: model.id },
-        ...{ imageUrl: fileList[0]?.originFileObj },
-        ...{ productCategoryId: categorySelect == null ? model.productCategoryId : categorySelect },
-        ...{ productGroupId: proGroupSelect == null ? model.productGroupId : proGroupSelect },
-      });
+      const data = await putProduct(model.id, values);
       if (data?.id !== null) {
         message.success("Update success", 3);
-      }else{
+      } else {
         message.error("Update Failed", 3);
       }
     }
@@ -136,66 +77,19 @@ const ProductDetails = ({ visible, onCancel, model, visibleDate }) => {
       <Form form={form} name="register" layout="vertical" scrollToFirstError>
         <Row justify="space-between">
           <Col span={11}>
-            <Upload
-              className="upload-wrapper"
-              listType="picture-card"
-              fileList={fileList}
-              onChange={handleChange}
-              beforeUpload={() => false}
-            >
-              {!fileList.length && <UploadButton />}
-            </Upload>
-
+            <Form.Item name="productGroupId" label="Group: ">
+              <SelectProductGroup initialValue={model?.productGroup} />
+            </Form.Item>
             <Form.Item
-              name="price"
-              label="Price:"
-              style={{ marginTop: "8px" }}
+              name="imageUrl"
               rules={[
                 {
                   required: true,
-                  message: "Input product price",
+                  message: "Pick image of product",
                 },
               ]}
             >
-              <Input placeholder="Input product price" type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Product Cate: "
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Select category",
-                },
-              ]}
-            >
-              <Select
-                //name="productCategoryId"
-                value={categorySelect == null ? model?.productCategory.name : categorySelect}
-
-                mode="single"
-                style={{ width: "100%" }}
-                placeholder="Select product category"
-                onChange={handleChangeProCate}
-                optionLabelProp="label"
-              >
-                {categories &&
-                  categories.map(({ id, name }) => (
-                    <Option value={"" + id} label={name}>
-                      {name}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="status"
-              label="Choose status:"
-            >
-              <Select placeholder="Select status" disabled={!visibleDate} defaultValue="Active">
-                <Option value="New">New</Option>
-                <Option value="Active">Active</Option>
-                <Option value="Inactive">Inactive</Option>
-              </Select>
+              <ImagePicker />
             </Form.Item>
           </Col>
 
@@ -213,6 +107,35 @@ const ProductDetails = ({ visible, onCancel, model, visibleDate }) => {
             >
               <Input placeholder="Name of product" />
             </Form.Item>
+
+            <Form.Item
+              name="price"
+              label="Price:"
+              style={{ marginTop: "8px" }}
+              rules={[
+                {
+                  required: true,
+                  message: "Input product price",
+                },
+              ]}
+            >
+              <Input placeholder="Input product price" type="number" />
+            </Form.Item>
+            <Form.Item
+              name="productCategoryId"
+              label="Category: "
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "Select category",
+                },
+              ]}
+            >
+              <SelectCategory initialValue={model?.productCategory} />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
             <Form.Item
               name="description"
               label="Description:"
@@ -224,49 +147,13 @@ const ProductDetails = ({ visible, onCancel, model, visibleDate }) => {
                 },
               ]}
             >
-              <TextArea rows={13} placeholder="Description..." />
+              <RichEditor />
             </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item
-              label="Product Group: "
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Select productGroup",
-                },
-              ]}
-            >
-              <Select
-                //name="productGroupId"
-                value={proGroupSelect == null ? model?.productGroup.name : proGroupSelect}
-                mode="single"
-                style={{ width: "100%" }}
-                placeholder="Select productGroup"
-                onChange={handleChangeProGroup}
-                optionLabelProp="label"
-              >
-                {productGroups &&
-                  productGroups.map(({ id, name }) => (
-                    <Option value={"" + id} label={name}>
-                      {name}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-
           </Col>
         </Row>
       </Form>
     </DetailCard>
   );
 };
-const UploadButton = () => (
-  <div>
-    <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
-);
 
 export default ProductDetails;

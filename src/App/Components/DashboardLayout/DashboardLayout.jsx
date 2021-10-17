@@ -25,14 +25,16 @@ const DashboardLayout = () => {
         <DashboardSidebar isCollapsed={isCollapsed} />
         <Layout>
           <DashboardHeader handleCollapsed={handleCollapsed} />
-          <Content>
+          <Content style={{ paddingBottom: 50 }}>
             <Outlet />
             <Footer
               style={{
-                height: 50,
+                height: 30,
                 width: "89vw",
                 position: "fixed",
-                bottom: 10,
+                bottom: 0,
+                padding: "4px 10px 0 10px",
+                zIndex: 3,
               }}
             >
               <p

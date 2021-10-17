@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Select } from "antd";
+import "./SelectWrapper.scss";
 const SelectWrapper = ({
-  value,
+  mode = "single",
+  initialValue,
   onChange,
   placeholder,
   loadData,
@@ -11,8 +13,10 @@ const SelectWrapper = ({
 }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [innerValue, setInnerValue] = useState(null);
+  const [firstInitial, setFirstInitial] = useState(true);
+  const [innerValue, setInnerValue] = useState([]);
   useEffect(() => {
+    console.log("render");
     const fetchApi = async (searchObject) => {
       setLoading(true);
       setData(await loadData(searchObject));
@@ -22,23 +26,49 @@ const SelectWrapper = ({
       loadData && fetchApi();
       inputData && setData(inputData);
     }
-    if (value) {
-      const values = value.split(",");
-      if (values?.length === 2) {
-        setInnerValue({ key: values[0], label: values[1] });
-        onChange(values[0]);
-      }
-    }
-  }, [data, loadData, inputData, value, onChange]);
 
-  const handleChange = (value) => {
-    onChange(value.key);
-    setInnerValue(value);
+    if (initialValue) {
+      setInnerValue([
+        {
+          key: initialValue[keyIndex],
+          label: initialValue[labelIndex],
+        },
+      ]);
+      // setFirstInitial(false);
+    } else {
+      setInnerValue([]);
+    }
+  }, [data, loadData, inputData, onChange]);
+
+  const handleChange = (values) => {
+    if (mode === "single") {
+      handleSingle(values);
+    } else if (mode === "multiple") {
+      handleMultiple(values);
+    }
   };
+  const handleMultiple = (values) => {
+    if (values) {
+      setInnerValue(values);
+      onChange(values.map(({ key }) => key).join(","));
+    }
+  };
+  const handleSingle = (values) => {
+    const value = values[values.length - 1];
+    if (value) {
+      setInnerValue([value]);
+      onChange(value.key);
+    } else {
+      setInnerValue([]);
+      onChange(null);
+    }
+  };
+
   return (
     <Select
-      style={{ minWidth: 150 }}
+      className={mode === "single" ? "single" : "multiple"}
       labelInValue
+      mode="multiple"
       onChange={handleChange}
       value={innerValue}
       placeholder={placeholder}

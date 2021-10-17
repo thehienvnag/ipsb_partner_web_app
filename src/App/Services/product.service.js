@@ -40,6 +40,6 @@ export const postProduct = async (data) => {
  * Page wrapper for new page
  * @param {object} [data] values post
  */
-export const putProduct = async (data) => {
-  return putFormData(products + "/" + data.id, data);
+export const putProduct = async (id, data) => {
+  return putFormData(products + "/" + id, data);
 };

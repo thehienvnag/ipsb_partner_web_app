@@ -5,7 +5,6 @@ import buildingReducer from "./building.slice";
 import edgeReducer from "./edge.slice";
 import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
-import locationTypeReducer from "./locationType.slice";
 import mapReducer from "./map.slice";
 import indoorMapReducer from "./indoorMap.slice";
 import authReducer from "./auth.slice";
@@ -32,9 +31,9 @@ export const Store = configureStore({
     uiData: uiDataReducer,
     coupon: couponReducer,
     product: productReducer,
-    couponInUse:couponInUseReducer,
-    locationType:locationTypeV2Reducer,
-    couponType:couponTypeReducer,
-    facility:facilityReducer,
+    couponInUse: couponInUseReducer,
+    locationType: locationTypeV2Reducer,
+    couponType: couponTypeReducer,
+    facility: facilityReducer,
   },
 });

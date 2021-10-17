@@ -39,11 +39,19 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
     const values = form.getFieldsValue();
     if (values.imageUrl == null) {
       message.error("Add image for building manager", 4);
-    } else if (values.name == null || values.numberOfFloor == null
-      || values.address == null || values.imageUrl == null) {
+    } else if (
+      values.name == null ||
+      values.numberOfFloor == null ||
+      values.address == null ||
+      values.imageUrl == null
+    ) {
       message.error("All Fields need to Fill !!", 4);
-    } else if (values.name !== null && values.numberOfFloor != null
-      && values.imageUrl != null && values.address != null) {
+    } else if (
+      values.name !== null &&
+      values.numberOfFloor != null &&
+      values.imageUrl != null &&
+      values.address != null
+    ) {
       message.loading("Action in progress...", 3);
       const data = await putBuilding({
         ...values,
@@ -68,11 +76,7 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
   };
   useEffect(() => {
     if (building) {
-      const managerId = `${building.managerId},${building.manager.name}`;
-      form.setFieldsValue({
-        ...building,
-        managerId,
-      });
+      form.setFieldsValue(building);
       setFileList([{ thumbUrl: building.imageUrl }]);
     } else {
       form.resetFields();
@@ -105,7 +109,10 @@ const BuildingDetails = ({ visible, onCancel, building }) => {
                 },
               ]}
             >
-              <SelectAccount role="Building Manager" />
+              <SelectAccount
+                role="Building Manager"
+                initialValue={building?.manager}
+              />
             </Form.Item>
           </Col>
 

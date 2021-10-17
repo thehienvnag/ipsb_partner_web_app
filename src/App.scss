@@ -55,7 +55,7 @@ html {
       height: 52px;
       width: 100%;
       background-color: #f8f8f8;
-      border-bottom: 0.1px solid rgb(228, 228, 228) ;
+      border-bottom: 0.1px solid rgb(228, 228, 228);
     }
     &::after {
       content: "";
@@ -63,8 +63,8 @@ html {
       width: 100%;
       position: absolute;
       bottom: 0;
-      background-color: #F8F8F8;
-      border-top: 0.1px solid rgb(228, 228, 228) ;
+      background-color: #f8f8f8;
+      border-top: 0.1px solid rgb(228, 228, 228);
       border-bottom-left-radius: 8px;
       border-bottom-right-radius: 8px;
     }
@@ -98,7 +98,7 @@ html {
     }
   }
   .detail-card-body {
-    padding: 10px 12px 0 12px;
+    padding: 10px 12px 20px 12px;
   }
   .detail-card-footer {
     padding-bottom: 10px;

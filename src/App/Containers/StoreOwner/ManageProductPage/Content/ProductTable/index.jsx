@@ -19,8 +19,7 @@ import {
   loadProducts,
   selectListProduct,
 } from "App/Stores/product.slice";
-import Moment from "moment";
-import { truncate } from "App/Utils/utils";
+import { inVnd, truncate } from "App/Utils/utils";
 
 const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
   const dispatch = useDispatch();
@@ -96,77 +95,38 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
         )}
         filterIcon={<SearchOutlined />}
       />
-
       <Table.Column
-        title="Description"
-        dataIndex="description"
-        key="description"
-        render={(item) => <Typography.Text>{truncate(item,120)}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search description`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ description: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
-        )}
-        filterIcon={<SearchOutlined />}
+        title="Group"
+        dataIndex="productGroup"
+        key="productGroup"
+        render={(item) =>
+          item?.name && (
+            <Tag color="blue">
+              {truncate(item?.name, 20)}
+            </Tag>
+          )
+        }
       />
-
       <Table.Column
-        title="ProductCate"
+        title="Category"
         dataIndex="productCategory"
         key="productCategory"
-        render={(item) => <Typography.Text>{item.name}</Typography.Text>}
+        render={(item) => <Typography.Text>{item?.name}</Typography.Text>}
       />
       <Table.Column
         title="Price"
         dataIndex="price"
         key="price"
-        render={(item) => <Typography.Text>{item}</Typography.Text>}
+        render={(item) => <Typography.Text>{inVnd(item)}</Typography.Text>}
       />
-      {/* <Table.Column
-        title="ProductGroup"
-        dataIndex="productGroup"
-        key="productGroup"
-        render={(item) => <Typography.Text>{item.name}</Typography.Text>}
-        
-      /> */}
 
       <Table.Column
         title="Status"
         dataIndex="status"
         key="status"
-        render={(value) => {
-          if (!value) {
-            value =
-              Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
-          }
-          return <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>;
-        }}
+        render={(value) => (
+          <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
+        )}
         filterDropdown={() => (
           <div style={{ padding: 8 }}>
             <Space>
@@ -182,7 +142,6 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
                 }}
               >
                 <Checkbox value="">All</Checkbox>
-                <Checkbox value="New">New</Checkbox>
                 <Checkbox value="Active">Active</Checkbox>
                 <Checkbox value="Inactive">Inactive</Checkbox>
               </Checkbox.Group>

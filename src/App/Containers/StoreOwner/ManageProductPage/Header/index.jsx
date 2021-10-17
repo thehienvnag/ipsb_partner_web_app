@@ -16,7 +16,7 @@ import "./index.scss";
  */
 const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
   <PageHeader
-    title="Coupons"
+    title="Products"
     className="site-page-header"
     // subTitle="Manages building managers inside your application"
     // tags={<Tag color="blue">Running</Tag>}
