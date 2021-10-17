@@ -2,13 +2,13 @@ import { refreshToken } from "App/Services/auth.service";
 import axios from "axios";
 import queryString from "query-string";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
-import { logout, setAuthInfo } from "App/Stores/auth.slice";
+import { logout } from "App/Stores/auth.slice";
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "https://localhost:44367",
+    // "Access-Control-Allow-Origin": "https://localhost:44367",
   },
   paramsSerializer: (params) => queryString.stringify(params),
 });
@@ -38,12 +38,9 @@ axiosClient.interceptors.request.use((config) => {
 
 axiosClient.interceptors.response.use(
   async (response) => {
-    console.log("RESPONSE INSIDE AXIOS, ", response);
-
     if (response.data === "") {
       return response?.status;
     }
-
     return response?.data;
   }
   //async (err) => {}

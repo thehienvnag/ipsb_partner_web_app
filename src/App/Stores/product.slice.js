@@ -1,11 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllProduct, postProduct, putProduct} from "../Services/product.service";
+import {
+  getAllProduct,
+  postProduct,
+  putProduct,
+} from "../Services/product.service";
 
 //#region Async thunks coupon
 const loadProducts = createAsyncThunk(
   "product/loadProducts",
   async (params = {}, thunkAPI) => {
-    const { store } = thunkAPI.getState();
+    // const { store } = thunkAPI.getState();
     Object.assign(params, { storeId: 15 });
     // if (store.inchareStore) {
     //   //Object.assign(params, { storeId: store.inChargeStore.id });
@@ -74,7 +78,6 @@ const Slice = createSlice({
       state.isLoading = false;
     },
     //#endregion
-
   },
 });
 
@@ -91,5 +94,5 @@ export const selectIsLoading = (state) => state.product.isLoading;
 //#endregion
 
 /// Export reducer
-export { loadProducts, postProductForm, putProductForm};
+export { loadProducts, postProductForm, putProductForm };
 export default Slice.reducer;

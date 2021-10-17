@@ -1,19 +1,12 @@
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link as RouterLink } from "react-router-dom";
 import { Dropdown, Menu, Button, Tooltip } from "antd";
 import Link from "antd/lib/typography/Link";
 import { logout, selectAccount } from "App/Stores/auth.slice";
-import {
-  // addMenuItems,
-  // selectStarredMenuItems,
-  selectMenuItems,
-} from "App/Stores/uiData.slice";
-import React from "react";
-import {
-  useSelector,
-  // useDispatch
-} from "react-redux";
+import { selectMenuItems } from "App/Stores/uiData.slice";
 import "./DashboardHeader.scss";
-import { Link as RouterLink, useNavigate, useMatch } from "react-router-dom";
-import { useDispatch } from "react-redux";
+
 // import { BiStar } from "react-icons/bi";
 const notifications = (
   <Menu>
@@ -23,7 +16,6 @@ const notifications = (
 );
 
 const Profile = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const logOutFunc = () => {
     dispatch(logout());

@@ -1,9 +1,14 @@
 import pointInPolygon from "point-in-polygon";
-export function getBase64(img, callback) {
+export function getBase64(file, callback) {
   const reader = new FileReader();
   reader.addEventListener("load", () => callback(reader.result));
-  reader.readAsDataURL(img);
+  reader.readAsDataURL(file);
 }
+
+export const inVnd = (num, n, x) => {
+  const re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
+  return num.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
+};
 
 export const truncate = (str, n) => {
   return str?.length > n ? str.substr(0, n - 1) + "..." : str;

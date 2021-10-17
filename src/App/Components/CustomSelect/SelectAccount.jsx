@@ -8,7 +8,7 @@ import SelectWrapper from "./SelectWrapper";
  */
 const SelectAccount = ({
   role = "Building Manager" || "Store Owner",
-  value,
+  initialValue,
   onChange,
 }) => {
   const fetchAccounts = (searchObject) =>
@@ -18,8 +18,8 @@ const SelectAccount = ({
   return (
     <SelectWrapper
       placeholder={`Select ${role}`}
-      value={value}
       onChange={onChange}
+      initialValue={initialValue}
       loadData={fetchAccounts}
       keyIndex="id"
       labelIndex="name"
