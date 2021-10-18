@@ -33,6 +33,7 @@ const Profile = () => {
 };
 const DashboardHeader = ({ handleCollapsed }) => {
   const account = useSelector(selectAccount);
+
   return (
     <header className="navbar navbar-expand-md navbar-light d-print-none header header-dark">
       <div

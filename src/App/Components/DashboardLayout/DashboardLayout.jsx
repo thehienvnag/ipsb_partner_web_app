@@ -1,62 +1,69 @@
-import { Layout } from "antd";
-
 import React, { useState, useEffect } from "react";
+import { Layout } from "antd";
 import { BiHeart } from "react-icons/bi";
 import { Outlet } from "react-router-dom";
 import "./DashboardLayout.scss";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
+import { useSelector } from "react-redux";
+import { retrieveAuthInfo, selectLoading } from "App/Stores/auth.slice";
 import { useDispatch } from "react-redux";
-import { refreshUserInfo } from "App/Stores/auth.slice";
 const { Footer, Content } = Layout;
 
 const DashboardLayout = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const dispatch = useDispatch();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isAuthLoading = useSelector(selectLoading);
+  
+  useEffect(() => {
+    console.log('init auth');
+    dispatch(retrieveAuthInfo(sessionStorage.getItem("accountId")));
+  }, []);
+  
   const handleCollapsed = () => {
     setIsCollapsed(!isCollapsed);
   };
-  useEffect(() => {
-    dispatch(refreshUserInfo());
-  }, [dispatch]);
+
   return (
-    <>
-      <Layout>
-        <DashboardSidebar isCollapsed={isCollapsed} />
+    !isAuthLoading && (
+      <>
         <Layout>
-          <DashboardHeader handleCollapsed={handleCollapsed} />
-          <Content style={{ paddingBottom: 50 }}>
-            <Outlet />
-            <Footer
-              style={{
-                height: 30,
-                width: "89vw",
-                position: "fixed",
-                bottom: 0,
-                padding: "4px 10px 0 10px",
-                zIndex: 3,
-              }}
-            >
-              <p
+          <DashboardSidebar isCollapsed={isCollapsed} />
+          <Layout>
+            <DashboardHeader handleCollapsed={handleCollapsed} />
+            <Content style={{ paddingBottom: 50 }}>
+              <Outlet />
+              <Footer
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginRight: 100,
+                  height: 30,
+                  width: "89vw",
+                  position: "fixed",
+                  bottom: 0,
+                  padding: "4px 10px 0 10px",
+                  zIndex: 3,
                 }}
               >
-                <p>
-                  COPYRIGHT © 2021
-                  <a> IPSB - Indoor Position System applying iBeacon</a>
+                <p
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginRight: 100,
+                  }}
+                >
+                  <p>
+                    COPYRIGHT © 2021
+                    <a> IPSB - Indoor Position System applying iBeacon</a>
+                  </p>
+                  <p>
+                    Made with <BiHeart color="red" size={20} />
+                  </p>
                 </p>
-                <p>
-                  Made with <BiHeart color="red" size={20} />
-                </p>
-              </p>
-            </Footer>
-          </Content>
+              </Footer>
+            </Content>
+          </Layout>
         </Layout>
-      </Layout>
-    </>
+      </>
+    )
   );
 };
 

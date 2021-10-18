@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { getAccountById } from "App/Services/account.service";
 import {
   changePassword,
   checkLogin,
@@ -57,22 +58,60 @@ export const refreshUserInfo = createAsyncThunk(
 );
 //#endregion
 
+//#region Retrive user auth info
+export const retrieveAuthInfo = createAsyncThunk(
+  "auth/retrieveAuthInfo",
+  async (id, thunkAPI) => {
+    if (!id) return thunkAPI.rejectWithValue();
+    const {
+      auth: { data },
+    } = thunkAPI.getState();
+    if (data) {
+      return;
+    }
+    const authInfo = await getAccountById(id);
+
+    if (authInfo) {
+      return authInfo;
+    }
+    return thunkAPI.rejectWithValue();
+  }
+);
+//#endregion
+
 const Slice = createSlice({
   name: "auth",
   initialState: {
     data: null,
     isLoading: false,
-    isLogginOut: true,
+    isLogginOut: false,
   },
   reducers: {
     setAuthInfo: (state, { payload }) => {
       const { refreshToken, accessToken, ...authInfo } = payload;
       state.data = authInfo;
       sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("accountId", authInfo.id);
     },
   },
   extraReducers: {
-    //#region Load floor plan state
+    //#region
+    [retrieveAuthInfo.pending]: (state, action) => {
+      state.isLogginOut = false;
+      state.isLoading = true;
+    },
+    [retrieveAuthInfo.rejected]: (state, action) => {
+      state.isLogginOut = true;
+      state.isLoading = false;
+    },
+    [retrieveAuthInfo.fulfilled]: (state, { payload }) => {
+   
+      if(payload){
+        const { refreshToken, accessToken, ...authInfo } = payload;
+        state.data = authInfo;
+      }
+      state.isLoading = false;
+    },
     [logout.fulfilled]: (state, action) => {
       state.data = null;
       state.isLogginOut = true;
@@ -85,16 +124,19 @@ const Slice = createSlice({
       const { refreshToken, accessToken, ...authInfo } = payload;
       state.data = authInfo;
       sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("accountId", authInfo.id);
       state.isLoading = false;
       state.isLogginOut = false;
     },
     [checkWebLogin.rejected]: (state, action) => {
       state.isLoading = false;
+      console.log("reject");
     },
     [refreshUserInfo.fulfilled]: (state, { payload }) => {
       const { refreshToken, accessToken, ...authInfo } = payload;
       state.data = authInfo;
       sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("accountId", authInfo.id);
     },
     //#endregion
   },
