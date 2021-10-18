@@ -1,6 +1,16 @@
 import { accounts } from "../Utils/Constants/endpoints";
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 
+
+/**
+ * Get account by id
+ * @param {number} [id] parameters for get request
+ */
+ export const getAccountById = async (id) => {
+  return axiosClient.get(`${accounts}/${id}`);
+};
+
+
 /**
  * Get accounts functions
  * @param {object} [params] parameters for get request
