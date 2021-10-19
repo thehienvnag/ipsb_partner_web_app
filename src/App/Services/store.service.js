@@ -13,7 +13,7 @@ export const getAllStore = async ({
   buildingId,
 }) => {
   const params = { pageIndex, pageSize, buildingId };
-  return axiosClient.get(stores, { params });
+  return (await axiosClient.get(stores, { params })).data;
 };
 
 export const getStoreByBuildingId = async ({
@@ -23,7 +23,7 @@ export const getStoreByBuildingId = async ({
   buildingId,
 }) => {
   const params = { pageIndex, pageSize, buildingId, isAll };
-  return axiosClient.get(stores, { params });
+  return (await axiosClient.get(stores, { params })).data;
 };
 
 /**
@@ -31,5 +31,5 @@ export const getStoreByBuildingId = async ({
  * @param {object} [data] values post
  */
 export const postStore = async (data) => {
-  return postFormData(stores, data);
+  return (await postFormData(stores, data)).data;
 };

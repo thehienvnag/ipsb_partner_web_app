@@ -13,8 +13,8 @@ export default class RouteNames {
   static admin = "admin";
   static buildings = "/buildings";
   static managerAccounts = "/manage-accounts";
-  static locationTypes = "/locationTypes";
-  static couponTypes = "/couponTypes";
+  static locationTypes = "/location-types";
+  static couponTypes = "/coupon-types";
   //#endregion
   //#region Store Owners
   static managerCoupons = "/manage-coupons";

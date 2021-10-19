@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Upload } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-const ImagePicker = ({ value, onChange }) => {
+import "./ImagePicker.scss";
+const ImagePicker = ({ disabled, value, onChange }) => {
   const [fileList, setFileList] = useState([]);
   useEffect(() => {
     if (value && typeof value === "string") {
@@ -15,7 +16,8 @@ const ImagePicker = ({ value, onChange }) => {
   };
   return (
     <Upload
-      className="upload-wrapper"
+      disabled={disabled}
+      // className={fileList.length === 0 && "margin-bt-34"}
       listType="picture-card"
       fileList={fileList}
       onChange={handleChange}

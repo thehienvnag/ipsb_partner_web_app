@@ -11,10 +11,9 @@ import "./index.scss";
  * Page wrapper for new page
  * @param {object} [params] parameters for get request
  * @param {PropTypes.func} [params.handleCreate] current page of get request
- * @param {PropTypes.func} [params.handleDelete] current page size of get request
  * @param {PropTypes.func} [params.handleRefresh] building id which contains floor plans
  */
-const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
+const Header = ({ handleCreate, handleRefresh }) => (
   <PageHeader
     title="Coupons"
     className="site-page-header"
@@ -39,7 +38,7 @@ const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
 
 Header.propTypes = {
   handleCreate: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  
   handleRefresh: PropTypes.func.isRequired,
 };
 

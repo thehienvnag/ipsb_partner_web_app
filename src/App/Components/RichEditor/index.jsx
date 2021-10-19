@@ -3,7 +3,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { uploadFile } from "App/Services/uploadFile.service";
 
-const RichEditor = ({ value, onChange }) => {
+const RichEditor = ({ disabled, value, onChange }) => {
   function uploadPlugin(editor) {
     editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
       return uploadAdapter(loader);
@@ -22,11 +22,11 @@ const RichEditor = ({ value, onChange }) => {
   };
   return (
     <CKEditor
+      disabled={disabled}
       editor={ClassicEditor}
       config={{
         toolbar: [
           "imageUpload",
-         
           "heading",
           "|",
           "bold",

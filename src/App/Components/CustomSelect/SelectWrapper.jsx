@@ -3,6 +3,7 @@ import { Select } from "antd";
 import "./SelectWrapper.scss";
 const SelectWrapper = ({
   mode = "single",
+  disabled,
   initialValue,
   onChange,
   placeholder,
@@ -13,10 +14,8 @@ const SelectWrapper = ({
 }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [firstInitial, setFirstInitial] = useState(true);
   const [innerValue, setInnerValue] = useState([]);
   useEffect(() => {
-    console.log("render");
     const fetchApi = async (searchObject) => {
       setLoading(true);
       setData(await loadData(searchObject));
@@ -28,13 +27,21 @@ const SelectWrapper = ({
     }
 
     if (initialValue) {
-      setInnerValue([
-        {
-          key: initialValue[keyIndex],
-          label: initialValue[labelIndex],
-        },
-      ]);
-      // setFirstInitial(false);
+      if (mode === "single") {
+        setInnerValue([
+          {
+            key: initialValue[keyIndex],
+            label: initialValue[labelIndex],
+          },
+        ]);
+      } else if (mode === "multiple") {
+        const innerData = initialValue
+          .split(",")
+          .map((id) => data?.find((item) => id == item[keyIndex]))
+          .filter((e) => e)
+          .map((item) => ({ key: item[keyIndex], label: item[labelIndex] }));
+        setInnerValue(innerData);
+      }
     } else {
       setInnerValue([]);
     }
@@ -48,10 +55,13 @@ const SelectWrapper = ({
     }
   };
   const handleMultiple = (values) => {
-    if (values) {
-      setInnerValue(values);
-      onChange(values.map(({ key }) => key).join(","));
-    }
+    setInnerValue(values);
+    onChange(
+      values
+        .map(({ key }) => key)
+        .join(",")
+        .trim()
+    );
   };
   const handleSingle = (values) => {
     const value = values[values.length - 1];
@@ -68,6 +78,7 @@ const SelectWrapper = ({
     <Select
       className={mode === "single" ? "single" : "multiple"}
       labelInValue
+      disabled={disabled}
       mode="multiple"
       onChange={handleChange}
       value={innerValue}

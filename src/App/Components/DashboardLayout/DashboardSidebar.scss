@@ -33,11 +33,10 @@
 @mixin is-not-collapsed($fixed) {
   min-width: 255px !important;
   max-width: 255px !important;
-  @if $fixed == true {
-    position: fixed !important;
-    z-index: 10;
-    height: 100vh;
-  }
+  position: fixed !important;
+  z-index: 10;
+  height: 100vh;
+
   .side-bar-dark-menu {
     width: 100.4%;
   }
@@ -88,7 +87,7 @@
       }
     }
     .ant-menu-item-icon {
-      transform: scale(1.4) translate(2px,-1px);
+      transform: scale(1.4) translate(2px, -1px);
       margin-right: 10px;
       color: #c2c6dc !important;
     }
@@ -108,7 +107,7 @@
       .ant-menu-item-icon {
         color: white !important;
       }
-      &:hover{
+      &:hover {
         color: white !important;
       }
       font-weight: 400;

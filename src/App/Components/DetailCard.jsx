@@ -1,15 +1,21 @@
-import React from "react";
-import { Button, Card, Col, Row } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Card, Col, Row, Popconfirm } from "antd";
 import { SaveOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useBtnLoading } from "App/Utils/hooks/useBtnLoading";
+
 const DetailCard = ({
   children,
   visible,
+  btnState,
   onCancel,
   onSave,
   onRemove,
   span,
   hasFooter = true,
 }) => {
+  const { removeLoading, saveLoading } = useBtnLoading(
+    btnState,
+  );
   return (
     <>
       {visible && (
@@ -30,18 +36,26 @@ const DetailCard = ({
                   </Button>
                 )}
                 {onRemove && (
-                  <Button
-                    key="3"
-                    danger
-                    style={{ marginRight: 10 }}
-                    icon={<DeleteOutlined />}
-                    onClick={() => {}}
+                  <Popconfirm
+                    title="Are you sure to remove?"
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={onRemove}
                   >
-                    Remove
-                  </Button>
+                    <Button
+                      loading={removeLoading}
+                      key="3"
+                      danger
+                      style={{ marginRight: 10 }}
+                      icon={<DeleteOutlined />}
+                    >
+                      Remove
+                    </Button>
+                  </Popconfirm>
                 )}
                 {onSave && (
                   <Button
+                    loading={saveLoading}
                     type="primary"
                     style={{ marginRight: 10 }}
                     icon={<SaveOutlined />}

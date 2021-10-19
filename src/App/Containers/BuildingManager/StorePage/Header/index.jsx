@@ -46,7 +46,7 @@ const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
 
 Header.propTypes = {
   handleCreate: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  
   handleRefresh: PropTypes.func.isRequired,
 };
 

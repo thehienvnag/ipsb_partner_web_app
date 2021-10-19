@@ -1,24 +1,21 @@
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 import { buildings } from "../Utils/Constants/endpoints";
 /**
- * Page wrapper for new page
+ * Get buildings
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  */
-export const getBuildings = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  isAll = false,
-  status = "Active",
-  searchObject = {},
-}) => {
-  const params = { pageIndex, pageSize, isAll, status, ...searchObject };
-  return axiosClient.get(buildings, { params });
+export const getBuildings = async (
+  { pageIndex = 1, pageSize = 5, isAll = false, status = "Active" },
+  searchParams = {}
+) => {
+  const params = { pageIndex, pageSize, isAll, status, ...searchParams };
+  return (await axiosClient.get(buildings, { params })).data;
 };
 
 /**
- * Page wrapper for new page
+ * Get building by manager id
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
@@ -30,30 +27,29 @@ export const getBuildingByManagerId = async ({
   managerId,
 }) => {
   const params = { pageIndex, pageSize, managerId };
-  return axiosClient.get(buildings, { params });
+  return (await axiosClient.get(buildings, { params })).data;
 };
 
 /**
- * Page wrapper for new page
+ * Create building
  * @param {object} [data] values post
  */
 export const postBuilding = async (data) => {
-  return postFormData(buildings, data);
+  return (await postFormData(buildings, data)).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Update building
+ * @param {object} [data] building data to update
  */
-export const putBuilding = async (data) => {
-  const { id } = data;
-  return putFormData(buildings + "/" + id, data);
+export const putBuilding = async (id, data) => {
+  return (await putFormData(buildings + "/" + id, data)).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Delete building
+ * @param {object} [id] building id
  */
-export const testPoseWithoutFile = async (data) => {
-  return axiosClient.post(buildings, data);
+export const deleteBuilding = async (id) => {
+  return (await axiosClient.delete(buildings + "/" + id)).status === 204;
 };

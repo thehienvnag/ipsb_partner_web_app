@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import floorPlanReducer from "./floorPlan.slice";
 import locatorTagReducer from "./locatorTag.slice";
-import buildingReducer from "./building.slice";
+import buildingReducer from "./building.slice"
 import edgeReducer from "./edge.slice";
 import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
@@ -25,7 +25,6 @@ export const Store = configureStore({
     location: locationReducer,
     account: accountReducer,
     locatorTag: locatorTagReducer,
-    // locationType: locationTypeReducer,
     indoorMap: indoorMapReducer,
     map: mapReducer,
     uiData: uiDataReducer,

@@ -12,12 +12,19 @@ html {
   box-shadow: 0 4px 20px 0 #ebebeb;
   border: 1px solid #e0dede;
   border-radius: 8px;
+  position: sticky;
+  top: 93px;
 }
 .card-table {
   @include card-custom();
   margin-left: 0 auto;
   .ant-card-body {
     padding: 0;
+    .ant-table-content {
+      table {
+        // height: 70vh;
+      }
+    }
   }
   .ant-page-header {
     margin-top: 0 !important;

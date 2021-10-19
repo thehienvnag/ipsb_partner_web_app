@@ -15,6 +15,6 @@ export const getAllCouponInUse = async ({
   storeId,
 }) => {
   const params = { pageIndex, pageSize, status, storeId, isAll };
-  return axiosClient.get(couponInUses, { params });
+  return (await axiosClient.get(couponInUses, { params })).data;
 };
 

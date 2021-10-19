@@ -64,6 +64,10 @@ const appRoutes = [
         ),
       },
       {
+        path: RouteNames.buildings + "/:page",
+        element: <RoleGuard role="Admin" component={<BuildingPage />} />,
+      },
+      {
         path: RouteNames.buildings,
         element: <RoleGuard role="Admin" component={<BuildingPage />} />,
       },
@@ -80,9 +84,21 @@ const appRoutes = [
         element: <RoleGuard role="Admin" component={<CouponTypePage />} />,
       },
       {
+        path: RouteNames.managerCoupons + "/:page",
+        element: (
+          <RoleGuard role="Store Owner" component={<ManageCouponPage />} />
+        ),
+      },
+      {
         path: RouteNames.managerCoupons,
         element: (
           <RoleGuard role="Store Owner" component={<ManageCouponPage />} />
+        ),
+      },
+      {
+        path: RouteNames.managerProducts + "/:page",
+        element: (
+          <RoleGuard role="Store Owner" component={<ManageProductPage />} />
         ),
       },
       {

@@ -14,12 +14,10 @@ import "./index.scss";
  * @param {PropTypes.func} [params.handleDelete] current page size of get request
  * @param {PropTypes.func} [params.handleRefresh] building id which contains floor plans
  */
-const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
+const Header = ({ handleCreate, handleRefresh }) => (
   <PageHeader
     title="Products"
     className="site-page-header"
-    // subTitle="Manages building managers inside your application"
-    // tags={<Tag color="blue">Running</Tag>}
     extra={[
       <Button
         key="1"
@@ -39,7 +37,7 @@ const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
 
 Header.propTypes = {
   handleCreate: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+
   handleRefresh: PropTypes.func.isRequired,
 };
 

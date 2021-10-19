@@ -15,7 +15,7 @@ export const getLocatorTags = async ({
   searchObject = {},
 }) => {
   const params = { pageIndex, pageSize, status, floorPlanId, ...searchObject };
-  return axiosClient.get(locatorTags, { params });
+  return (await axiosClient.get(locatorTags, { params })).data;
 };
 
 /**
@@ -23,5 +23,5 @@ export const getLocatorTags = async ({
  * @param {object} [data] values post
  */
 export const postLocatorTag = async (data) => {
-  return axiosClient.post(locatorTags, data);
+  return (await axiosClient.post(locatorTags, data)).data;
 };

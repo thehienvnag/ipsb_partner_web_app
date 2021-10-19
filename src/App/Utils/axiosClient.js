@@ -1,50 +1,41 @@
-import { refreshToken } from "App/Services/auth.service";
 import axios from "axios";
 import queryString from "query-string";
-import createAuthRefreshInterceptor from "axios-auth-refresh";
-import { logout } from "App/Stores/auth.slice";
+import axiosRetry from "axios-retry";
+import { refreshToken } from "App/Services/auth.service";
+import { logout, setAuthInfo } from "App/Stores/auth.slice";
+import { Store } from "App/Stores/store";
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
     "Content-Type": "application/json",
-    // "Access-Control-Allow-Origin": "https://localhost:44367",
   },
   paramsSerializer: (params) => queryString.stringify(params),
 });
 axiosClient.defaults.withCredentials = true;
-// Instantiate the interceptor (you can chain it as it returns the axios instance)
-const refreshAuthLogic = (failedRequest) =>
-  refreshToken()
-    .then((data) => {
-      failedRequest.response.config.headers["Authorization"] =
-        "Bearer " + data.accessToken;
-      sessionStorage.setItem("accessToken", data.accessToken);
-    })
-    .catch((err) => {
-      if (err.response.status === 401) {
-        import("App/Stores/store").then(({ Store }) =>
-          Store.dispatch(logout())
-        );
-      }
-    });
-createAuthRefreshInterceptor(axiosClient, refreshAuthLogic);
-
-axiosClient.interceptors.request.use((config) => {
-  config.headers["Authorization"] =
-    "Bearer " + sessionStorage.getItem("accessToken");
-  return config;
+axiosRetry(axiosClient, {
+  retries: 1,
+  retryCondition: async (error) => {
+    if (error.response.status !== 401) return false;
+    if (
+      error.response.status === 401 &&
+      error.config.url !== "/auth/refresh-token"
+    ) {
+      try {
+        const { accessToken } = await refreshToken();
+        localStorage.setItem("accessToken", accessToken);
+        return true;
+      } catch (error) {}
+    }
+    return false;
+  },
 });
 
-axiosClient.interceptors.response.use(
-  async (response) => {
-    if (response.data === "") {
-      return response?.status;
-    }
-    return response?.data;
-  }
-  //async (err) => {}
-);
+axiosClient.interceptors.request.use((config) => {
+  const authKey = "Authorization";
+  config.headers[authKey] = "Bearer " + localStorage.getItem("accessToken");
+  return config;
+});
 
 export const postFormData = async (endpoint, values) => {
   const formData = new FormData();

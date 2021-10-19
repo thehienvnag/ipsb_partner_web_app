@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllProduct,
   postProduct,
-  putProduct,
+  deleteProduct,
 } from "../Services/product.service";
 
 //#region Async thunks coupon
@@ -30,7 +30,7 @@ const postProductForm = createAsyncThunk(
 const putProductForm = createAsyncThunk(
   "product/putProductForm",
   async (data, thunkAPI) => {
-    await putProduct(data);
+    await deleteProduct(data);
   }
 );
 
