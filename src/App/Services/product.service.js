@@ -2,21 +2,18 @@ import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 import { products } from "App/Utils/Constants/endpoints";
 
 /**
- * Page wrapper for new page
+ * Get products
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  * @param {number} [params.storeId] store id which contains products
  */
-export const getAllProduct = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  status = "Active",
-  storeId,
-  searchObject = {},
-}) => {
-  const params = { pageIndex, pageSize, status, storeId, ...searchObject };
-  return axiosClient.get(products, { params });
+export const getAllProduct = async (
+  { pageIndex = 1, pageSize = 5, status = "Active", storeId },
+  searchParams = {}
+) => {
+  const params = { pageIndex, pageSize, status, storeId, ...searchParams };
+  return (await axiosClient.get(products, { params })).data;
 };
 
 export const getAllProductOfStore = async ({
@@ -25,21 +22,31 @@ export const getAllProductOfStore = async ({
   searchObject = {},
 }) => {
   const params = { status, storeId, ...searchObject };
-  return axiosClient.get(products, { isAll: true, params });
+  return (await axiosClient.get(products, { isAll: true, params })).data;
 };
 
 /**
- * Page wrapper for new page
+ * Create product
  * @param {object} [data] values post
  */
 export const postProduct = async (data) => {
-  return postFormData(products, data);
+  return (await postFormData(products, data)).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Update product
+ * @param {number} [id] product id
+ * @param {object} [data] data to update
  */
 export const putProduct = async (id, data) => {
-  return putFormData(products + "/" + id, data);
+  return (await putFormData(products + "/" + id, data)).data;
+};
+
+/**
+ * Delete Product
+ * @param {number} [id] product id
+ */
+export const deleteProduct = async (id) => {
+  const status = (await axiosClient.delete(products + "/" + id)).status;
+  return status === 204;
 };

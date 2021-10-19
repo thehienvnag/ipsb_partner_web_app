@@ -6,7 +6,7 @@ import { visitPoint } from "../Utils/Constants/endpoints";
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  * @param {number} [params.buildingId] building id which contains floor plans
- * * @param {number} [params.buildingId] locationtype id 
+ * * @param {number} [params.buildingId] locationtype id
  */
 
 export const getVisitPointByBuildingId = async ({
@@ -14,9 +14,8 @@ export const getVisitPointByBuildingId = async ({
   pageSize = 5,
   isAll = true,
   buildingId,
-  locationTypeId
+  locationTypeId,
 }) => {
   const params = { pageIndex, pageSize, buildingId, locationTypeId, isAll };
-  return axiosClient.get(visitPoint, { params });
+  return (await axiosClient.get(visitPoint, { params })).data;
 };
-

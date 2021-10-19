@@ -6,7 +6,7 @@ import {
 } from "App/Stores/floorPlan.slice";
 import SelectWrapper from "./SelectWrapper";
 
-const SelectFloorPlan = ({ value, onChange }) => {
+const SelectFloorPlan = ({ disabled, value, onChange }) => {
   const dispatch = useDispatch();
   const floors = useSelector(selectListFloorCode);
   useEffect(() => {
@@ -14,6 +14,7 @@ const SelectFloorPlan = ({ value, onChange }) => {
   }, [dispatch]);
   return (
     <SelectWrapper
+      disabled={disabled}
       placeholder={`Select Floor Plan`}
       value={value}
       onChange={onChange}

@@ -14,7 +14,7 @@ export const getAllFacility = async ({
   searchObject = {},
 }) => {
   const params = { pageIndex, pageSize, isAll, ...searchObject  };
-  return axiosClient.get(facilities, { params });
+  return (await axiosClient.get(facilities, { params })).data;
 };
 
 /**
@@ -22,7 +22,7 @@ export const getAllFacility = async ({
  * @param {object} [data] values post
  */
  export const postFacility = async (data) => {
-    return axiosClient.post(facilities, data);
+    return (await axiosClient.post(facilities, data)).data;
   };
   
   /**
@@ -31,5 +31,5 @@ export const getAllFacility = async ({
    */
   export const putFacility = async (data) => {
     const { id } = data;
-    return axiosClient.put(facilities + "/" + id, data);
+    return (await axiosClient.put(facilities + "/" + id, data)).data;
   };

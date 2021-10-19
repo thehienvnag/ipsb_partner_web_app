@@ -5,9 +5,9 @@ import { auth } from "../Utils/Constants/endpoints";
  * @param {object} [data] parameters for post request
  * @param {string} [data.token] access token
  */
-export const authorizeToken = ({ token }) => {
+export const authorizeToken = async ({ token }) => {
   const params = { token };
-  return axiosClient.get(auth + "/authorize-token", { params });
+  return (await axiosClient.get(auth + "/authorize-token", { params })).data;
 };
 
 /**
@@ -15,8 +15,8 @@ export const authorizeToken = ({ token }) => {
  * @param {object} [data] parameters for post request
  * @param {string} [data.email] email of account
  */
-export const checkForgotPassword = ({ email }) => {
-  return axiosClient.post(auth + "/forgot-password", { email });
+export const checkForgotPassword = async ({ email }) => {
+  return (await axiosClient.post(auth + "/forgot-password", { email })).data;
 };
 
 /**
@@ -25,9 +25,9 @@ export const checkForgotPassword = ({ email }) => {
  * @param {string} [data.email] email of account
  * @param {string} [data.password] password of account
  */
-export const checkLogin = ({ email, password }) => {
+export const checkLogin = async ({ email, password }) => {
   const data = { email, password };
-  return axiosClient.post(auth + "/login", data);
+  return (await axiosClient.post(auth + "/login", data)).data;
 };
 
 /**
@@ -36,21 +36,21 @@ export const checkLogin = ({ email, password }) => {
  * @param {string} [data.accountId] id of account
  * @param {string} [data.password] password of account
  */
-export const changePassword = ({ accountId, password }) => {
+export const changePassword = async ({ accountId, password }) => {
   const data = { accountId, password };
-  return axiosClient.put(auth + "/change-password", data);
+  return (await axiosClient.put(auth + "/change-password", data)).data;
 };
 
 /**
  * Refresh access token
  */
-export const refreshToken = () => {
-  return axiosClient.post(auth + "/refresh-token", {});
+export const refreshToken = async () => {
+  return (await axiosClient.post(auth + "/refresh-token", {})).data;
 };
 
 /**
  * Log user out
  */
 export const logUserOut = async () => {
-  return axiosClient.get(auth + "/logout");
+  return (await axiosClient.get(auth + "/logout")).data;
 };

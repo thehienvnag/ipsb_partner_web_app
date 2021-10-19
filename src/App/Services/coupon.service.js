@@ -1,35 +1,42 @@
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 import { coupons } from "../Utils/Constants/endpoints";
 /**
- * Page wrapper for new page
+ * Get coupons
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  * @param {number} [params.storeId] store id which contains coupons
  */
-export const getAllCoupon = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  status = "Active",
-  storeId,
-  searchObject = {},
-}) => {
-  const params = { pageIndex, pageSize, status, storeId, ...searchObject };
-  return axiosClient.get(coupons, { params });
+export const getAllCoupon = async (
+  { pageIndex = 1, pageSize = 5, status = "Active", storeId },
+  searchParams = {}
+) => {
+  const params = { pageIndex, pageSize, status, storeId, ...searchParams };
+  return (await axiosClient.get(coupons, { params })).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Create coupon
+ * @param {object} [data] values to post
  */
 export const postCoupon = async (data) => {
-  return postFormData(coupons, data);
+  return (await postFormData(coupons, data)).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Update coupon
+ * @param {object} [data] values to update
+ * @param {number} [id] Coupon id
  */
-export const putCoupon = async (data) => {
-  return putFormData(coupons + "/" + data.id, data);
+export const putCoupon = async (id, data) => {
+  return (await putFormData(coupons + "/" + id, data)).data;
+};
+
+/**
+ * Delete coupon
+ * @param {number} [id] Coupon id
+ */
+export const deleteCoupon = async (id) => {
+  const status = (await axiosClient.delete(coupons + "/" + id)).status;
+  return status === 204;
 };

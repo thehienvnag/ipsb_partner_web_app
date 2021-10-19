@@ -1,22 +1,21 @@
 import { getAccounts } from "App/Services/account.service";
 import React from "react";
 import SelectWrapper from "./SelectWrapper";
-/**
- * Get accounts functions
- * @param {object} [props] props of components
- * @param {string} [role] role of account
- */
+
 const SelectAccount = ({
+  disabled,
   role = "Building Manager" || "Store Owner",
   initialValue,
   onChange,
 }) => {
-  const fetchAccounts = (searchObject) =>
-    getAccounts({ pageSize: 10, role, searchObject }).then(
-      (data) => data.content
-    );
+  const fetchAccounts = (searchParams) =>
+    getAccounts(
+      { pageSize: 10, role, notBuildingManager: true },
+      searchParams
+    ).then((data) => data.content);
   return (
     <SelectWrapper
+      disabled={disabled}
       placeholder={`Select ${role}`}
       onChange={onChange}
       initialValue={initialValue}

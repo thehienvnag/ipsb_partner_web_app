@@ -1,49 +1,43 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  Input,
-  Space,
-  Avatar,
-  Checkbox,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
+import { Button, Space, Avatar, Checkbox, Table, Tag, Typography } from "antd";
 
-import {
-  selectIsLoading,
-  selectPageSize,
-  selectTotalCount,
-  loadProducts,
-  selectListProduct,
-} from "App/Stores/product.slice";
-import { inVnd, truncate } from "App/Utils/utils";
+import { inVnd } from "App/Utils/utils";
+import { useQuery } from "App/Utils/hooks/useQuery";
+import { getAllProduct } from "App/Services/product.service";
+import { useSelector } from "react-redux";
+import { selectStoreId } from "App/Stores/auth.slice";
+import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
+import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
 
-const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
-  const dispatch = useDispatch();
-  const listProduct = useSelector(selectListProduct);
-  const isLoading = useSelector(selectIsLoading);
-  const pageSize = useSelector(selectPageSize);
-  const totalCount = useSelector(selectTotalCount);
-  const [search, setSearch] = useState(null);
-  useEffect(() => {
-    dispatch(loadProducts());
-  }, [dispatch]);
+const ProductTable = ({ refresh, onRowSelect }) => {
+  const storeId = useSelector(selectStoreId);
+  const {
+    data,
+    loading,
+    pageSize,
+    totalCount,
+    currentPage,
+    setSearchParams,
+    setPageIndex,
+  } = useQuery({
+    apiCallback: getAllProduct,
+    additionalParams: { storeId },
+    refresh,
+  });
   return (
     <Table
-      loading={isLoading}
-      dataSource={listProduct}
+      loading={loading}
+      dataSource={data}
       pagination={{
         size: "small",
-        current: currentPage,
         pageSize: pageSize,
         total: totalCount,
-        onChange: (page) => handlePaging(page, search),
+        current: currentPage,
+        onChange: (page) => setPageIndex(page),
       }}
       onRow={(record) => ({
-        onClick: (event) => onRowSelect(record),
+        onClick: () => onRowSelect(record),
       })}
     >
       <Table.Column
@@ -62,51 +56,17 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
         dataIndex="name"
         key="name"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search product name`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ name: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by name"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ name: value })}
+            onCancel={() => setSearchParams(null)}
+          />
         )}
         filterIcon={<SearchOutlined />}
       />
-      <Table.Column
-        title="Group"
-        dataIndex="productGroup"
-        key="productGroup"
-        render={(item) =>
-          item?.name && (
-            <Tag color="blue">
-              {truncate(item?.name, 20)}
-            </Tag>
-          )
-        }
-      />
+
       <Table.Column
         title="Category"
         dataIndex="productCategory"
@@ -127,39 +87,11 @@ const ProductTable = ({ currentPage, handlePaging, onRowSelect }) => {
         render={(value) => (
           <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
         )}
-        filterDropdown={() => (
-          <div style={{ padding: 8 }}>
-            <Space>
-              <Checkbox.Group
-                style={{ width: "100%" }}
-                onChange={(e) => {
-                  const value = e;
-                  if (value && value.length) {
-                    setSearch({ status: value });
-                  } else {
-                    setSearch(null);
-                  }
-                }}
-              >
-                <Checkbox value="">All</Checkbox>
-                <Checkbox value="Active">Active</Checkbox>
-                <Checkbox value="Inactive">Inactive</Checkbox>
-              </Checkbox.Group>
-
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Filter
-              </Button>
-            </Space>
-          </div>
-        )}
+        filterDropdown={
+          <ColumnSelect
+            onSubmit={(value) => setSearchParams({ status: value })}
+          />
+        }
       />
     </Table>
   );

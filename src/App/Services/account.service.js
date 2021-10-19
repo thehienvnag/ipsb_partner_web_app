@@ -1,30 +1,39 @@
 import { accounts } from "../Utils/Constants/endpoints";
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 
-
 /**
  * Get account by id
  * @param {number} [id] parameters for get request
  */
- export const getAccountById = async (id) => {
-  return axiosClient.get(`${accounts}/${id}`);
+export const getAccountById = async (id) => {
+  return (await axiosClient.get(`${accounts}/${id}`)).data;
 };
-
 
 /**
  * Get accounts functions
  * @param {object} [params] parameters for get request
  */
-export const getAccounts = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  role,
-  status = "Active",
-  isAll = false,
-  searchObject = {},
-}) => {
-  const params = { pageIndex, pageSize, role, status, isAll, ...searchObject };
-  return axiosClient.get(accounts, { params });
+export const getAccounts = async (
+  {
+    pageIndex = 1,
+    pageSize = 5,
+    role,
+    status = "Active",
+    isAll = false,
+    notBuildingManager = false,
+  },
+  searchParams = {}
+) => {
+  const params = {
+    pageIndex,
+    pageSize,
+    role,
+    status,
+    isAll,
+    notBuildingManager,
+    ...searchParams,
+  };
+  return (await axiosClient.get(accounts, { params })).data;
 };
 /**
  * Get accounts functions
@@ -46,7 +55,7 @@ export const getBuildingManagers = async ({
     isAll,
     ...searchObject,
   };
-  return axiosClient.get(accounts, { params });
+  return (await axiosClient.get(accounts, { params })).data;
 };
 
 /**
@@ -69,7 +78,7 @@ export const getAccountsStoreOwner = async ({
     isAll,
     ...searchObject,
   };
-  return axiosClient.get(accounts, { params });
+  return (await axiosClient.get(accounts, { params })).data;
 };
 
 /**
@@ -77,7 +86,7 @@ export const getAccountsStoreOwner = async ({
  * @param {object} [data] values post
  */
 export const postAccount = async (data) => {
-  return postFormData(accounts, data);
+  return (await postFormData(accounts, data)).data;
 };
 /**
  * Page wrapper for new page
@@ -85,7 +94,7 @@ export const postAccount = async (data) => {
  */
 export const putAccount = async (data) => {
   const { id } = data;
-  return putFormData(accounts + "/" + id, data);
+  return (await putFormData(accounts + "/" + id, data)).data;
 };
 
 /**
@@ -93,7 +102,7 @@ export const putAccount = async (data) => {
  * @param {object} [data] values post
  */
 export const testPoseWithoutFile = async (data) => {
-  return axiosClient.post(accounts, data);
+  return (await axiosClient.post(accounts, data)).data;
 };
 
 /**
@@ -101,5 +110,5 @@ export const testPoseWithoutFile = async (data) => {
  * @param {object} [data] values post
  */
 export const deleteAccounts = async (id) => {
-  return axiosClient.delete(accounts + "/" + id);
+  return (await axiosClient.delete(accounts + "/" + id)).data;
 };

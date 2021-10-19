@@ -3,25 +3,33 @@ import { useSelector } from "react-redux";
 import { selectMenuItems } from "App/Stores/uiData.slice";
 import "./DashboardSidebar.scss";
 import { Menu, Layout, Button } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaRegCircle, FaRegDotCircle } from "react-icons/fa";
 import { BiHomeAlt } from "react-icons/bi";
+import { selectRole } from "App/Stores/auth.slice";
 const { Sider } = Layout;
 const logo = process.env.PUBLIC_URL + "/logo.png";
 
 const AppMenu = ({ children, collapsed }) => {
   const navigate = useNavigate();
   const menuItems = useSelector(selectMenuItems);
+  const role = useSelector(selectRole);
+  const { pathname } = useLocation();
   return (
     <Menu
-      defaultSelectedKeys={["-1"]}
       mode="vertical"
       className="side-bar-dark-menu"
+      selectedKeys={[
+        role === "Admin" && pathname === "/" ? "/buildings" : pathname,
+      ]}
     >
       {children}
-      <Menu.Item key="-1" icon={<BiHomeAlt />} onClick={() => navigate("")}>
-        {!collapsed && "Home"}
-      </Menu.Item>
+      {role !== "Admin" && (
+        <Menu.Item key="/" icon={<BiHomeAlt />} onClick={() => navigate("")}>
+          {!collapsed && "Home"}
+        </Menu.Item>
+      )}
+
       {!collapsed && (
         <>
           <li style={{ height: 25 }}></li>
@@ -31,7 +39,7 @@ const AppMenu = ({ children, collapsed }) => {
         </>
       )}
       {menuItems.map(({ icon, title, path }, index) => (
-        <Menu.Item icon={icon} key={index} onClick={() => navigate(path)}>
+        <Menu.Item icon={icon} key={path} onClick={() => navigate(path)}>
           {!collapsed && title}
         </Menu.Item>
       ))}
@@ -65,7 +73,7 @@ const DashboardSidebar = () => {
       <Sider
         collapsedWidth={0}
         className={`responsive-sidebar side-bar-dark is-collapsed-${collapsedClassName()}`}
-        style={{ paddingTop: 0 }}
+        style={{ paddingTop: 0, position: "sticky", top: 0, zIndex: 10 }}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
@@ -103,7 +111,7 @@ const DashboardSidebar = () => {
       </Sider>
       <div
         style={{
-          marginRight: collapsedBtn ? 70 : 0,
+          marginRight: collapsedBtn ? 70 : 255,
           height: "100vh",
         }}
       ></div>

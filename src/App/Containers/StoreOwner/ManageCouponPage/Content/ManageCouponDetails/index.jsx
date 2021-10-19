@@ -1,143 +1,64 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Input, Form, Upload, Select, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React from "react";
+import { Row, Col, Input, Form } from "antd";
 import DetailCard from "App/Components/DetailCard";
-import { getAllProductOfStore } from "App/Services/product.service";
-import Moment from "moment";
-import { postCoupon, putCoupon } from "App/Services/coupon.service";
-const { Option } = Select;
+import ImagePicker from "App/Components/CustomImagePicker/ImagePicker";
+import { useDetailForm } from "App/Utils/hooks/useDetailForm";
+import { useSelector } from "react-redux";
+import { selectStoreId } from "App/Stores/auth.slice";
+import {
+  deleteCoupon,
+  postCoupon,
+  putCoupon,
+} from "App/Services/coupon.service";
+import SelectCouponType from "App/Components/CustomSelect/SelectCouponType";
+
 const { TextArea } = Input;
-const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
-  const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
-  const [products, setProducts] = useState(null);
-  const [productListInclude, setProductListInclude] = useState([]);
-  const [productListExclude, setProductListExclude] = useState([]);
+const CouponDetails = ({
+  visible,
+  onCancel,
+  handleRefresh,
+  handleCancel,
+  model,
+}) => {
+  const storeId = useSelector(selectStoreId);
 
-  useEffect(() => {
-    if (model) {
-      form.setFieldsValue(model);
-      setFileList([{ thumbUrl: model.imageUrl }]);
-    } else {
-      form.resetFields();
-      setFileList([]);
-    }
-    const loadProducts = async () => {
-      const products = await getAllProductOfStore({ status: "Active", storeId: 15 });
-      console.log(products);
-      setProducts(products?.content?.map(({ id, name }) => ({ id, name })));
-    };
-    loadProducts();
-  }, [model]);
-
-  const handleChangeSelectInclude = (value) => {
-    console.log(`selected ${value}`);
-    setProductListInclude(value);
-  };
-
-  const handleChangeSelectExclude = (value) => {
-    console.log(`selected ${value}`);
-    setProductListExclude(value);
-  };
-
-  const handleChange = (info) => {
-    setFileList(info.fileList);
-  };
-
-  const onSave = () => {
-    if (model) {
-      update();
-    } else {
-      create();
-    }
-  };
-  const create = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    
-    if (fileList == null) {
-      message.error("Add image for Coupon", 4);
-    } else if (values.code == null || fileList.length == 0 || values.amount == null || values.description == null
-      || values.discountType == null || values.publishDate == null || values.expireDate == null) {
-      message.error("All Fields need to Fill !!", 4);
-    } else if (values.code != null && fileList.length > 0 && values.amount != null && values.description != null
-      && values.discountType != null && values.publishDate != null && values.expireDate != null) {
-      message.loading("Action in progress...", 3);
-      const data = await postCoupon({
-        ...values,
-        ...{ storeId: 15 },
-        ...{ productInclude: productListInclude },
-        ...{ productExclude: productListExclude },
-        ...{ imageUrl: fileList[0]?.originFileObj },
-      });
-      if (data?.id !== null) {
-        message.success("Create success", 3);
-        form.resetFields();
-      } else {
-        message.error("Email existed", 3);
-      }
-    }
-  };
-  const update = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    if (fileList == null) {
-      message.error("Add image for Coupon", 4);
-    } else if (values.code == null || fileList.length == 0 || values.amount == null || values.description == null
-      || values.discountType == null || values.publishDate == null || values.expireDate == null) {
-      message.error("All Fields need to Fill !!", 4);
-    } else if (values.code != null && fileList.length > 0 && values.amount != null && values.description != null
-      && values.discountType != null) {
-      message.loading("Action in progress...", 3);
-      const data = await putCoupon({
-        ...values,
-        ...{ storeId: 15 },
-        ...{ id: model.id },
-        ...{ productInclude: productListInclude },
-        ...{ productExclude: productListExclude },
-        ...{ imageUrl: fileList[0]?.originFileObj },
-      });
-      if (data?.id !== null) {
-        message.success("Update success", 3);
-      } else {
-        message.error("Create Failed", 3);
-      }
-    }
-  };
-  const deleteAccount = async () => {
-    // const data = await deleteAccounts(selectedItems);
-    // console.log(selectedItems);
-    // if (data === "Request failed with status code 405") {
-    //   message.error("Method Not Allowed", 4);
-    // } else {
-    //   message.loading("Action in progress...", 3);
-    //   message.success("Delete success", 3);
-    // }
-  };
-
+  const { form, btnState, onSave, onDelete } = useDetailForm({
+    model,
+    createParams: { storeId },
+    createCallback: postCoupon,
+    updateCallback: putCoupon,
+    deleteCallback: deleteCoupon,
+    handleRefresh,
+    handleCancel,
+  });
+  const disabled = model && model.status !== "Active";
   return (
     <DetailCard
-      span={9}
+      span={11}
+      btnState={btnState}
       visible={visible}
       onCancel={onCancel}
-      onSave={onSave}
-      onRemove={deleteAccount}
+      onSave={!disabled && onSave}
+      onRemove={!disabled && onDelete}
     >
       <Form form={form} name="register" layout="vertical" scrollToFirstError>
         <Row justify="space-between">
           <Col span={11}>
-            <Upload
-              className="upload-wrapper"
-              listType="picture-card"
-              fileList={fileList}
-              onChange={handleChange}
-              beforeUpload={() => false}
+            <Form.Item
+              name="imageUrl"
+              label="Coupon image"
+              rules={[
+                {
+                  required: true,
+                  message: "Input coupon image",
+                },
+              ]}
             >
-              {!fileList.length && <UploadButton />}
-            </Upload>
+              <ImagePicker disabled={disabled} />
+            </Form.Item>
             <Form.Item
               name="limit"
-              label="Limit: "
+              label="Limit"
               required
               rules={[
                 {
@@ -147,99 +68,53 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
               ]}
             >
               <Input
-                placeholder="Input coupon limit" type="number"
+                placeholder="Input coupon limit"
+                type="number"
+                disabled={disabled}
               />
             </Form.Item>
             <Form.Item
-              name="discountType"
-              label="DiscountType: "
+              name="couponTypeId"
+              label="Coupon type: "
               required
               rules={[
                 {
                   required: true,
-                  message: "Select discountType",
+                  message: "Select coupon type",
                 },
               ]}
             >
-              <Select placeholder="Select discountType">
-                <Option value="Percentage">Percentage</Option>
-                <Option value="Fixed">Fixed</Option>
-              </Select>
+              <SelectCouponType
+                initialValue={model?.couponType}
+                disabled={disabled}
+              />
             </Form.Item>
+            <Form.Item name="minSpend" label="Min spend: ">
+              <Input
+                placeholder="Input min price"
+                type="number"
+                disabled={disabled}
+              />
+            </Form.Item>
+
             <Form.Item
-              name="maxDiscount"
-              label="MaxDiscount: "
+              name="publishDate"
+              label="Publish date: "
               required
               rules={[
                 {
                   required: true,
-                  message: "Coupon maxDiscount",
+                  message: "Input publish date",
                 },
               ]}
             >
               <Input
-                placeholder="Coupon maxDiscount" type="number"
+                placeholder="Input publish date"
+                type="datetime-local"
+                disabled={model || disabled}
               />
             </Form.Item>
-            <Form.Item
-              name="publishDate"
-              label="PublishDate: "
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Pick coupon publishDate",
-                },
-              ]}
-            >
-              <Input placeholder="Pick coupon publishDate" type="datetime-local" disabled={visibleDate} />
-            </Form.Item>
-            <Form.Item
-              label="Products Exclude:"
-              rules={[{ required: true }]}
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Select products exclude",
-                },
-              ]}
-            >
-              <Select
-                value={model?.productExclude.split(",")}
-                mode="multiple"
-                style={{ width: "100%" }}
-                placeholder="Select products exclude"
-                onChange={handleChangeSelectExclude}
-                optionLabelProp="label"
-              >
-                {products &&
-                  products.map(({ id, name }) => (
-                    <Option value={"" + id} label={name}>
-                      {name}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="status"
-              label="Choose status:"
-              style={{ marginTop: 4 }}
-              rules={[
-                {
-                  required: true,
-                  message: "Choose status",
-                },
-              ]}
-            >
-              <Select placeholder="Select status">
-                <Option value="New">New</Option>
-                <Option value="Active">Active</Option>
-                <Option value="Inactive">Inactive</Option>
-              </Select>
-            </Form.Item>
           </Col>
-
           <Col span={12}>
             <Form.Item
               name="name"
@@ -252,7 +127,20 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
                 },
               ]}
             >
-              <Input placeholder="Name of coupon" />
+              <Input placeholder="Name of coupon" disabled={disabled} />
+            </Form.Item>
+
+            <Form.Item
+              name="code"
+              label="Code:"
+              rules={[
+                {
+                  required: true,
+                  message: "Input coupon code",
+                },
+              ]}
+            >
+              <Input placeholder="Input coupon code" disabled={disabled} />
             </Form.Item>
             <Form.Item
               name="description"
@@ -265,35 +153,13 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
                 },
               ]}
             >
-              <TextArea rows={1} placeholder="Description..." />
-            </Form.Item>
-            <Form.Item
-              name="code"
-              label="Code:"
-              rules={[
-                {
-                  required: true,
-                  message: "Input coupon code",
-                },
-              ]}
-            >
-              <Input placeholder="Input coupon code" />
-            </Form.Item>
-            <Form.Item
-              name="minSpend"
-              label="MinSpend: "
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Price minSpend",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Price minSpend" type="number"
+              <TextArea
+                rows={1}
+                placeholder="Description..."
+                disabled={disabled}
               />
             </Form.Item>
+
             <Form.Item
               name="amount"
               label="Amount: "
@@ -305,11 +171,23 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
                 },
               ]}
             >
-              <Input placeholder="Input coupon amount" type="number" />
+              <Input
+                placeholder="Input coupon amount"
+                type="number"
+                disabled={disabled}
+              />
             </Form.Item>
+            <Form.Item name="maxDiscount" label="Max discount: ">
+              <Input
+                placeholder="Input coupon max discount"
+                type="number"
+                disabled={disabled}
+              />
+            </Form.Item>
+
             <Form.Item
               name="expireDate"
-              label="ExpireDate: "
+              label="Expire date: "
               required
               rules={[
                 {
@@ -318,34 +196,11 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
                 },
               ]}
             >
-              <Input placeholder="Pick coupon expireDate" type="datetime-local" disabled={visibleDate} />
-            </Form.Item>
-            <Form.Item
-              label="Products Include:"
-              rules={[{ required: true }]}
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Select products include",
-                },
-              ]}
-            >
-              <Select
-                value={model?.productInclude.split(",")}
-                mode="multiple"
-                style={{ width: "100%" }}
-                placeholder="Select products include"
-                onChange={handleChangeSelectInclude}
-                optionLabelProp="label"
-              >
-                {products &&
-                  products.map(({ id, name }) => (
-                    <Option value={"" + id} label={name}>
-                      {name}
-                    </Option>
-                  ))}
-              </Select>
+              <Input
+                placeholder="Pick coupon expireDate"
+                type="datetime-local"
+                disabled={model || disabled}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -353,11 +208,5 @@ const CouponDetails = ({ visible, onCancel, model, visibleDate }) => {
     </DetailCard>
   );
 };
-const UploadButton = () => (
-  <div>
-    <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
-);
 
 export default CouponDetails;

@@ -6,13 +6,22 @@ export function getBase64(file, callback) {
 }
 
 export const inVnd = (num, n, x) => {
-  const re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
-  return num.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
+  const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\." : "$") + ")";
+  return num.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, "g"), "$&,");
 };
 
 export const truncate = (str, n) => {
   return str?.length > n ? str.substr(0, n - 1) + "..." : str;
 };
+
+export const isNumber = (n) => {
+  return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+};
+
+export const isEmptyObj = (obj) =>
+  obj &&
+  Object.keys(obj).length === 0 &&
+  Object.getPrototypeOf(obj) === Object.prototype;
 
 export const pipe =
   (...fns) =>

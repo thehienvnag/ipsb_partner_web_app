@@ -13,24 +13,23 @@ export const getAllLocationType = async ({
   status = "Active",
   searchObject = {},
 }) => {
-  const params = { pageIndex, pageSize, isAll, status, ...searchObject  };
-  console.log(params);
-  return axiosClient.get(locationTypes, { params });
+  const params = { pageIndex, pageSize, isAll, status, ...searchObject };
+  return (await axiosClient.get(locationTypes, { params })).data;
 };
 
 /**
  * Page wrapper for new page
  * @param {object} [data] values post
  */
- export const postLocationType = async (data) => {
-    return postFormData(locationTypes, data);
-  };
-  
-  /**
-   * Page wrapper for new page
-   * @param {object} [data] values post
-   */
-  export const putLocationType = async (data) => {
-    const { id } = data;
-    return putFormData(locationTypes + "/" + id, data);
-  };
+export const postLocationType = async (data) => {
+  return (await postFormData(locationTypes, data)).data;
+};
+
+/**
+ * Page wrapper for new page
+ * @param {object} [data] values post
+ */
+export const putLocationType = async (data) => {
+  const { id } = data;
+  return (await putFormData(locationTypes + "/" + id, data)).data;
+};
