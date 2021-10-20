@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-// import Card from "App/Components/Card";
+import React, { createElement, useState, useEffect } from "react";
 import { PageHeader } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import "./index.scss";
 import { Pie, defaults, Bar, Doughnut } from 'react-chartjs-2';
-import { Row, Col, DatePicker, Button, Card } from 'antd';
+import { Row, Col, DatePicker, Comment, Tooltip, Avatar, Card ,Button } from 'antd';
 import { useDispatch, useSelector } from "react-redux";
 import { getStoreByBuildingId } from "App/Services/store.service";
 import { getAllCouponInUse } from "App/Services/couponInUse.service";
@@ -12,10 +11,12 @@ import { getVisitPointByBuildingId } from "App/Services/visitPoint.service";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { BiStoreAlt, BiMapAlt, BiMapPin } from "react-icons/bi";
 import { RiSignalTowerFill } from "react-icons/ri";
-const { RangePicker } = DatePicker;
-const { Meta } = Card;
+import { DislikeFilled, LikeFilled } from '@ant-design/icons';
+import moment from 'moment';
 
-// defaults.global.plugins.defaultFontStyle = '600';
+const { RangePicker } = DatePicker;
+
+
 const BmHomePage = () => {
   const dispatch = useDispatch();
 
@@ -33,6 +34,7 @@ const BmHomePage = () => {
   const dataLabels = (data) => {
     setLabelBar(data);
   };
+
   const dataSetLabels = (data) => {
     setNumberOfUseBarLabels(data);
   };
@@ -75,14 +77,9 @@ const BmHomePage = () => {
     var returnArray = [];
     var newArray = [];
 
-    const data = [...new Map(dataStore.map(item =>
-      [item[key], item])).values()];
-
-    console.log(data);
+    const data = [...new Map(dataStore.map(item => [item[key], item])).values()];
     data.forEach(element => {
-
       returnArray = dataStore.filter((obj) => obj.locationId === element.locationId);
-      console.log(returnArray);
       var count = returnArray.length;
       newArray.push({ name: element.location.store.name, numberOfAppearance: count });
     });
@@ -94,7 +91,6 @@ const BmHomePage = () => {
   }
 
   const getReturnArray = async (dataStore) => {
-    // console.log(dataStore);
     const data = await Promise.all(dataStore.map(element => getCouponInUse(element.id, element.name)));
     data.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
     const newData = data.slice(0, 10);
@@ -108,8 +104,76 @@ const BmHomePage = () => {
       .then((value) => getVisitPointArray(value)).catch((e) => console.log(e));
     dataLabels();
     dataSetLabels();
+    getCouponInUseByID();
   }, [dispatch]);
 
+
+  const [dataFeedback, setDataFeedback] = useState([]);
+
+  const getCouponInUseByID = async () => {
+    const data = await getAllCouponInUse({
+      storeId: 8,
+    });
+    setDataFeedback(data.content);
+  };
+  // for view feedback
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
+  const [action, setAction] = useState(null);
+
+  const like = () => {
+    setLikes(1);
+    setDislikes(0);
+    setAction('liked');
+  };
+
+  const dislike = () => {
+    setLikes(0);
+    setDislikes(1);
+    setAction('disliked');
+  };
+
+  const actions = [
+    <Tooltip key="comment-basic-like" title="Like">
+      <span onClick={like}>
+        {createElement(LikeFilled)}
+        <span className="comment-action">{likes}</span>
+      </span>
+    </Tooltip>,
+    <Tooltip key="comment-basic-dislike" title="Dislike">
+      <span onClick={dislike}>
+        {React.createElement(DislikeFilled)}
+        <span className="comment-action">{dislikes}</span>
+      </span>
+    </Tooltip>,
+    <span key="comment-basic-reply-to">View reply </span>,
+  ];
+  //end feedback
+  function ShowListFeedback() {
+    var newArray = dataFeedback;
+    newArray.sort((a, b) => a.feedbackDate < b.feedbackDate ? 1 : -1);
+    const newData = newArray.slice(0, 3);
+    const listFeedbacks = newData.map((element) =>
+      <Comment
+        actions={actions}
+        author={<h5 style={{fontWeight: 'bold'}}>{element.visitor.name}</h5>}
+        datetime={<span>{moment(element.feedbackDate).format("DD-MM-YYYY (hh:mm)")}</span>}
+        avatar={<Avatar shape="square" size="large" src={element.visitor.imageUrl} />}
+        content={
+          <p>{element.feedbackContent}</p>
+        }
+      />
+    );
+    return (
+      <div>
+        {listFeedbacks}
+        <hr/>
+        <div style={{float: 'right'}}>
+          <Button color={{color: 'gray'}} style={{color: 'black'}}>View more feedback</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -146,7 +210,7 @@ const BmHomePage = () => {
               </Row>
             </Card>
           </div>
-          <Card className="col-md-12 mt-4" style={{borderRadius: '15px'}}>
+          <Card className="col-md-12 mt-4" style={{ borderRadius: '15px' }}>
             <Row >
               <Col span={24}>
                 <Row>
@@ -232,113 +296,115 @@ const BmHomePage = () => {
               </Col>
             </Row>
           </Card>
-          {/* <Card className="col-md-12 mt-2" style={{ backgroundColor: '#eef0f4', }}> */}
-            <Row>
-              <Card className="col-md-5 mt-4" style={{borderRadius: '15px'}}>
-                <Col >
-                  <h3 className='font-weight-bold'>Store customers go through most</h3>
-                  <Doughnut
-                    data={{
-                      labels: labels,
-                      datasets: [
-                        {
-                          data: dataPieLabels,
-                          label: '# of votes',
-                          backgroundColor: [
-                            'rgba(221, 56, 56, 1)',
-                            'rgba(55, 161, 222, 0.66)',
-                            'rgba(244, 244, 56, 1)',
-                            'rgba(27, 245, 43, 0.66)',
-                            'rgba(245, 27, 188, 0.66)',
-                          ],
-                          borderColor: [
-                            'rgba(221, 56, 56, 1)',
-                            'rgba(55, 161, 222, 0.66)',
-                            'rgba(244, 244, 56, 1)',
-                            'rgba(27, 245, 43, 0.66)',
-                            'rgba(245, 27, 188, 0.66)',
-                          ],
-                          borderWidth: 1,
-                          hoverBorderWidth: 1,
-                          hoverBorderColor: '#000'
-                        },
-                      ],
-                    }
-                    }
-                    plugins={[ChartDataLabels]}
-                    options={
+          <Row>
+            <Card className="col-md-5 mt-4" style={{ borderRadius: '15px' }}>
+              <Col >
+                <h3 className='font-weight-bold'>Store customers go through most</h3>
+                <hr/>
+                <Doughnut
+                  data={{
+                    labels: labels,
+                    datasets: [
                       {
-                        tooltips: {
-                          enabled: false
-                        },
-                        maintainAspectRatio: true,
-                        plugins: {
-                          // title: {
-                          //   display: true,
-                          //   text: "Store customers go through most",
-                          //   position: "top"
-                          // },
-                          legend: {
-                            display: true,
-                            position: 'right',
-                          },
-                          datalabels: {
-                            formatter: (value, ctx) => {
-                              let sum = 0;
-                              let dataArr = ctx.chart.data.datasets[0].data;
-                              dataArr.map(data => {
-                                sum += data;
-                              });
-                              let percentage = (value * 100 / sum).toFixed(2) + "%";
-                              return percentage;
-                            },
-                            color: 'black',
-                            font: {
-                              weight: 'bold',
-                              size: 11
-                            }
-                          }
-                        },
-                        // scales: { // vẽ ra mấy cái đánh số từ 0 --> 1
-                        //   x:{
-                        //     stacked: true,
-                        //   },
-                        //   yAxes: [
-                        //     {
-                        //       stacked : true,
-                        //       ticks: {
-                        //         beginAtZero: true,
-                        //       },
-                        //     },
-                        //   ],
+                        data: dataPieLabels,
+                        label: '# of votes',
+                        backgroundColor: [
+                          'rgba(221, 56, 56, 1)',
+                          'rgba(55, 161, 222, 0.66)',
+                          'rgba(244, 244, 56, 1)',
+                          'rgba(27, 245, 43, 0.66)',
+                          'rgba(245, 27, 188, 0.66)',
+                        ],
+                        borderColor: [
+                          'rgba(221, 56, 56, 1)',
+                          'rgba(55, 161, 222, 0.66)',
+                          'rgba(244, 244, 56, 1)',
+                          'rgba(27, 245, 43, 0.66)',
+                          'rgba(245, 27, 188, 0.66)',
+                        ],
+                        borderWidth: 1,
+                        hoverBorderWidth: 1,
+                        hoverBorderColor: '#000'
+                      },
+                    ],
+                  }
+                  }
+                  plugins={[ChartDataLabels]}
+                  options={
+                    {
+                      tooltips: {
+                        enabled: false
+                      },
+                      maintainAspectRatio: true,
+                      plugins: {
+                        // title: {
+                        //   display: true,
+                        //   text: "Store customers go through most",
+                        //   position: "top"
                         // },
-                      }
+                        legend: {
+                          display: true,
+                          position: 'right',
+                        },
+                        datalabels: {
+                          formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => {
+                              sum += data;
+                            });
+                            let percentage = (value * 100 / sum).toFixed(2) + "%";
+                            return percentage;
+                          },
+                          color: 'black',
+                          font: {
+                            weight: 'bold',
+                            size: 11
+                          }
+                        }
+                      },
+                      // scales: { // vẽ ra mấy cái đánh số từ 0 --> 1
+                      //   x:{
+                      //     stacked: true,
+                      //   },
+                      //   yAxes: [
+                      //     {
+                      //       stacked : true,
+                      //       ticks: {
+                      //         beginAtZero: true,
+                      //       },
+                      //     },
+                      //   ],
+                      // },
                     }
-                  />
-                  <RangePicker style={{marginLeft: '10%'}}
-                    dateRender={current => {
-                      const style = {};
-                      if (current.date() === 1) {
-                        style.border = '1px solid #1890ff';
-                        style.borderRadius = '50%';
-                      }
-                      return (
-                        <div className="ant-picker-cell-inner" style={style}>
-                          {current.date()}
-                        </div>
-                      );
-                    }}
-                  />,
-                </Col>
-              </Card>
-              <Card className="col-md-1 mt-4" style={{backgroundColor: '#eef0f4', }}/>
-              <Card className="col-md-6 mt-4" style={{borderRadius: '15px'}}>
-              <Col>
-                <h3 className='font-weight-bold' >Custommer Feedbacks</h3>
+                  }
+                />
+                <RangePicker style={{ marginLeft: '10%' }}
+                  dateRender={current => {
+                    const style = {};
+                    if (current.date() === 1) {
+                      style.border = '1px solid #1890ff';
+                      style.borderRadius = '50%';
+                    }
+                    return (
+                      <div className="ant-picker-cell-inner" style={style}>
+                        {current.date()}
+                      </div>
+                    );
+                  }}
+                />,
               </Col>
-              </Card>
-            </Row>
-          {/* </Card> */}
+            </Card>
+            <Card className="col-md-1 mt-4" style={{ backgroundColor: '#eef0f4', }} />
+            {/* <div style={{width: '30px'}}> </div> */}
+            <Card className="col-md-6 mt-4" style={{ borderRadius: '15px' }}>
+              <Col>
+                <h3 className='font-weight-bold'>New Custommer Feedbacks</h3>
+                <hr/>
+                <ShowListFeedback/>
+              </Col>
+            </Card>
+          </Row>
         </Card>
       </PageBody>
     </PageWrapper>
