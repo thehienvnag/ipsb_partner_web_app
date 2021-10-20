@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Button, Space, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-const ColumnSelect = ({ onSubmit }) => {
+const ColumnSelect = ({
+  onSubmit,
+  checkboxes = ["All", "Active", "Inactive"],
+}) => {
   const [searchValue, setSearchValue] = useState(null);
   const handleChange = (values) => {
     if (
@@ -24,9 +27,11 @@ const ColumnSelect = ({ onSubmit }) => {
           defaultValue={["Active"]}
           onChange={handleChange}
         >
-          <Checkbox value="">All</Checkbox>
-          <Checkbox value="Active">Active</Checkbox>
-          <Checkbox value="Inactive">Inactive</Checkbox>
+          {checkboxes.map((item, i) => (
+            <Checkbox key={i} value={item === "All" ? "" : item}>
+              {item}
+            </Checkbox>
+          ))}
         </Checkbox.Group>
         <Button
           type="primary"

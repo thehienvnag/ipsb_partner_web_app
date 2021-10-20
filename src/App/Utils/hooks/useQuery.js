@@ -34,7 +34,7 @@ export const useQuery = ({ apiCallback, additionalParams, refresh }) => {
   const setPage = (page) => {
     if (isNumber(page)) {
       var toPath = `page-${page}`;
-      const testPath = /\/page-\d/g.test(location.pathname);
+      const testPath = /\/page-\d+/g.test(location.pathname);
       if (testPath) {
         toPath = `../page-${page}`;
       }

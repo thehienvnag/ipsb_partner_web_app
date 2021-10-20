@@ -1,49 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  Avatar,
-  Table,
-  Tag,
-  Typography,
-  Input,
-  Space,
-  Button,
-  Checkbox,
-} from "antd";
+import React from "react";
+import { Table, Tag, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import {
-  loadCouponTypes,
-  selectListCouponType,
-  selectIsLoading,
-  selectTotalCount,
-  selectPageSize
-}
-  from "App/Stores/couponType.slice";
+import { useQuery } from "App/Utils/hooks/useQuery";
 import { truncate } from "App/Utils/utils";
+import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
+import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
+import { getAllCouponType } from "App/Services/couponType.service";
 
-const CouponTypeTable = ({ currentPage, handlePaging, onRowSelect }) => {
-  const dispatch = useDispatch();
-
-  const listCouponType = useSelector(selectListCouponType);
-  const isLoading = useSelector(selectIsLoading);
-  const pageSize = useSelector(selectPageSize);
-  const totalCount = useSelector(selectTotalCount);
-  const [search, setSearch] = useState(null);
-
-  useEffect(() => {
-    dispatch(loadCouponTypes());
-  }, [dispatch]);
+const CouponTypeTable = ({ refresh, onRowSelect }) => {
+  const {
+    data,
+    loading,
+    pageSize,
+    totalCount,
+    currentPage,
+    setSearchParams,
+    setPageIndex,
+  } = useQuery({
+    apiCallback: getAllCouponType,
+    refresh,
+  });
 
   return (
     <Table
-      loading={isLoading}
-      dataSource={listCouponType}
+      loading={loading}
+      dataSource={data}
       pagination={{
         size: "small",
         current: currentPage,
         pageSize: pageSize,
         total: totalCount,
-        onChange: (page) => handlePaging(page, search),
+        onChange: (page) => setPageIndex(page),
       }}
       onRow={(record) => ({
         onClick: (event) => onRowSelect(record),
@@ -59,36 +46,13 @@ const CouponTypeTable = ({ currentPage, handlePaging, onRowSelect }) => {
         dataIndex="name"
         key="name"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search CouponType name`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ name: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by name"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ name: value })}
+            onCancel={() => setSearchParams(null)}
+          />
         )}
         filterIcon={<SearchOutlined />}
       />
@@ -97,7 +61,9 @@ const CouponTypeTable = ({ currentPage, handlePaging, onRowSelect }) => {
         dataIndex="description"
         key="description"
         width={290}
-        render={(item) => <Typography.Text>{truncate(item,80)}</Typography.Text>}
+        render={(item) => (
+          <Typography.Text>{truncate(item, 80)}</Typography.Text>
+        )}
       />
 
       <Table.Column
@@ -105,45 +71,14 @@ const CouponTypeTable = ({ currentPage, handlePaging, onRowSelect }) => {
         dataIndex="status"
         key="status"
         render={(value) => {
-          if (!value) {
-            value =
-              Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
-          }
           return <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>;
         }}
-        filterDropdown={() => (
-          <div style={{ padding: 8 }}>
-            <Space>
-              <Checkbox.Group
-                style={{ width: "100%" }}
-                onChange={(e) => {
-                  const value = e;
-                  if (value && value.length) {
-                    setSearch({ status: value });
-                  } else {
-                    setSearch(null);
-                  }
-                }}
-              >
-                <Checkbox value="">All</Checkbox>
-                <Checkbox value="Active">Active</Checkbox>
-                <Checkbox value="New">New</Checkbox>
-                <Checkbox value="Inactive">Inactive</Checkbox>
-              </Checkbox.Group>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Filter
-              </Button>
-            </Space>
-          </div>
-        )}
+        filterDropdown={
+          <ColumnSelect
+            onSubmit={(value) => setSearchParams({ status: value })}
+            checkboxes={["All", "Active", "Inactive"]}
+          />
+        }
       />
     </Table>
   );
