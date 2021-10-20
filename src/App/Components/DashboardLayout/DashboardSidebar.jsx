@@ -19,9 +19,7 @@ const AppMenu = ({ children, collapsed }) => {
     <Menu
       mode="vertical"
       className="side-bar-dark-menu"
-      selectedKeys={[
-        role === "Admin" && pathname === "/" ? "/buildings" : pathname,
-      ]}
+      selectedKeys={[pathname.replace(/\/page-\d+/g, "")]}
     >
       {children}
       {role !== "Admin" && (

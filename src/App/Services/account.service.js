@@ -94,8 +94,7 @@ export const postAccount = async (data) => {
  * Page wrapper for new page
  * @param {object} [data] values post
  */
-export const putAccount = async (data) => {
-  const { id } = data;
+export const putAccount = async (id, data) => {
   return (await putFormData(accounts + "/" + id, data)).data;
 };
 
@@ -112,5 +111,5 @@ export const testPoseWithoutFile = async (data) => {
  * @param {object} [data] values post
  */
 export const deleteAccount = async (id) => {
-  return (await axiosClient.delete(accounts + "/" + id)).data;
+  return (await axiosClient.delete(accounts + "/" + id)).status === 204;
 };

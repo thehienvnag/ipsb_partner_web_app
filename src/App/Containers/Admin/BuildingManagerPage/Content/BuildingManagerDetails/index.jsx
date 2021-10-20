@@ -6,7 +6,6 @@ import {
   deleteAccount,
 } from "App/Services/account.service";
 import { useDetailForm } from "App/Utils/hooks/useDetailForm";
-import { PlusOutlined } from "@ant-design/icons";
 import DetailCard from "App/Components/DetailCard";
 import ImagePicker from "App/Components/CustomImagePicker/ImagePicker";
 
@@ -19,6 +18,7 @@ const BuildingManagerDetails = ({
 }) => {
   const { form, btnState, onSave, onDelete } = useDetailForm({
     model,
+    createParams: { role: "Building Manager" },
     createCallback: postAccount,
     updateCallback: putAccount,
     deleteCallback: deleteAccount,
@@ -98,11 +98,5 @@ const BuildingManagerDetails = ({
     </DetailCard>
   );
 };
-const UploadButton = () => (
-  <div>
-    <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
-);
 
 export default BuildingManagerDetails;

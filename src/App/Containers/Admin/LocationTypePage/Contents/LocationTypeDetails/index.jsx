@@ -1,111 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Input, Form, Upload, message, Select } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React from "react";
+import { Row, Col, Input, Form } from "antd";
 import DetailCard from "App/Components/DetailCard";
-import { postLocationType, putLocationType } from "App/Services/locationType.service";
+import { useDetailForm } from "App/Utils/hooks/useDetailForm";
+import {
+  deleteLocationType,
+  postLocationType,
+  putLocationType,
+} from "App/Services/locationType.service";
+import ImagePicker from "App/Components/CustomImagePicker/ImagePicker";
 
 const { TextArea } = Input;
-const { Option } = Select;
-const LocationTypeDetails = ({ visible, onCancel, locationTypeModel, statusBool }) => {
-  const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
-  const handleChange = (info) => {
-    setFileList(info.fileList);
-  };
-
-  useEffect(() => {
-    if (locationTypeModel) {
-      form.setFieldsValue({
-        ...locationTypeModel,
-      });
-      setFileList([{ thumbUrl: locationTypeModel.imageUrl }]);
-    } else {
-      form.resetFields();
-      setFileList([]);
-    }
-  }, [locationTypeModel]);
-
-  const create = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    if (fileList == null || fileList.length == 0) {
-      message.error("Add image for Locationtpe", 4);
-    } else if (values.name == null || values.description == null) {
-      message.error("All Fields need to Fill !!", 4);
-    } else if (values.name != null && fileList.length > 0 && values.description != null) {
-      message.loading("Action in progress...", 3);
-      const data = await postLocationType({
-        ...values,
-        ...{ imageUrl: fileList[0]?.originFileObj },
-      });
-      if (data !== null) {
-        message.success("Create success", 3);
-        form.resetFields();
-      } else {
-        message.error("Create failed", 4);
-      }
-    }
-  };
-
-  const update = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    console.log("========================================");
-    console.log(values);
-    if (fileList == null || fileList.length == 0 ) {
-      message.error("Add image for Locationtpe", 4);
-    } else if (values.name == null || fileList.length == 0 || values.description == null) {
-      message.error("All Fields need to Fill !!", 4);
-    } else if (values.name != null && fileList.length > 0 && values.description != null) {
-      message.loading("Action in progress...", 3);
-      const data = await putLocationType({
-        ...values,
-        ...{ id: locationTypeModel.id },
-        ...{ imageUrl: fileList[0]?.originFileObj },
-      });
-      if (data !== null) {
-        message.success("Update success", 3);
-      }else{
-        message.error("Update failed", 4);
-      }
-    }
-  };
-  const onSave = () => {
-    if (locationTypeModel) {
-      update();
-    } else {
-      create();
-    }
-  };
-
+const LocationTypeDetails = ({
+  visible,
+  onCancel,
+  handleRefresh,
+  handleCancel,
+  model,
+}) => {
+  const { form, btnState, onSave, onDelete } = useDetailForm({
+    model,
+    createParams: { role: "Building Manager" },
+    createCallback: postLocationType,
+    updateCallback: putLocationType,
+    deleteCallback: deleteLocationType,
+    handleRefresh,
+    handleCancel,
+  });
+  const disabled = model && model.status !== "Active";
   return (
-    <DetailCard visible={visible} onCancel={onCancel} onSave={onSave} span={9}>
+    <DetailCard
+      span={9}
+      btnState={btnState}
+      visible={visible}
+      onCancel={onCancel}
+      onSave={onSave}
+      onRemove={onDelete}
+    >
       <Form form={form} layout="vertical">
-        <Row justify="space-between" >
+        <Row justify="space-between">
           <Col span={10}>
-            <Form.Item
-              name="imageUrl"
-              label="Add image"
-              required>
-              <Upload
-                className="upload-wrapper"
-                listType="picture-card"
-                fileList={fileList}
-                onChange={handleChange}
-                beforeUpload={() => false}
-              >
-                {!fileList.length && <UploadButton />}
-              </Upload>
-            </Form.Item>
-            <Form.Item
-              name="status"
-              label="Choose status:"
-            >
-              <Select placeholder="Select status" disabled={statusBool} defaultValue="Active">
-                <Option value="New">New</Option>
-                <Option value="Active">Active</Option>
-                <Option value="Inactive">Inactive</Option>
-              </Select>
+            <Form.Item name="imageUrl" required>
+              <ImagePicker disabled={disabled} />
             </Form.Item>
           </Col>
 
@@ -122,7 +57,10 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel, statusBool 
                 },
               ]}
             >
-              <Input placeholder="Input location type name" />
+              <Input
+                placeholder="Input location type name"
+                disabled={disabled}
+              />
             </Form.Item>
 
             <Form.Item
@@ -137,7 +75,11 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel, statusBool 
                 },
               ]}
             >
-              <TextArea rows={7} placeholder="Input description" />
+              <TextArea
+                rows={3}
+                placeholder="Input description"
+                disabled={disabled}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -145,11 +87,5 @@ const LocationTypeDetails = ({ visible, onCancel, locationTypeModel, statusBool 
     </DetailCard>
   );
 };
-const UploadButton = () => (
-  <div>
-    <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
-);
 
 export default LocationTypeDetails;

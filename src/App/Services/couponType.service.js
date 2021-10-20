@@ -1,7 +1,7 @@
 import axiosClient, { postFormData, putFormData } from "../Utils/axiosClient";
 import { couponTypes } from "../Utils/Constants/endpoints";
 /**
- * Page wrapper for new page
+ * Get coupon types
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
@@ -15,18 +15,26 @@ export const getAllCouponType = async (
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Create coupon type
+ * @param {object} [data] values to create
  */
 export const postCouponType = async (data) => {
   return (await axiosClient.post(couponTypes, data)).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Update coupon type
+ * @param {number} [id] coupon type id
+ * @param {object} [data] values to update
  */
-export const putCouponType = async (data) => {
-  const { id } = data;
+export const putCouponType = async (id, data) => {
   return (await axiosClient.put(couponTypes + "/" + id, data)).data;
+};
+
+/**
+ * Delete coupon type
+ * @param {number} [id] coupon type id
+ */
+ export const deleteCouponType = async (id) => {
+  return (await axiosClient.delete(couponTypes + "/" + id)).status === 204;
 };

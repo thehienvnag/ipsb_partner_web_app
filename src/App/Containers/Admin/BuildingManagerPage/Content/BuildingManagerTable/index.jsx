@@ -102,6 +102,7 @@ const BuildingManagerTable = ({ refresh, onRowSelect }) => {
         filterDropdown={
           <ColumnSelect
             onSubmit={(value) => setSearchParams({ status: value })}
+            checkboxes={["All", "New", "Active", "Inactive"]}
           />
         }
       />

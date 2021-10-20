@@ -72,12 +72,24 @@ const appRoutes = [
         element: <RoleGuard role="Admin" component={<BuildingPage />} />,
       },
       {
+        path: RouteNames.locationTypes + "/:page",
+        element: <RoleGuard role="Admin" component={<LocationTypePageV2 />} />,
+      },
+      {
         path: RouteNames.locationTypes,
         element: <RoleGuard role="Admin" component={<LocationTypePageV2 />} />,
       },
       {
+        path: RouteNames.managerAccounts + "/:page",
+        element: <RoleGuard role="Admin" component={<BuildingManagerPage />} />,
+      },
+      {
         path: RouteNames.managerAccounts,
         element: <RoleGuard role="Admin" component={<BuildingManagerPage />} />,
+      },
+      {
+        path: RouteNames.couponTypes + "/:page",
+        element: <RoleGuard role="Admin" component={<CouponTypePage />} />,
       },
       {
         path: RouteNames.couponTypes,

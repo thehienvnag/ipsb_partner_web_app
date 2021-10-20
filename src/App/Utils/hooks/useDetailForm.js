@@ -30,38 +30,51 @@ export const useDetailForm = ({
   };
 
   const create = async (values) => {
-    setBtnState({ saveLoading: true });
-    const data = await createCallback({ ...values, ...createParams });
-    setBtnState({ saveLoading: false });
-    if (data?.id) {
-      handleRefresh();
-      message.success("Create success", 3);
-    } else {
+    try {
+      setBtnState({ saveLoading: true });
+      const data = await createCallback({ ...values, ...createParams });
+      if (data?.id) {
+        handleRefresh();
+        message.success("Create success", 3);
+      } else {
+        message.error("Create Failed", 3);
+      }
+    } catch (error) {
       message.error("Create Failed", 3);
     }
+    setBtnState({ saveLoading: false });
   };
   const update = async (values) => {
-    setBtnState({ saveLoading: true });
-    const data = await updateCallback(model.id, values);
-    setBtnState({ saveLoading: false });
-    if (data?.id !== null) {
-      handleRefresh();
-      message.success("Update success", 3);
-    } else {
+    try {
+      setBtnState({ saveLoading: true });
+      const data = await updateCallback(model.id, values);
+      if (data?.id !== null) {
+        handleRefresh();
+        message.success("Update success", 3);
+      } else {
+        message.error("Update Failed", 3);
+      }
+    } catch (error) {
       message.error("Update Failed", 3);
     }
+    setBtnState({ saveLoading: false });
   };
+
   const onDelete = async () => {
-    setBtnState({ removeLoading: true });
-    const result = await deleteCallback(model.id);
-    setBtnState({ removeLoading: false });
-    if (result) {
-      handleRefresh();
-      handleCancel();
-      message.success("Delete success!", 3);
-    } else {
-      message.error("Delete fail!", 3);
+    try {
+      setBtnState({ removeLoading: true });
+      const result = await deleteCallback(model.id);
+      if (result) {
+        handleRefresh();
+        handleCancel();
+        message.success("Delete success!", 3);
+      } else {
+        message.error("Delete fail!", 3);
+      }
+    } catch (error) {
+      message.error("Delete Failed", 3);
     }
+    setBtnState({ removeLoading: false });
   };
 
   return { form, onSave, onDelete, btnState };
