@@ -16,7 +16,7 @@ axiosClient.defaults.withCredentials = true;
 axiosRetry(axiosClient, {
   retries: 1,
   retryCondition: async (error) => {
-    if (error.response.status !== 401) return false;
+    if (error.response.status !== 401) throw error;
     if (
       error.response.status === 401 &&
       error.config.url !== "/auth/refresh-token"
@@ -27,7 +27,7 @@ axiosRetry(axiosClient, {
         return true;
       } catch (error) {}
     }
-    return false;
+    throw error;
   },
 });
 

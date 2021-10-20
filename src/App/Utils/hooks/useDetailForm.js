@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form, message } from "antd";
+import { nonNullKeyValue } from "../utils";
 export const useDetailForm = ({
   model,
   createCallback,
@@ -20,13 +21,14 @@ export const useDetailForm = ({
   }, [model]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSave = async () => {
-    const values = await form.validateFields();
+    const values = nonNullKeyValue(await form.validateFields());
     if (model) {
       update(values);
     } else {
       create(values);
     }
   };
+
   const create = async (values) => {
     setBtnState({ saveLoading: true });
     const data = await createCallback({ ...values, ...createParams });

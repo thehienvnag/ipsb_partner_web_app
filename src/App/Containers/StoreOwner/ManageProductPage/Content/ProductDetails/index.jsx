@@ -56,7 +56,6 @@ const ProductDetails = ({
               <ImagePicker disabled={disabled} />
             </Form.Item>
           </Col>
-
           <Col span={12}>
             <Form.Item
               name="name"

@@ -8,11 +8,14 @@ const SelectAccount = ({
   initialValue,
   onChange,
 }) => {
-  const fetchAccounts = (searchParams) =>
-    getAccounts(
-      { pageSize: 10, role, notBuildingManager: true },
+  const fetchAccounts = (searchParams) => {
+    const notBuildingManager = role === "Building Manager";
+    return getAccounts(
+      { pageSize: 10, role, notBuildingManager },
       searchParams
     ).then((data) => data.content);
+  };
+
   return (
     <SelectWrapper
       disabled={disabled}

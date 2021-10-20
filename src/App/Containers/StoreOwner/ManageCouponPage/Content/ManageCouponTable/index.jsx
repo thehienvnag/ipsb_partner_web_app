@@ -94,7 +94,7 @@ const ManageCouponTable = ({ refresh, onRowSelect }) => {
         key="limit"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
       /> */}
-      <Table.Column
+      {/* <Table.Column
         title="PublishDate"
         dataIndex="publishDate"
         key="publishDate"
@@ -113,7 +113,7 @@ const ManageCouponTable = ({ refresh, onRowSelect }) => {
             {Moment(item).format("DD-MM-YYYY (hh:mm)")}
           </Typography.Text>
         )}
-      />
+      /> */}
 
       <Table.Column
         title="Status"

@@ -5,6 +5,9 @@ export function getBase64(file, callback) {
   reader.readAsDataURL(file);
 }
 
+export const nonNullKeyValue = (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+
 export const inVnd = (num, n, x) => {
   const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\." : "$") + ")";
   return num.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, "g"), "$&,");

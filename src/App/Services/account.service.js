@@ -39,21 +39,23 @@ export const getAccounts = async (
  * Get accounts functions
  * @param {object} [params] parameters for get request
  */
-export const getBuildingManagers = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  role = "Building Manager",
-  status = "Active",
-  isAll = false,
-  searchObject = {},
-}) => {
+export const getBuildingManagers = async (
+  {
+    pageIndex = 1,
+    pageSize = 5,
+    role = "Building Manager",
+    status = "Active",
+    isAll = false,
+  },
+  searchParams = {}
+) => {
   const params = {
     pageIndex,
     pageSize,
     role,
     status,
     isAll,
-    ...searchObject,
+    ...searchParams,
   };
   return (await axiosClient.get(accounts, { params })).data;
 };
@@ -109,6 +111,6 @@ export const testPoseWithoutFile = async (data) => {
  * Page wrapper for new page
  * @param {object} [data] values post
  */
-export const deleteAccounts = async (id) => {
+export const deleteAccount = async (id) => {
   return (await axiosClient.delete(accounts + "/" + id)).data;
 };
