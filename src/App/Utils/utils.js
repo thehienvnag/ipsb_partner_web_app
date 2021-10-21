@@ -5,8 +5,22 @@ export function getBase64(file, callback) {
   reader.readAsDataURL(file);
 }
 
+export const isObject = (obj) => {
+  return typeof obj === "object" && !Array.isArray(obj) && obj !== null;
+};
+
 export const nonNullKeyValue = (obj) =>
   Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+
+export const keyObjectStringify = (obj, keys = []) => {
+  for (const key in obj) {
+    const value = obj[key];
+    if (isObject(value) && keys.includes(key)) {
+      obj[key] = JSON.stringify(value);
+    }
+  }
+  return obj;
+};
 
 export const inVnd = (num, n, x) => {
   const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\." : "$") + ")";

@@ -1,26 +1,23 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectListFloorCode,
-  loadAll as getFloor,
-} from "App/Stores/floorPlan.slice";
+import React from "react";
+import { useSelector } from "react-redux";
 import SelectWrapper from "./SelectWrapper";
+import { selectBuildingId } from "App/Stores/auth.slice";
+import { getAll as getAllFloor } from "App/Services/floorPlan.service";
 
-const SelectFloorPlan = ({ disabled, value, onChange }) => {
-  const dispatch = useDispatch();
-  const floors = useSelector(selectListFloorCode);
-  useEffect(() => {
-    dispatch(getFloor());
-  }, [dispatch]);
+const SelectFloorPlan = ({ disabled, initialValue, value, onChange }) => {
+  const buildingId = useSelector(selectBuildingId);
+  const fetchFloorPlans = (searchParams) =>
+    getAllFloor({ buildingId }, searchParams).then((data) => data.content);
   return (
     <SelectWrapper
       disabled={disabled}
       placeholder={`Select Floor Plan`}
       value={value}
+      initialValue={initialValue}
       onChange={onChange}
-      inputData={floors}
       keyIndex="id"
       labelIndex="floorCode"
+      loadData={fetchFloorPlans}
     />
   );
 };

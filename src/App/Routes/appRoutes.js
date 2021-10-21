@@ -34,9 +34,21 @@ const appRoutes = [
         ),
       },
       {
+        path: RouteNames.stores + "/:page",
+        element: (
+          <RoleGuard role="Building Manager" component={<StorePage />} />
+        ),
+      },
+      {
         path: RouteNames.stores,
         element: (
           <RoleGuard role="Building Manager" component={<StorePage />} />
+        ),
+      },
+      {
+        path: RouteNames.locatorTags + "/:page",
+        element: (
+          <RoleGuard role="Building Manager" component={<LocatorTagPage />} />
         ),
       },
       {

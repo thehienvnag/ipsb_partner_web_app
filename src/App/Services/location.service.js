@@ -40,7 +40,12 @@ export const deleteLocations = async (ids) => {
 export const getByFloorIdForStairLift = async (floorPlanId) => {
   return (
     await axiosClient.get(locations, {
-      params: { floorPlanId, locationTypeIds: [3, 4], isAll: true },
+      params: {
+        floorPlanId,
+        locationTypeIds: [3, 4],
+        isAll: true,
+        status: "Active",
+      },
     })
   ).data;
 };
@@ -50,6 +55,7 @@ export const getAllLocation = async ({
   pageSize = 5,
   buildingId,
   locationTypeName,
+  status = "Active",
 }) => {
   const params = {
     pageIndex,
@@ -57,6 +63,7 @@ export const getAllLocation = async ({
     buildingId,
     locationTypeIds: [6, 10, 11, 12, 13, 14, 15],
     locationTypeName,
+    status,
   };
   return (await axiosClient.get(locations, { params })).data;
 };

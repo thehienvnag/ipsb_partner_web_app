@@ -20,8 +20,8 @@ export const getAccounts = async (
     role,
     status = "Active",
     isAll = false,
-    notBuildingManager = false,
   },
+  notManage = {},
   searchParams = {}
 ) => {
   const params = {
@@ -30,7 +30,7 @@ export const getAccounts = async (
     role,
     status,
     isAll,
-    notBuildingManager,
+    ...notManage,
     ...searchParams,
   };
   return (await axiosClient.get(accounts, { params })).data;

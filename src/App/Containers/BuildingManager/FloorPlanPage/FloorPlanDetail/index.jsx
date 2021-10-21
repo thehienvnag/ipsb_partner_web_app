@@ -9,7 +9,6 @@ import {
   Row,
   Col,
   Button,
-  Divider,
   message,
 } from "antd";
 import { getBase64 } from "App/Utils/utils";
@@ -18,7 +17,7 @@ import {
   UploadOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import IndoorMap from "App/Components/IndoorMap/index";
+import IndoorMap from "App/Components/IndoorMap";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { removeLocations } from "App/Stores/location.slice";

@@ -11,12 +11,16 @@ import EdgeHelper from "App/Utils/edgeHelper";
 //#region Async thunks floor plans
 const createLocation = createAsyncThunk(
   "indoorMap/createLocation",
-  async (rawLocation, { getState, rejectWithValue }) => {
+  async ({ rawLocation, typeId }, { getState, rejectWithValue }) => {
     const { location, edge, indoorMap, floorPlan } = getState();
-    const duplicate = LocationHelper.duplicate(rawLocation, [
-      ...(location.list?.content ?? []),
-      ...(indoorMap.createdLocations ?? []),
-    ]);
+    const duplicate = LocationHelper.duplicate(
+      rawLocation,
+      [
+        ...(location.list?.content ?? []),
+        ...(indoorMap.createdLocations ?? []),
+      ],
+      indoorMap.removedLocationIds
+    );
     if (duplicate) {
       return rejectWithValue(duplicate);
     }
@@ -59,7 +63,7 @@ const setSelectedFloorId = createAsyncThunk(
       if (floorPlan) {
         return {
           floorPlan: await floorPlan,
-          locations: await locations,
+          locations: (await locations)?.content,
         };
       }
     }
@@ -158,11 +162,10 @@ const Slice = createSlice({
     openMenu: false,
     nextFloorPlan: null,
     nextFloorMarkers: [],
+    facilityLocation: null,
   },
   reducers: {
     setSelected: (state, { payload: { location, openMenu } }) => {
-      console.log(location, openMenu);
-
       if (LocationHelper.equal(state.selected, location)) {
         state.selected = null;
       } else {
@@ -174,13 +177,19 @@ const Slice = createSlice({
         state.openMenu = false;
       }
     },
+    setFacilityLocation: (state, { payload }) => {
+      state.facilityLocation = payload;
+      state.selected = payload;
+    },
+    removeFacilityLocation: (state, action) => {
+      state.facilityLocation = null;
+    },
   },
   extraReducers: {
     [createEdge.fulfilled]: (
       state,
       { payload: { edgeToCreate, selected } }
     ) => {
-      console.log(edgeToCreate, selected);
       state.createdEdges.push(edgeToCreate);
       state.selected = selected;
     },
@@ -258,7 +267,6 @@ const Slice = createSlice({
     },
     [setSelectedFloorId.fulfilled]: (state, { payload }) => {
       const { floorPlan, locations } = payload;
-      console.log(payload);
       state.nextFloorPlan = floorPlan;
       state.nextFloorMarkers = locations;
     },
@@ -268,8 +276,13 @@ const Slice = createSlice({
 //Floor plan selector to observe data
 //#region [typesSelect, locationTypes]
 const selectMarkers = ({ indoorMap, locationType, location, edge }) => {
-  const { createdLocations, removedLocationIds, createdEdges, removedEdgeIds } =
-    indoorMap;
+  const {
+    createdLocations,
+    removedLocationIds,
+    createdEdges,
+    removedEdgeIds,
+    facilityLocation,
+  } = indoorMap;
 
   const locationsToDisplay = LocationHelper.display(
     location.list,
@@ -287,6 +300,9 @@ const selectMarkers = ({ indoorMap, locationType, location, edge }) => {
   const result = locationsToDisplay.map((loc) =>
     LocationHelper.appendEdge(floorConnectEdges, loc)
   );
+  if (facilityLocation) {
+    return [...result, facilityLocation];
+  }
   return result;
 };
 
@@ -319,14 +335,16 @@ const selectSelected = ({
     : null;
 };
 const selectOpenMenu = ({ indoorMap }) => indoorMap.openMenu;
-//#endregion
+const selectFacilityLocation = ({ indoorMap }) => indoorMap.facilityLocation;
+//#f
 //#region next floor
 const selectNextFloorPlan = ({ indoorMap }) => indoorMap.nextFloorPlan;
 const selectNextFloorMarkers = ({ indoorMap }) => indoorMap.nextFloorMarkers;
 //#endregion
 
 /// Export reducer
-const { setSelected } = Slice.actions;
+const { setSelected, setFacilityLocation, removeFacilityLocation } =
+  Slice.actions;
 export {
   selectMarkers,
   selectEdges,
@@ -334,6 +352,7 @@ export {
   selectSelected,
   selectNextFloorPlan,
   selectNextFloorMarkers,
+  selectFacilityLocation,
   createLocation,
   removeLocation,
   createEdge,
@@ -341,5 +360,7 @@ export {
   saveLocationAndEdges,
   setSelected,
   setSelectedFloorId,
+  setFacilityLocation,
+  removeFacilityLocation,
 };
 export default Slice.reducer;

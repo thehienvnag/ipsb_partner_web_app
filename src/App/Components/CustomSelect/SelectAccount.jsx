@@ -9,11 +9,16 @@ const SelectAccount = ({
   onChange,
 }) => {
   const fetchAccounts = (searchParams) => {
-    const notBuildingManager = role === "Building Manager";
-    return getAccounts(
-      { pageSize: 10, role, notBuildingManager },
-      searchParams
-    ).then((data) => data.content);
+    const notMange =
+      role === "Building Manager"
+        ? { notManageBuilding: true }
+        : role === "Store Owner"
+        ? { notManageStore: true }
+        : null;
+
+    return getAccounts({ pageSize: 10, role }, notMange, searchParams).then(
+      (data) => data.content
+    );
   };
 
   return (

@@ -1,27 +1,35 @@
 import { useEffect, useState } from "react";
 import { Form, message } from "antd";
-import { nonNullKeyValue } from "../utils";
+import { keyObjectStringify, nonNullKeyValue, pipe } from "../utils";
 export const useDetailForm = ({
   model,
   createCallback,
   createParams,
   updateCallback,
+  paramsKeyToStringify,
   deleteCallback,
   handleRefresh,
   handleCancel,
+  effectCallback,
 }) => {
   const [btnState, setBtnState] = useState(null);
   const [form] = Form.useForm();
   useEffect(() => {
+    form.resetFields();
     if (model) {
       form.setFieldsValue(model);
-    } else {
-      form.resetFields();
     }
+    effectCallback && effectCallback();
   }, [model]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSave = async () => {
-    const values = nonNullKeyValue(await form.validateFields());
+    const stringify = (values) =>
+      keyObjectStringify(values, paramsKeyToStringify);
+    const values = pipe(
+      nonNullKeyValue,
+      stringify
+    )(await form.validateFields());
+
     if (model) {
       update(values);
     } else {

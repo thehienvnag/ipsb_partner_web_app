@@ -84,7 +84,7 @@ const BmHomePage = () => {
       returnArray = dataStore.filter((obj) => obj.locationId === element.locationId);
       console.log(returnArray);
       var count = returnArray.length;
-      newArray.push({ name: element.location.store.name, numberOfAppearance: count });
+      newArray.push({ name: element.location?.store?.name, numberOfAppearance: count });
     });
 
     newArray.sort((a, b) => a.numberOfAppearance < b.numberOfAppearance ? 1 : -1);
