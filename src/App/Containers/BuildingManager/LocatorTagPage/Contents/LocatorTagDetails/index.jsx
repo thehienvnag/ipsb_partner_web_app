@@ -1,158 +1,134 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { Modal, Form, Row, Col, Input, Select } from "antd";
-import {
-  selectListFloor,
-  loadAll as loadFloors,
-} from "App/Stores/floorPlan.slice";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { Form, Row, Col, Input } from "antd";
+
 import DetailCard from "App/Components/DetailCard";
+import { useDetailForm } from "App/Utils/hooks/useDetailForm";
+import {
+  deleteLocatorTag,
+  postLocatorTag,
+  putLocatorTag,
+} from "App/Services/locatorTag.service";
+import { selectBuildingId } from "App/Stores/auth.slice";
+import SelectFloorPlan from "App/Components/CustomSelect/SelectFloorPlan";
+import PickLocation from "App/Components/PickLocation/PickLocation";
+import SelectLocatorTag from "App/Components/CustomSelect/SelectLocatorTag";
 
-const { Option } = Select;
-const LocationDetails = ({ model, visible, onCancel }) => {
-  const dispatch = useDispatch();
-  const [form] = Form.useForm();
-  const [valueLocationId, setLocationId] = useState(null);
-  const [floor, setFloor] = useState(null);
-  const [status, setStatus] = useState(null);
-  const listFloorPlan = useSelector(selectListFloor);
+const LocationDetails = ({
+  visible,
+  onCancel,
+  handleRefresh,
+  handleCancel,
+  model,
+}) => {
+  const buildingId = useSelector(selectBuildingId);
+  const [floorPlanId, setFloorPlanId] = useState(null);
+  const { form, btnState, onSave, onDelete } = useDetailForm({
+    model,
+    createParams: { buildingId },
+    createCallback: postLocatorTag,
+    updateCallback: putLocatorTag,
+    deleteCallback: deleteLocatorTag,
+    paramsKeyToStringify: ["locationJson"],
+    handleRefresh,
+    handleCancel,
+    effectCallback: () => setFloorPlanId(model?.floorPlanId),
+  });
 
-  const onSave = async () => {
-    // if (valueMac !== null && valueLocationId != null && valueFloor != null) {
-    // const data = await putLocatorTag({
-    //   ...{ id: model?.id },
-    //   ...{ macAddress: valueMac },
-    //   ...{ status: valueStatus },
-    //   ...{ floorPlanId: valueFloor },
-    //   ...{ locationId: valueLocationId },
-    //   ...{ lastSeen: new Datetime.now() },
-    // });
-    // if (data?.id !== null) {
-    //   message
-    //     .loading("Action in progress...", 3)
-    //     .then(() => message.success("Update success", 3))
-    //     .then(() => hideModalDetail())
-    //     .then(() => dispatch(loadAccounts({ pageIndex: currentPage })));
-    // }
-    // }
-  };
-  const onRemove = () => {};
-
-  useEffect(() => {
-    if (model) {
-      form.setFieldsValue(model);
-      setStatus(model.status);
-      setFloor(model.floorPlan?.floorCode);
-    } else {
-      form.resetFields();
-      setStatus(null);
-      setFloor(null);
-    }
-    dispatch(loadFloors());
-  }, [dispatch, model]);
-
+  const disabled = model && model.status !== "Active";
   return (
     <DetailCard
-      visible={visible}
-      onSave={onSave}
-      onCancel={onCancel}
-      onRemove={onRemove}
       span={8}
+      btnState={btnState}
+      visible={visible}
+      onCancel={onCancel}
+      onSave={!disabled && onSave}
+      onRemove={!disabled && onDelete}
     >
-      <Form layout="vertical" form={form}>
+      <Form
+        layout="vertical"
+        form={form}
+        onValuesChange={(changed, { floorPlanId }) => {
+          setFloorPlanId(floorPlanId);
+        }}
+      >
         <Row justify="space-between">
           <Col span={11}>
             <Form.Item
-              name="macAddress"
-              label="MAC Address: "
-              required
-              tooltip="This is MAC Address of locator tag"
+              name="locatorTagGroupId"
+              label="Locator Tag Group: "
+              rules={[
+                {
+                  required: true,
+                  message: "Input locator tag group",
+                },
+              ]}
+              tooltip="This is locator tag group"
             >
-              <Input placeholder="Enter Mac Address" />
+              <SelectLocatorTag
+                initialValue={model?.locatorTagGroup}
+                placeholder="Input locator tag group"
+              />
+            </Form.Item>
+            <Form.Item
+              name="uuid"
+              label="UUID: "
+              rules={[
+                {
+                  required: true,
+                  message: "Input UUID",
+                },
+              ]}
+              tooltip="This is Uuid of locator tag"
+            >
+              <Input placeholder="Input UUID" disabled={model?.uuid} />
             </Form.Item>
           </Col>
           <Col span={11}>
             <Form.Item
-              label="Floor in building:"
-              required
-              tooltip="This is the location of the locator tag on which floor of building"
+              name="txPower"
+              label="TxPower:"
+              rules={[
+                {
+                  required: true,
+                  message: "Input TxPower",
+                },
+              ]}
+              tooltip="This is the locator's tag TxPower (RSSI value at 1meter from the locator tag)"
             >
-              <Select
-                placeholder="Select Floor"
-                defaultValue={floor && `Floor ${floor}`}
-                onChange={(value) => setFloor(value)}
-              >
-                {listFloorPlan &&
-                  listFloorPlan.map((item) => (
-                    <Option value={item.id}>Floor {item.floorCode}</Option>
-                  ))}
-              </Select>
+              <Input placeholder="Input TxPower" />
             </Form.Item>
-          </Col>
-          <Col span={11}>
             <Form.Item
-              label="Location: "
-              required
-              tooltip="This is location ID of locator tag"
+              name="floorPlanId"
+              label="Floor plan:"
+              rules={[
+                {
+                  required: true,
+                  message: "Input TxPower",
+                },
+              ]}
+              tooltip="This is the locator tag's floor plan"
             >
-              <Input
-                value={model?.location.id}
-                placeholder="Pick location"
-                onChange={(value) => {
-                  setLocationId(value);
-                }}
+              <SelectFloorPlan initialValue={model?.floorPlan} />
+            </Form.Item>
+            <Form.Item
+              name="locationJson"
+              label="Location:"
+              rules={[
+                {
+                  required: true,
+                  message: "Input Location",
+                },
+              ]}
+              tooltip="This is the location of the locator tag"
+            >
+              <PickLocation
+                floorPlanId={floorPlanId}
+                locationTypeId={5} // Location Type Id of store
+                initialValue={model?.location}
               />
             </Form.Item>
           </Col>
-          <Col span={11}>
-            <Form.Item
-              label="Status:"
-              required
-              tooltip="This is status of locator tag"
-            >
-              <Select
-                placeholder="Select status"
-                value={status}
-                onChange={(value) => {
-                  setStatus(value);
-                }}
-              >
-                <Option value="1">Active</Option>
-                <Option value="2">Inactive</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-          {/* <Col span={11}>
-            <Form.Item
-              name="updateTime"
-              label="Update date"
-              required
-              tooltip="This is the most recent date the locator tag was updated"
-            >
-              <Input
-                disabled={true}
-                value={model?.updateTime}
-                onChange={() => {
-                  // setInput(!input);
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={11}>
-            <Form.Item
-              name="lastSeen"
-              label="Last date scanned"
-              required
-              tooltip="This is the last date the location tag was scanned"
-            >
-              <Input
-                disabled={true}
-                value={model?.lastSeen}
-                onChange={() => {
-                  // setInput(!input);
-                }}
-              />
-            </Form.Item> 
-      </Col> */}
         </Row>
       </Form>
     </DetailCard>

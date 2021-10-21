@@ -1,5 +1,4 @@
 @mixin modal-wrapper-rotate($deg) {
-  
   .ant-modal {
     width: 96% !important;
     top: 20px !important;
@@ -23,7 +22,9 @@
             top: 0;
             left: 0;
             path,
-            circle, rect, g {
+            circle,
+            rect,
+            g {
               cursor: pointer !important;
             }
           }
@@ -80,8 +81,8 @@
       font-size: 25px;
     }
   }
-  .without-preview-btn{
-    transform:  translate(-3px,-1.5px)
+  .without-preview-btn {
+    transform: translate(-3px, -1.5px);
   }
   .image-wrapper {
     position: relative;
@@ -90,7 +91,9 @@
       top: 0;
       left: 0;
       path,
-      circle, g, rect {
+      circle,
+      g,
+      rect {
         cursor: pointer;
       }
     }
@@ -123,8 +126,8 @@
       font-size: 25px;
     }
   }
-  .without-preview-btn{
-    transform:  translate(-3px,-1.5px)
+  .without-preview-btn {
+    transform: translate(-3px, -1.5px);
   }
   .image-wrapper {
     position: relative;
@@ -133,16 +136,18 @@
       top: 0;
       left: 0;
       path,
-      circle, g, rect {
+      circle,
+      g,
+      rect {
         cursor: pointer;
       }
     }
   }
 }
 
-
-.without-preview{
+.without-preview {
   display: inline-block;
+  width: 100%;
 }
 
 .off-switch {
@@ -152,16 +157,23 @@
   }
 }
 
-.img-red{
-  filter: invert(62%) sepia(59%) saturate(5304%) hue-rotate(328deg) brightness(95%) contrast(97%);
+.img-red {
+  filter: invert(62%) sepia(59%) saturate(5304%) hue-rotate(328deg)
+    brightness(95%) contrast(97%);
 }
-.img-white{
-  filter: invert(98%) sepia(98%) saturate(0%) hue-rotate(1deg) brightness(103%) contrast(102%);
+.img-white {
+  filter: invert(98%) sepia(98%) saturate(0%) hue-rotate(1deg) brightness(103%)
+    contrast(102%);
 }
 
-.filter-wrapper{
+.img-green {
+  filter: invert(66%) sepia(89%) saturate(353%) hue-rotate(83deg)
+    brightness(91%) contrast(82%);
+}
+
+.filter-wrapper {
   position: relative;
-  .filter-select{
+  .filter-select {
     position: absolute;
     top: 5px;
     left: 5px;
@@ -169,13 +181,13 @@
   }
 }
 
-.custom-menu-item{
+.custom-menu-item {
   user-select: none;
-  .anticon{
+  .anticon {
     margin-top: 8px;
   }
 }
 
-.not-allowed{
+.not-allowed {
   cursor: not-allowed !important;
 }

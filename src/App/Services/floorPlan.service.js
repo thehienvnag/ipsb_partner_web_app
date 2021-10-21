@@ -7,14 +7,16 @@ import { floorPlans } from "../Utils/Constants/endpoints";
  * @param {number} [params.pageSize] current page size of get request
  * @param {number} [params.buildingId] building id which contains floor plans
  */
-export const getAll = async ({ pageIndex = 1, pageSize = 5, buildingId }) => {
-  const params = { pageIndex, pageSize, buildingId };
+export const getAll = async (
+  { pageIndex = 1, pageSize = 5, buildingId },
+  searchParams = {}
+) => {
+  const params = { pageIndex, pageSize, buildingId, ...searchParams };
   return (await axiosClient.get(floorPlans, { params })).data;
 };
 /**
- * Page wrapper for new page
- * @param {object} [params] parameters for get request
- * @param {number} [params.id] building id which contains floor plans
+ * Get floor plan by id
+ * @param {number} [id] Floor plan id
  */
 export const getById = async (id) => {
   return (await axiosClient.get(`${floorPlans}/${id}`)).data;

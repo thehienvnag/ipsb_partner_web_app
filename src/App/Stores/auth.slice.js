@@ -88,10 +88,7 @@ const Slice = createSlice({
   },
   reducers: {
     setAuthInfo: (state, { payload }) => {
-      const { refreshToken, accessToken, ...authInfo } = payload;
-      state.data = authInfo;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("accountId", authInfo.id);
+      state.data = getAndSetAuthInfo(payload);
     },
   },
   extraReducers: {
@@ -105,8 +102,7 @@ const Slice = createSlice({
       state.isLoading = false;
     },
     [retrieveAuthInfo.fulfilled]: (state, { payload }) => {
-   
-      if(payload){
+      if (payload) {
         const { refreshToken, accessToken, ...authInfo } = payload;
         state.data = authInfo;
       }
@@ -122,32 +118,33 @@ const Slice = createSlice({
       state.isLoading = true;
     },
     [checkWebLogin.fulfilled]: (state, { payload }) => {
-      const { refreshToken, accessToken, ...authInfo } = payload;
-      state.data = authInfo;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("accountId", authInfo.id);
+      state.data = state.data = getAndSetAuthInfo(payload);
       state.isLoading = false;
       state.isLogginOut = false;
     },
     [checkWebLogin.rejected]: (state, action) => {
       state.isLoading = false;
-      console.log("reject");
     },
     [refreshUserInfo.fulfilled]: (state, { payload }) => {
-      const { refreshToken, accessToken, ...authInfo } = payload;
-      state.data = authInfo;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("accountId", authInfo.id);
+      state.data = getAndSetAuthInfo(payload);
     },
     //#endregion
   },
 });
 
+const getAndSetAuthInfo = (payload) => {
+  const { refreshToken, accessToken, ...authInfo } = payload;
+  localStorage.setItem("accessToken", accessToken);
+  localStorage.setItem("accountId", authInfo.id);
+  return authInfo;
+};
 
-//#region 
-export const selectAuthPresentStatus = (state) => state.auth.data ? true : false;
+//#region
+export const selectAuthPresentStatus = (state) =>
+  state.auth.data ? true : false;
 export const selectAccount = (state) => state.auth.data;
 export const selectStoreId = (state) => state.auth.data?.store?.id;
+export const selectBuildingId = (state) => state.auth.data?.buildingManager?.id;
 export const selectRole = (state) => state.auth.data?.role;
 export const selectLoading = (state) => state.auth.isLoading;
 export const selectIsLogginOut = (state) => state.auth.isLogginOut;

@@ -11,6 +11,7 @@ const ImagePicker = ({ disabled, value, onChange }) => {
   }, [value]);
 
   const handleChange = (info) => {
+
     setFileList(info.fileList);
     onChange(info.fileList[0]?.originFileObj);
   };

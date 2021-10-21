@@ -25,7 +25,9 @@ const SelectWrapper = ({
       loadData && fetchApi();
       inputData && setData(inputData);
     }
+  }, [data, loadData, inputData, onChange]);
 
+  useEffect(() => {
     if (initialValue) {
       if (mode === "single") {
         setInnerValue([
@@ -45,7 +47,7 @@ const SelectWrapper = ({
     } else {
       setInnerValue([]);
     }
-  }, [data, loadData, inputData, onChange]);
+  }, [initialValue]);
 
   const handleChange = (values) => {
     if (mode === "single") {

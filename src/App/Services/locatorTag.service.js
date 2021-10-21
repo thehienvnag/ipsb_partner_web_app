@@ -1,27 +1,47 @@
 import axiosClient from "../Utils/axiosClient";
 import { locatorTags } from "../Utils/Constants/endpoints";
 /**
- * Page wrapper for new page
+ * get locator tags
  * @param {object} [params] parameters for get request
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  * @param {number} [params.floorPlanId] building id which contains floor plans
  */
-export const getLocatorTags = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  status = "Active",
-  floorPlanId,
-  searchObject = {},
-}) => {
-  const params = { pageIndex, pageSize, status, floorPlanId, ...searchObject };
+export const getLocatorTags = async (
+  { pageIndex = 1, pageSize = 5, status = "Active", buildingId, isAll = true },
+  searchParams = {}
+) => {
+  const params = {
+    pageIndex,
+    pageSize,
+    status,
+    buildingId,
+    isAll,
+    ...searchParams,
+  };
   return (await axiosClient.get(locatorTags, { params })).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Create locator
+ * @param {object} [data] values to create
  */
 export const postLocatorTag = async (data) => {
   return (await axiosClient.post(locatorTags, data)).data;
+};
+
+/**
+ * Update locator tag
+ * @param {object} [data] building locator tag to update
+ */
+export const putLocatorTag = async (id, data) => {
+  return (await axiosClient.put(locatorTags + "/" + id, data)).data;
+};
+
+/**
+ * Delete building
+ * @param {object} [id] locator tag id
+ */
+export const deleteLocatorTag = async (id) => {
+  return (await axiosClient.delete(locatorTags + "/" + id)).status === 204;
 };

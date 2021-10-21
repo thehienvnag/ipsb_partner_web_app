@@ -11,9 +11,9 @@ import {
 const loadAll = createAsyncThunk(
   "floorPlan/loadAll",
   async (params = {}, thunkAPI) => {
-    const { building } = thunkAPI.getState();
-    if (building.inChargeBuilding) {
-      Object.assign(params, { buildingId: building.inChargeBuilding.id });
+    const { auth } = thunkAPI.getState();
+    if (auth?.data?.building?.id) {
+      Object.assign(params, { buildingId: auth.data.building.id });
     }
     const data = await getAll(params);
     return data;

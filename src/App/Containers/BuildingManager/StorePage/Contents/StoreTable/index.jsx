@@ -1,41 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { Avatar, Table, Tag, Typography } from "antd";
+
+import { useQuery } from "App/Utils/hooks/useQuery";
+import { useSelector } from "react-redux";
+import { selectBuildingId } from "App/Stores/auth.slice";
+import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
+import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
 import { getAllStore } from "App/Services/store.service";
-import { Table, Tag, Typography, Avatar } from "antd";
 
-const StoreTable = ({ onRowClick, call }) => {
-  const [data, setData] = useState({ list: null, isLoading: false });
-  const [totalCount, setTotalCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(0);
-  useEffect(() => {
-    const fetchApi = async () => {
-      setData({ isLoading: true });
-      const data = await getAllStore({
-        buildingId: 12,
-        pageIndex: currentPage,
-      });
-      setData({ list: data.content, isLoading: false });
-      setTotalCount(data.totalCount);
-      setPageSize(data.pageSize);
-    };
-
-    fetchApi();
-  }, [currentPage, call]);
+const StoreTable = ({ refresh, onRowSelect }) => {
+  const buildingId = useSelector(selectBuildingId);
+  const {
+    data,
+    loading,
+    pageSize,
+    totalCount,
+    currentPage,
+    setSearchParams,
+    setPageIndex,
+  } = useQuery({
+    apiCallback: getAllStore,
+    additionalParams: { buildingId },
+    refresh,
+  });
 
   return (
     <>
       <Table
-        dataSource={data.list}
-        loading={data.isLoading}
+        dataSource={data}
+        loading={loading}
         onRow={(record) => ({
-          onClick: (evt) => onRowClick(record),
+          onClick: (evt) => onRowSelect(record),
         })}
         pagination={{
           size: "small",
           current: currentPage,
           pageSize: pageSize,
           total: totalCount,
-          onChange: (value) => setCurrentPage(value),
+          onChange: (value) => setPageIndex(value),
           showSizeChanger: false,
         }}
       >
@@ -51,32 +53,34 @@ const StoreTable = ({ onRowClick, call }) => {
           key="imageUrl"
           dataIndex="imageUrl"
           render={(value) => {
-            return (
-              <Avatar
-                // shape="square"
-                size={40}
-                src={value}
-              />
-            );
+            return <Avatar size={40} src={value} />;
           }}
         />
-        <Table.Column title="Name" key="name" dataIndex="name" />
+        <Table.Column
+          title="Name"
+          key="name"
+          dataIndex="name"
+          filterDropdown={({ clearFilters }) => (
+            <ColumnSearch
+              placeholder="Search by name"
+              clearFilters={clearFilters}
+              onSubmit={(value) => setSearchParams({ name: value })}
+              onCancel={() => setSearchParams(null)}
+            />
+          )}
+        />
         <Table.Column title="Phone" key="phone" dataIndex="phone" />
         <Table.Column
           title="Floor Plan"
           key="floorPlan"
-          render={(value, record, index) => {
-            return (
-              <Typography.Text>
-                Floor {value.floorPlan.floorCode}
-              </Typography.Text>
-            );
-          }}
+          render={(value) => (
+            <Typography.Text>Floor {value.floorPlan.floorCode}</Typography.Text>
+          )}
         />
         <Table.Column
           title="Store owner"
           key="storeOwner"
-          render={(value, record, index) => {
+          render={(value) => {
             return <Typography.Text>{value.account.name}</Typography.Text>;
           }}
         />
@@ -87,6 +91,11 @@ const StoreTable = ({ onRowClick, call }) => {
           render={(value) => (
             <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
           )}
+          filterDropdown={
+            <ColumnSelect
+              onSubmit={(value) => setSearchParams({ status: value })}
+            />
+          }
         />
       </Table>
     </>

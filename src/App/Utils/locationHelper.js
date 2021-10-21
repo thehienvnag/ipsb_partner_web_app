@@ -8,8 +8,9 @@ class LocationHelper {
     (p1?.x === p2?.y && p1?.y === p2?.x);
   static includes = (list, p2) =>
     list?.findIndex((p1) => this.equal(p1, p2)) !== -1;
-  static duplicate = (p1, markers, radius = 30) =>
+  static duplicate = (p1, markers, removeIds, radius = 30) =>
     markers
+      .filter(({ id }) => !removeIds.includes(id))
       ?.filter(({ locationTypeId }) => locationTypeId !== ibeaconLocationType)
       .find((p2) => distance(p1, p2) <= radius);
   static find = (list, locationToFind) =>
@@ -19,6 +20,7 @@ class LocationHelper {
     clientX,
     clientY,
     typeId,
+    floorPlanId,
     rotate,
     scale
   ) => {
@@ -43,7 +45,8 @@ class LocationHelper {
     }
     return {
       ...location,
-      ...{ locationTypeId: typeId },
+      locationTypeId: typeId,
+      floorPlanId: floorPlanId,
     };
   };
   static appendEdge = (listEdges, location) => {

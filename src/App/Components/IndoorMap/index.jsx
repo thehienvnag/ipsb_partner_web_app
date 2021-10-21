@@ -7,6 +7,7 @@ import {
   Button,
   Modal,
   Row,
+  Col,
   Divider,
   Radio,
   Typography,
@@ -46,6 +47,9 @@ import {
   selectSelected,
   selectNextFloorPlan,
   selectNextFloorMarkers,
+  removeFacilityLocation,
+  setFacilityLocation,
+  selectFacilityLocation,
 } from "App/Stores/indoorMap.slice";
 import { selectListFloorCode, loadAll } from "App/Stores/floorPlan.slice";
 import LocationHelper from "App/Utils/locationHelper";
@@ -53,6 +57,7 @@ const stairSvg = process.env.PUBLIC_URL + "/stairs.svg";
 const restroom = process.env.PUBLIC_URL + "/restroom.svg";
 const elevator = process.env.PUBLIC_URL + "/elevator.svg";
 const stores = process.env.PUBLIC_URL + "/stores.svg";
+const beacons = process.env.PUBLIC_URL + "/beacon.png";
 
 const FilterDropdown = ({ className }) => {
   const dispatch = useDispatch();
@@ -62,18 +67,18 @@ const FilterDropdown = ({ className }) => {
       className={className}
       allowClear
       onChange={(values) => dispatch(setTypesSelect(values))}
-      defaultValue={[locationType.reduce((acc, { id }) => acc + "," + id, "")]}
+      defaultValue={[locationType?.reduce((acc, { id }) => acc + "," + id, "")]}
       style={{ width: 260 }}
       placeholder="Elements to show on map"
       mode="multiple"
     >
       <Select.Option
         key="All"
-        value={locationType.reduce((acc, { id }) => acc + "," + id, "")}
+        value={locationType?.reduce((acc, { id }) => acc + "," + id, "")}
       >
         All
       </Select.Option>
-      {locationType.map(({ id, name }) => (
+      {locationType?.map(({ id, name }) => (
         <Select.Option key={id} value={id}>
           {name}
         </Select.Option>
@@ -82,13 +87,16 @@ const FilterDropdown = ({ className }) => {
   );
 };
 
-const MapZoomPan = ({
+const IndoorMap = ({
   disabledPreview,
-  mode = "floorPlan" || "Other",
+  mode = "floorPlan" || "pickLocation",
   typeId = 2,
   refresh,
   src,
   floorPlanId,
+  initialValue,
+  onChange,
+  isValuePresent,
 }) => {
   const dispatch = useDispatch();
   const markers = useSelector(selectMarkers);
@@ -102,8 +110,19 @@ const MapZoomPan = ({
     }
     setTypeSelect(typeId);
   }, [dispatch, floorPlanId, typeId, refresh]);
+
+  useEffect(() => {
+    if (
+      initialValue?.floorPlanId === floorPlanId &&
+      initialValue?.status === "Active"
+    ) {
+      dispatch(setFacilityLocation({ ...initialValue, locationPicked: true }));
+    } else {
+      dispatch(removeFacilityLocation());
+    }
+  }, [initialValue, floorPlanId]);
   const handleChangeType = (type) => setTypeSelect(type);
-  if (!src) {
+  if (!src && mode === "floorPlan") {
     return (
       <Wrapper>
         <h3>Please choose floor map image!</h3>
@@ -116,13 +135,17 @@ const MapZoomPan = ({
       <Wrapper
         disabledPreview={disabledPreview}
         mode={mode}
-        typeId={typeSelect}
+        typeId={typeId}
         src={src}
         markers={markers}
         edges={edges}
         selected={selected}
         typeSelect={typeSelect}
         handleChangeType={handleChangeType}
+        onChange={onChange}
+        initialValue={initialValue}
+        isValuePresent={isValuePresent}
+        floorPlanId={floorPlanId}
       >
         <TransformWrapper
           doubleClick={{ disabled: true }}
@@ -136,7 +159,7 @@ const MapZoomPan = ({
               markers={markers}
               edges={edges}
               selected={selected}
-              typeId={typeSelect}
+              typeId={typeId}
               src={src}
               rotate={0}
             />
@@ -158,8 +181,11 @@ const Wrapper = ({
   src,
   typeSelect,
   handleChangeType,
+  onChange,
+  floorPlanId,
 }) => {
   const dispatch = useDispatch();
+  const facilityLocation = useSelector(selectFacilityLocation);
   const [modalVisible, setModalVisible] = useState(false);
   const [scale, setScale] = useState(1);
   const [enableDrawMode, setEnableDrawMode] = useState(false);
@@ -179,20 +205,50 @@ const Wrapper = ({
     dispatch(createEdge(location));
   };
   const handleOk = async () => {
-    message.loading("Saving floor data in progress..");
-    await dispatch(saveLocationAndEdges());
-    message.success("Saved successfully!!");
+    if (mode === "floorPlan") {
+      message.loading("Saving floor data in progress..");
+      await dispatch(saveLocationAndEdges());
+      message.success("Saved successfully!!");
+    } else {
+      if (facilityLocation) {
+        onChange(facilityLocation);
+        message.success("Choose location success!");
+      } else {
+        message.error("Please choose location on map!");
+      }
+    }
   };
   return (
     <div className={disabledPreview ? "without-preview" : "preview-wrapper"}>
       {disabledPreview && (
-        <Button
-          className="without-preview-btn"
-          onClick={() => setModalVisible(true)}
-          icon={<MdMyLocation />}
-        >
-          Pick location
-        </Button>
+        <Row justify="space-between">
+          <Col flex="auto">
+            <Button
+              disabled={facilityLocation || !floorPlanId}
+              style={{ width: "100%" }}
+              onClick={() => setModalVisible(true)}
+            >
+              {facilityLocation && floorPlanId
+                ? `x: ${Math.round(facilityLocation.x)}, y: ${Math.round(
+                    facilityLocation.y
+                  )}`
+                : "Pick location"}
+            </Button>
+          </Col>
+          {facilityLocation && floorPlanId && (
+            <Col style={{ marginLeft: "5px" }} flex="40px">
+              <Button
+                style={{ width: "100%" }}
+                onClick={() => {
+                  onChange(null);
+                  dispatch(removeFacilityLocation());
+                }}
+              >
+                x
+              </Button>
+            </Col>
+          )}
+        </Row>
       )}
       {!disabledPreview && src && (
         <Button
@@ -218,7 +274,9 @@ const Wrapper = ({
         visible={modalVisible}
         okText="Save"
         onOk={handleOk}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => {
+          setModalVisible(false);
+        }}
       >
         <Row>
           <TransformWrapper
@@ -242,6 +300,7 @@ const Wrapper = ({
                 markers={markers}
                 edges={edges}
                 selected={selected}
+                floorPlanId={floorPlanId}
               />
             </TransformComponent>
           </TransformWrapper>
@@ -326,6 +385,7 @@ const ImageRealSize = ({
   selected,
   handleSelect,
   floorConnects,
+  floorPlanId,
 }) => {
   const dispatch = useDispatch();
 
@@ -334,17 +394,24 @@ const ImageRealSize = ({
 
   const onMapLeftClick = async (evt) => {
     const { clientX, clientY, shiftKey } = evt;
+
     if (shiftKey) {
       const rectangle = wrapperRef.current.getBoundingClientRect();
+
       const rawLocation = LocationHelper.initLocation(
         rectangle,
         clientX,
         clientY,
         typeId,
+        floorPlanId,
         rotate,
         scale
       );
-      dispatch(createLocation(rawLocation));
+      if (typeId === 2) {
+        dispatch(createLocation({ rawLocation }));
+      } else {
+        dispatch(setFacilityLocation({ ...rawLocation, locationPicked: true }));
+      }
     }
   };
 
@@ -359,14 +426,19 @@ const ImageRealSize = ({
       dispatch(removeLocation(location));
     }
 
+    // if (
+    //   type === "contextmenu" &&
+    //   mode === "floorPlan" &&
+    //   location.locationTypeId !== 2
+    // ) {
+    //   dispatch(setSelected({ location, openMenu: true }));
+    // }
     if (
-      type === "contextmenu" &&
-      mode === "floorPlan" &&
-      location.locationTypeId !== 2
+      location &&
+      type === "click" &&
+      mode !== "chooseStairLift" &&
+      !shiftKey
     ) {
-      dispatch(setSelected({ location, openMenu: true }));
-    }
-    if (location && type === "click" && mode === "floorPlan" && !shiftKey) {
       dispatch(setSelected({ location }));
     }
 
@@ -512,6 +584,7 @@ const PathWrapper = ({
     if (id === 1) return stores;
     if (id === 4) return stairSvg;
     if (id === 3) return elevator;
+    if (id === 5) return beacons;
     if (id === 10) return restroom;
   };
   if (locationTypeId === 6) return <></>;
@@ -576,7 +649,11 @@ const SelectedMarker = ({ location, onPathClick, rotate }) => {
 };
 const DeleteMenu = ({ location }) => {
   const dispatch = useDispatch();
-  const onDelete = async () => {};
+  const onDelete = () => {
+    if (location.locationPicked) {
+      dispatch(removeFacilityLocation());
+    }
+  };
   return (
     <Menu>
       <Menu.Item
@@ -671,7 +748,6 @@ const ChooseStairLiftConnection = ({ handleSelect }) => {
   const [scale, setScale] = useState(0.1);
   const floorPlan = useSelector(selectNextFloorPlan);
   const markers = useSelector(selectNextFloorMarkers);
-  const openMenu = useSelector(selectOpenMenu);
   const [floorConnects, setFloorConnects] = useState([]);
   const selected = useSelector(selectSelected);
   useEffect(() => {
@@ -686,7 +762,7 @@ const ChooseStairLiftConnection = ({ handleSelect }) => {
 
   return (
     <>
-      {floorPlan && selected && openMenu && (
+      {floorPlan && selected && (
         <div className="choose-stair-lift-wrapper">
           <h4>Choose floor connections</h4>
           <TransformWrapper
@@ -725,23 +801,28 @@ const PlaceMarker = ({
   onPathClick,
   mode = "floorPlan",
 }) => {
-  const openMenu = useSelector(selectOpenMenu);
+  // const openMenu = useSelector(selectOpenMenu);
   const { x, y, store, locationTypeId, floorConnects } = location;
   const getMenu = () => {
-    if (!openMenu) return <></>;
     switch (locationTypeId) {
       case 3:
       case 4:
         return <StairLiftMenu location={location} />;
       default:
-        return <DeleteMenu location={location} />;
+        return location.locationPicked ? (
+          <DeleteMenu location={location} />
+        ) : (
+          <></>
+        );
     }
   };
 
   return (
     <Dropdown
       overlay={getMenu()}
-      visible={LocationHelper.equal(location, selected)}
+      visible={
+        LocationHelper.equal(location, selected) && mode !== "chooseStairLift"
+      }
       trigger={["contextMenu"]}
     >
       <g
@@ -804,8 +885,29 @@ const PlaceMarker = ({
             </text>
           </>
         )}
+        {mode === "pickLocation" && location.locationPicked && (
+          <>
+            <rect
+              className="img-green"
+              x="19"
+              y="-7"
+              height="14"
+              width="15"
+              rx="3"
+            />
+            <text
+              x="19"
+              y="4.2"
+              transform="scale(1.4)"
+              textAnchor="middle"
+              fill="white"
+            >
+              +
+            </text>
+          </>
+        )}
       </g>
     </Dropdown>
   );
 };
-export default MapZoomPan;
+export default IndoorMap;
