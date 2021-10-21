@@ -154,7 +154,8 @@ const CouponDetails = ({
               ]}
             >
               <TextArea
-                rows={1}
+                style={{marginTop: 6}}
+                rows={3}
                 placeholder="Description..."
                 disabled={disabled}
               />

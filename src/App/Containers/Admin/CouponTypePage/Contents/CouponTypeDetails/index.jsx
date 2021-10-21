@@ -67,7 +67,7 @@ const CouponTypeDetails = ({
                 },
               ]}
             >
-              <TextArea rows={5} placeholder="Input description" />
+              <TextArea rows={3}placeholder="Input description" />
             </Form.Item>
           </Col>
         </Row>
