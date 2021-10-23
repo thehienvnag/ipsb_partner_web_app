@@ -14,13 +14,7 @@ export const getAccountById = async (id) => {
  * @param {object} [params] parameters for get request
  */
 export const getAccounts = async (
-  {
-    pageIndex = 1,
-    pageSize = 5,
-    role,
-    status = "Active",
-    isAll = false,
-  },
+  { pageIndex = 1, pageSize = 5, role, status = "Active", isAll = false },
   notManage = {},
   searchParams = {}
 ) => {
@@ -64,51 +58,45 @@ export const getBuildingManagers = async (
  * Get accounts with store owner role functions
  * @param {object} [params] parameters for get request
  */
-export const getAccountsStoreOwner = async ({
-  pageIndex = 1,
-  pageSize = 5,
-  role = "Store Owner",
-  status = "Active",
-  isAll = false,
-  searchObject = {},
-}) => {
+export const getAccountsStoreOwner = async (
+  {
+    pageIndex = 1,
+    pageSize = 5,
+    role = "Store Owner",
+    status = "Active",
+    isAll = false,
+  },
+  searchParams = {}
+) => {
   const params = {
     pageIndex,
     pageSize,
     status,
     role,
     isAll,
-    ...searchObject,
+    ...searchParams,
   };
   return (await axiosClient.get(accounts, { params })).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Create account
+ * @param {object} [data] values to post
  */
 export const postAccount = async (data) => {
   return (await postFormData(accounts, data)).data;
 };
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Update account
+ * @param {object} [data] values to put
  */
 export const putAccount = async (id, data) => {
   return (await putFormData(accounts + "/" + id, data)).data;
 };
 
 /**
- * Page wrapper for new page
- * @param {object} [data] values post
- */
-export const testPoseWithoutFile = async (data) => {
-  return (await axiosClient.post(accounts, data)).data;
-};
-
-/**
- * Page wrapper for new page
- * @param {object} [data] values post
+ * Delete Account
+ * @param {number} [id] account id
  */
 export const deleteAccount = async (id) => {
   return (await axiosClient.delete(accounts + "/" + id)).status === 204;

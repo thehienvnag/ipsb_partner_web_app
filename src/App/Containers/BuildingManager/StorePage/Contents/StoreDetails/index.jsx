@@ -49,7 +49,7 @@ const StoreDetails = ({
           form={form}
           name="control-hooks"
           onValuesChange={(changed, { floorPlanId, location, imageUrl }) => {
-            setFloorPlanId(floorPlanId, imageUrl);
+            setFloorPlanId(floorPlanId);
           }}
         >
           <Row justify="space-between">
@@ -63,7 +63,7 @@ const StoreDetails = ({
                   },
                 ]}
               >
-                <ImagePicker />
+                <ImagePicker disabled={disabled} />
               </FormItem>
               <Form.Item
                 name="floorPlanId"
@@ -71,7 +71,10 @@ const StoreDetails = ({
                 rules={[{ required: true, message: "Input floor plan" }]}
                 required
               >
-                <SelectFloorPlan initialValue={model?.floorPlan} />
+                <SelectFloorPlan
+                  initialValue={model?.floorPlan}
+                  disabled={disabled}
+                />
               </Form.Item>
               <FormItem
                 name="locationJson"
@@ -80,9 +83,14 @@ const StoreDetails = ({
                 required
               >
                 <PickLocation
+                  disabled={disabled}
                   floorPlanId={floorPlanId}
                   locationTypeId={1} // Location Type Id of store
-                  initialValue={model?.location}
+                  initialValue={{
+                    ...model?.location,
+                    locationName: model?.name,
+                    init: true,
+                  }}
                 />
               </FormItem>
             </Col>
@@ -92,14 +100,19 @@ const StoreDetails = ({
                 label="Store name"
                 rules={[{ required: true, message: "Input store name" }]}
               >
-                <Input placeholder="Input store name" />
+                <Input placeholder="Input store name" disabled={disabled} />
               </Form.Item>
               <Form.Item
                 name="phone"
                 label="Store phone"
                 rules={[{ required: true, message: "Input store phone" }]}
               >
-                <Input placeholder="Input store phone" />
+                <Input
+                  placeholder="Input store phone"
+                  minLength={10}
+                  maxLength={10}
+                  disabled={disabled}
+                />
               </Form.Item>
               <FormItem
                 name="description"
@@ -107,7 +120,11 @@ const StoreDetails = ({
                 rules={[{ required: true, message: "Input store description" }]}
                 required
               >
-                <TextArea rows={3} placeholder="Input store description" />
+                <TextArea
+                  rows={3}
+                  placeholder="Input store description"
+                  disabled={disabled}
+                />
               </FormItem>
               <FormItem
                 name="accountId"
@@ -122,6 +139,7 @@ const StoreDetails = ({
                 <SelectAccount
                   role="Store Owner"
                   initialValue={model?.account}
+                  disabled={disabled}
                 />
               </FormItem>
             </Col>

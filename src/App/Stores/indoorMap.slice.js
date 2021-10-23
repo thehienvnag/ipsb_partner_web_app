@@ -163,10 +163,12 @@ const Slice = createSlice({
     nextFloorPlan: null,
     nextFloorMarkers: [],
     facilityLocation: null,
+    facilityName: null,
+    facilityImg: null,
   },
   reducers: {
     setSelected: (state, { payload: { location, openMenu } }) => {
-      if (LocationHelper.equal(state.selected, location)) {
+      if (!location || LocationHelper.equal(state.selected, location)) {
         state.selected = null;
       } else {
         state.selected = location;
@@ -178,11 +180,30 @@ const Slice = createSlice({
       }
     },
     setFacilityLocation: (state, { payload }) => {
-      state.facilityLocation = payload;
-      state.selected = payload;
+      const { locationName, init, ...location } = payload;
+      if (location?.x) {
+        state.facilityLocation = location;
+        // state.selected = location;
+        state.facilityName = locationName;
+      } else {
+        state.facilityLocation = null;
+        // state.selected = null;
+        state.facilityName = null;
+      }
+      if (init) {
+        state.removedLocationIds = [];
+      } else if (location?.id) {
+        state.removedLocationIds = [payload.id];
+      }
     },
-    removeFacilityLocation: (state, action) => {
+    removeFacilityLocation: (state, { payload }) => {
+      if (payload?.init) {
+        state.removedLocationIds = [];
+      } else if (state.facilityLocation?.id) {
+        state.removedLocationIds = [state.facilityLocation.id];
+      }
       state.facilityLocation = null;
+      state.facilityName = null;
     },
   },
   extraReducers: {
@@ -336,8 +357,7 @@ const selectSelected = ({
 };
 const selectOpenMenu = ({ indoorMap }) => indoorMap.openMenu;
 const selectFacilityLocation = ({ indoorMap }) => indoorMap.facilityLocation;
-//#f
-//#region next floor
+const selectLocationName = ({ indoorMap }) => indoorMap.facilityName;
 const selectNextFloorPlan = ({ indoorMap }) => indoorMap.nextFloorPlan;
 const selectNextFloorMarkers = ({ indoorMap }) => indoorMap.nextFloorMarkers;
 //#endregion
@@ -353,6 +373,7 @@ export {
   selectNextFloorPlan,
   selectNextFloorMarkers,
   selectFacilityLocation,
+  selectLocationName,
   createLocation,
   removeLocation,
   createEdge,

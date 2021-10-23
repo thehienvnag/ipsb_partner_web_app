@@ -4,7 +4,11 @@ import { isNumber } from "../utils";
 const { useState, useEffect } = require("react");
 
 const PAGE_SIZE = 6;
-export const useQuery = ({ apiCallback, additionalParams, refresh }) => {
+export const useQuery = ({
+  apiCallback,
+  additionalParams,
+  refresh,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { page } = useParams();

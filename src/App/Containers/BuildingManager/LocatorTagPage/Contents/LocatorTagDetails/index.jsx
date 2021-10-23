@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import { Form, Row, Col, Input } from "antd";
 
 import DetailCard from "App/Components/DetailCard";
@@ -9,7 +8,6 @@ import {
   postLocatorTag,
   putLocatorTag,
 } from "App/Services/locatorTag.service";
-import { selectBuildingId } from "App/Stores/auth.slice";
 import SelectFloorPlan from "App/Components/CustomSelect/SelectFloorPlan";
 import PickLocation from "App/Components/PickLocation/PickLocation";
 import SelectLocatorTag from "App/Components/CustomSelect/SelectLocatorTag";
@@ -21,11 +19,9 @@ const LocationDetails = ({
   handleCancel,
   model,
 }) => {
-  const buildingId = useSelector(selectBuildingId);
   const [floorPlanId, setFloorPlanId] = useState(null);
   const { form, btnState, onSave, onDelete } = useDetailForm({
     model,
-    createParams: { buildingId },
     createCallback: postLocatorTag,
     updateCallback: putLocatorTag,
     deleteCallback: deleteLocatorTag,
@@ -123,9 +119,14 @@ const LocationDetails = ({
               tooltip="This is the location of the locator tag"
             >
               <PickLocation
+                disabled={disabled}
                 floorPlanId={floorPlanId}
                 locationTypeId={5} // Location Type Id of store
-                initialValue={model?.location}
+                initialValue={{
+                  ...model?.location,
+                  locationName: model?.uuid,
+                  init: true,
+                }}
               />
             </Form.Item>
           </Col>

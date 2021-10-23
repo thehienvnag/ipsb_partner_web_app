@@ -7,10 +7,23 @@ import { locationTypes } from "../Utils/Constants/endpoints";
  * @param {number} [params.pageSize] current page size of get request
  */
 export const getAllLocationType = async (
-  { pageIndex = 1, pageSize = 5, isAll = false, status = "Active" },
+  {
+    pageIndex = 1,
+    pageSize = 5,
+    isAll = false,
+    status = "Active",
+    notLocationTypeIds,
+  },
   searchParams = {}
 ) => {
-  const params = { pageIndex, pageSize, isAll, status, ...searchParams };
+  const params = {
+    pageIndex,
+    pageSize,
+    isAll,
+    status,
+    notLocationTypeIds,
+    ...searchParams,
+  };
   return (await axiosClient.get(locationTypes, { params })).data;
 };
 
@@ -36,7 +49,5 @@ export const putLocationType = async (id, data) => {
  * @param {number} [id] location type id
  */
 export const deleteLocationType = async (id) => {
-  return (
-    (await axiosClient.delete(locationTypes + "/" + id)).status === 204
-  );
+  return (await axiosClient.delete(locationTypes + "/" + id)).status === 204;
 };

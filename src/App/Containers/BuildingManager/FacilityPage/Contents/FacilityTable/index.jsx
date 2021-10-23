@@ -1,35 +1,43 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { Button,Space,Checkbox,Table,Tag,Typography } from "antd";
-import { loadFacilitys, selectListFacility, selectIsLoading, selectPageSize, selectTotalCount } from "App/Stores/facility.slice";
+import { Table, Tag, Typography } from "antd";
 
-const FacilityTable = ({ currentPage, handlePaging, onRowSelect }) => {
-  
-  const dispatch = useDispatch();
-  const listFacility = useSelector(selectListFacility);
-  const isLoading = useSelector(selectIsLoading);
-  const pageSize = useSelector(selectPageSize);
-  const totalCount = useSelector(selectTotalCount);
-  const [search, setSearch] = useState(null);
+import { useQuery } from "App/Utils/hooks/useQuery";
+import { useSelector } from "react-redux";
+import { selectBuildingId } from "App/Stores/auth.slice";
+import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
+import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
+import { getAllFacility } from "App/Services/facility.service";
 
-  useEffect(() => {
-    dispatch(loadFacilitys());
-  }, [dispatch]);
+const FacilityTable = ({ refresh, onRowSelect }) => {
+  const buildingId = useSelector(selectBuildingId);
+  const {
+    data,
+    loading,
+    pageSize,
+    totalCount,
+    currentPage,
+    setSearchParams,
+    setPageIndex,
+  } = useQuery({
+    apiCallback: getAllFacility,
+    additionalParams: { buildingId },
+    refresh,
+  });
 
   return (
     <Table
-      loading={isLoading}
-      dataSource={listFacility}
+      loading={loading}
+      dataSource={data}
       pagination={{
         size: "small",
-        current: currentPage,
         pageSize: pageSize,
         total: totalCount,
-        onChange: (page) => handlePaging(page, search),
+        current: currentPage,
+        onChange: (page) => setPageIndex(page),
       }}
       onRow={(record) => ({
-        onClick: (event) => onRowSelect(record),
+        onClick: () => onRowSelect(record),
       })}
     >
       <Table.Column
@@ -41,12 +49,15 @@ const FacilityTable = ({ currentPage, handlePaging, onRowSelect }) => {
         title="Name"
         dataIndex="name"
         key="name"
-        render={(item) => <Typography.Text>{item}</Typography.Text>}
-      />
-      <Table.Column
-        title="Location"
-        dataIndex="locationId"
-        key="locationId"
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by name"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ name: value })}
+            onCancel={() => setSearchParams(null)}
+          />
+        )}
+        filterIcon={<SearchOutlined />}
         render={(item) => <Typography.Text>{item}</Typography.Text>}
       />
 
@@ -54,6 +65,15 @@ const FacilityTable = ({ currentPage, handlePaging, onRowSelect }) => {
         title="Description"
         dataIndex="description"
         key="description"
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by description"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ description: value })}
+            onCancel={() => setSearchParams(null)}
+          />
+        )}
+        filterIcon={<SearchOutlined />}
         render={(item) => <Typography.Text>{item}</Typography.Text>}
       />
 
@@ -61,46 +81,14 @@ const FacilityTable = ({ currentPage, handlePaging, onRowSelect }) => {
         title="Status"
         dataIndex="status"
         key="status"
-        render={(value) => {
-          if (!value) {
-            value = Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
-          }
-          return <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>;
-        }}
-        filterDropdown={() => (
-          <div style={{ padding: 8 }}>
-            <Space>
-              <Checkbox.Group
-                style={{ width: "100%" }}
-                onChange={(e) => {
-                  const value = e;
-                  if (value && value.length) {
-                    setSearch({ status: value });
-                  } else {
-                    setSearch(null);
-                  }
-                }}
-              >
-                <Checkbox value="">All</Checkbox>
-                <Checkbox value="New">New</Checkbox>
-                <Checkbox value="Active">Active</Checkbox>
-                <Checkbox value="Inactive">Inactive</Checkbox>
-              </Checkbox.Group>
-
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Filter
-              </Button>
-            </Space>
-          </div>
+        render={(value) => (
+          <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
         )}
+        filterDropdown={
+          <ColumnSelect
+            onSubmit={(value) => setSearchParams({ status: value })}
+          />
+        }
       />
     </Table>
   );

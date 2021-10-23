@@ -58,15 +58,21 @@ const appRoutes = [
         ),
       },
       {
-        path: RouteNames.places,
+        path: RouteNames.storeAccounts + "/:page",
         element: (
-          <RoleGuard role="Building Manager" component={<LocationTypePage />} />
+          <RoleGuard role="Building Manager" component={<StoreOwnerPage />} />
         ),
       },
       {
         path: RouteNames.storeAccounts,
         element: (
           <RoleGuard role="Building Manager" component={<StoreOwnerPage />} />
+        ),
+      },
+      {
+        path: RouteNames.facilities + "/:page",
+        element: (
+          <RoleGuard role="Building Manager" component={<FacilityPage />} />
         ),
       },
       {

@@ -1,69 +1,57 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Input, Form, Button, Select, message } from "antd";
+import React, { useState } from "react";
+import { Row, Col, Input, Form } from "antd";
 import DetailCard from "App/Components/DetailCard";
-import { postFacility, putFacility } from "App/Services/facility.service";
-const { Option } = Select;
-
-const FacilityDetails = ({ visible, onCancel, facility, statusBool }) => {
-  const [form] = Form.useForm();
-
-  useEffect(() => {
-    if (facility) {
-      form.setFieldsValue(facility);
-    } else {
-      form.resetFields();
-    }
-  }, [facility]);
-
-  const onSave = () => {
-    if (facility) {
-      update();
-    } else {
-      create();
-    }
-  };
-  const create = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    if (values !== null) {
-      message.loading("Action in progress...", 3);
-      const data = await postFacility({
-        ...values,
-      });
-      if (data !== null) {
-        message.success("Create success", 3);
-        form.resetFields();
-      } else {
-        message.error("Create faild", 3);
-      }
-    }
-  };
-  const update = async () => {
-    form.validateFields();
-    const values = form.getFieldsValue();
-    if (values !== null) {
-      message.loading("Action in progress...", 3);
-      const data = await putFacility({
-        ...values,
-      });
-      if (data !== null) {
-        message.success("Update success", 3);
-      } else {
-        message.error("Update faild", 3);
-      }
-    }
-  };
+import {
+  postFacility,
+  deleteFacility,
+  putFacility,
+} from "App/Services/facility.service";
+import { useDetailForm } from "App/Utils/hooks/useDetailForm";
+import SelectFloorPlan from "App/Components/CustomSelect/SelectFloorPlan";
+import PickLocation from "App/Components/PickLocation/PickLocation";
+import SelectLocationType from "App/Components/CustomSelect/SelectLocationType";
+const { TextArea } = Input;
+const FacilityDetails = ({
+  visible,
+  onCancel,
+  handleRefresh,
+  handleCancel,
+  model,
+}) => {
+  const [floorPlanId, setFloorPlanId] = useState(null);
+  const [locationTypeId, setLocationTypeId] = useState(null);
+  const { form, btnState, onSave, onDelete } = useDetailForm({
+    model,
+    createCallback: postFacility,
+    updateCallback: putFacility,
+    deleteCallback: deleteFacility,
+    paramsKeyToStringify: ["locationJson"],
+    handleRefresh,
+    handleCancel,
+    effectCallback: () => {
+      setFloorPlanId(model?.floorPlanId);
+      setLocationTypeId(model?.location?.locationTypeId);
+    },
+  });
+  const disabled = model && model.status !== "Active";
 
   return (
     <DetailCard
       span={9}
-      className="modal-facility"
-      title="Facility detail"
+      btnState={btnState}
       visible={visible}
       onCancel={onCancel}
-      onSave={onSave}
+      onSave={!disabled && onSave}
+      onRemove={!disabled && onDelete}
     >
-      <Form form={form} name="register" layout="vertical" scrollToFirstError>
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={(changed, { floorPlanId, locationTypeId }) => {
+          setFloorPlanId(floorPlanId);
+          setLocationTypeId(locationTypeId);
+        }}
+      >
         <Row justify="space-between">
           <Col span={11}>
             <Form.Item
@@ -72,30 +60,16 @@ const FacilityDetails = ({ visible, onCancel, facility, statusBool }) => {
               rules={[
                 {
                   required: true,
-                  message: "Input name of facility",
+                  message: "Input facility name",
                   whitespace: false,
                 },
               ]}
             >
-              <Input placeholder="Input name of facility" />
+              <Input placeholder="Input facility name" disabled={disabled} />
             </Form.Item>
-            <Form.Item
-              name="status"
-              label="Choose status:"
-            >
-              <Select placeholder="Select status" disabled={statusBool} defaultValue="Active">
-                <Option value="New">New</Option>
-                <Option value="Active">Active</Option>
-                <Option value="Inactive">Inactive</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-
             <Form.Item
               name="description"
-              label="Description:"
+              label="Description"
               rules={[
                 {
                   required: true,
@@ -103,28 +77,39 @@ const FacilityDetails = ({ visible, onCancel, facility, statusBool }) => {
                 },
               ]}
             >
-              <Input placeholder="Input description" type="text" />
+              <TextArea placeholder="Input description" disabled={disabled} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="locationTypeId" label="Location type">
+              <SelectLocationType
+                initialValue={model?.location?.locationType}
+                notLocationTypeIds={[1, 2, 3, 4, 5]}
+                disabled={disabled}
+              />
+            </Form.Item>
+            <Form.Item name="floorPlanId" label="Floor plan">
+              <SelectFloorPlan
+                initialValue={model?.floorPlan}
+                disabled={disabled}
+              />
             </Form.Item>
             <Form.Item
-              label="Location of facility"
+              name="locationJson"
+              label="Location"
               rules={[{ required: true }]}
               required
             >
-              <Button>Pick location</Button>
-              {/* {floorPlanId === -1 && <Button disabled>Pick location</Button>} */}
-              {/* {floorPlanId > 0 && (
-                  <MapZoomPan
-                    mode="Other"
-                    typeId={1}
-                    floorPlanId={floorPlanId}
-                    disabledPreview={true}
-                    src={
-                      listFloor &&
-                      listFloor.filter(({ id }) => floorPlanId === id)[0]
-                        ?.imageUrl
-                    }
-                  />
-                )} */}
+              <PickLocation
+                disabled={disabled || !locationTypeId}
+                floorPlanId={floorPlanId}
+                locationTypeId={locationTypeId} // Location Type Id of store
+                initialValue={{
+                  ...model?.location,
+                  locationName: model?.name,
+                  init: true,
+                }}
+              />
             </Form.Item>
           </Col>
         </Row>
