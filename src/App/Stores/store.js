@@ -12,7 +12,7 @@ import uiDataReducer from "./uiData.slice";
 import couponReducer from "./coupon.slice";
 import productReducer from "./product.slice";
 import couponInUseReducer from "./couponInUse.slice";
-import locationTypeV2Reducer from "./location_type_2.slice";
+import locationTypeReducer from "./locationType.slice";
 import couponTypeReducer from "./couponType.slice";
 import facilityReducer from "./facility.slice";
 
@@ -31,7 +31,7 @@ export const Store = configureStore({
     coupon: couponReducer,
     product: productReducer,
     couponInUse: couponInUseReducer,
-    locationType: locationTypeV2Reducer,
+    locationType: locationTypeReducer,
     couponType: couponTypeReducer,
     facility: facilityReducer,
   },

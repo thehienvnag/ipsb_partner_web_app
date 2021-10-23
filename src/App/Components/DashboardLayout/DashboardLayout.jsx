@@ -5,6 +5,7 @@ import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 import { Layout } from "antd";
 import { useAuthInit } from "App/Utils/hooks/useAuthInit";
+import DashboardFooter from "./DashboardFooter";
 
 const { Footer, Content } = Layout;
 
@@ -25,21 +26,7 @@ const DashboardLayout = () => {
             <DashboardHeader handleCollapsed={handleCollapsed} />
             <Content style={{ paddingBottom: 50 }}>
               <Outlet />
-              <Footer
-                style={{
-                  height: 30,
-                  width: "100vw",
-                  position: "fixed",
-                  bottom: 0,
-                  padding: "4px 10px 0 10px",
-                  zIndex: 3,
-                }}
-              >
-                <p>
-                  COPYRIGHT © 2021
-                  <a> IPSB - Indoor Position System applying iBeacon</a>
-                </p>
-              </Footer>
+              <DashboardFooter />
             </Content>
           </Layout>
         </Layout>

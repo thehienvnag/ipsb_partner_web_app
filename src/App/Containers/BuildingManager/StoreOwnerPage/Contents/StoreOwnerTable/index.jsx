@@ -1,43 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  Input,
-  Space,
-  Avatar,
-  Checkbox,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
-import {
-  loadAccounts,
-  selectIsLoading,
-  selectListAccount,
-  selectPageSize,
-  selectTotalCount,
-} from "App/Stores/accountStoreOwner.slice";
-const StoreOwnerTable = ({ currentPage, handlePaging, onRowSelect }) => {
-  const dispatch = useDispatch();
-  const listAccount = useSelector(selectListAccount);
-  const isLoading = useSelector(selectIsLoading);
-  const pageSize = useSelector(selectPageSize);
-  const totalCount = useSelector(selectTotalCount);
-  const [search, setSearch] = useState(null);
-  useEffect(() => {
-    dispatch(loadAccounts());
-  }, [dispatch]);
+import { Avatar, Table, Tag, Typography } from "antd";
+import { useQuery } from "App/Utils/hooks/useQuery";
+import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
+import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
+import { getAccountsStoreOwner } from "App/Services/account.service";
+const StoreOwnerTable = ({ refresh, onRowSelect }) => {
+  const {
+    data,
+    loading,
+    pageSize,
+    totalCount,
+    currentPage,
+    setSearchParams,
+    setPageIndex,
+  } = useQuery({
+    apiCallback: getAccountsStoreOwner,
+    refresh,
+  });
   return (
     <Table
-      loading={isLoading}
-      dataSource={listAccount}
+      loading={loading}
+      dataSource={data}
       pagination={{
         size: "small",
         current: currentPage,
         pageSize: pageSize,
         total: totalCount,
-        onChange: (page) => handlePaging(page, search),
+        onChange: (page) => setPageIndex(page),
       }}
       onRow={(record) => ({
         onClick: (event) => onRowSelect(record),
@@ -45,7 +35,7 @@ const StoreOwnerTable = ({ currentPage, handlePaging, onRowSelect }) => {
     >
       <Table.Column
         title="#No"
-        key="storeOwnerIndex"
+        key="buildingManagerIndex"
         render={(item, record, index) => <Tag>{index + 1}</Tag>}
       />
       <Table.Column
@@ -59,36 +49,13 @@ const StoreOwnerTable = ({ currentPage, handlePaging, onRowSelect }) => {
         dataIndex="name"
         key="name"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search name manager`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ name: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by name"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ name: value })}
+            onCancel={() => setSearchParams(null)}
+          />
         )}
         filterIcon={<SearchOutlined />}
       />
@@ -99,36 +66,13 @@ const StoreOwnerTable = ({ currentPage, handlePaging, onRowSelect }) => {
         key="email"
         width={290}
         render={(item) => <Typography.Text>{item}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search email`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ email: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by email"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ email: value })}
+            onCancel={() => setSearchParams(null)}
+          />
         )}
         filterIcon={<SearchOutlined />}
       />
@@ -137,36 +81,13 @@ const StoreOwnerTable = ({ currentPage, handlePaging, onRowSelect }) => {
         dataIndex="phone"
         key="phone"
         render={(item) => <Typography.Text>{item}</Typography.Text>}
-        filterDropdown={({ selectedKeys }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search phone`}
-              value={selectedKeys[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value.length) {
-                  setSearch({ phone: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-              onPressEnter={() => handlePaging(1)}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Search
-              </Button>
-            </Space>
-          </div>
+        filterDropdown={({ clearFilters }) => (
+          <ColumnSearch
+            placeholder="Search by address"
+            clearFilters={clearFilters}
+            onSubmit={(value) => setSearchParams({ phone: value })}
+            onCancel={() => setSearchParams(null)}
+          />
         )}
         filterIcon={<SearchOutlined />}
       />
@@ -175,64 +96,15 @@ const StoreOwnerTable = ({ currentPage, handlePaging, onRowSelect }) => {
         title="Status"
         dataIndex="status"
         key="status"
-        render={(value) => {
-          if (!value) {
-            value =
-              Math.floor(Math.random() * 2) % 2 === 0 ? "Active" : "Inactive";
-          }
-          return <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>;
-        }}
-        filterDropdown={() => (
-          <div style={{ padding: 8 }}>
-            <Space>
-              <Checkbox.Group
-                style={{ width: "100%" }}
-                onChange={(e) => {
-                  const value = e;
-                  if (value && value.length) {
-                    setSearch({ status: value });
-                  } else {
-                    setSearch(null);
-                  }
-                }}
-              >
-                <Checkbox value="">All</Checkbox>
-                <Checkbox value="New">New</Checkbox>
-                <Checkbox value="Active">Active</Checkbox>
-                <Checkbox value="Inactive">Inactive</Checkbox>
-              </Checkbox.Group>
-
-              {/* <Select
-              placeholder="Select Status"
-              onChange={(e) => {
-                const value = e;
-                if (value && value.length) {
-                  setSearch({ status: value });
-                } else {
-                  setSearch(null);
-                }
-              }}
-            >
-              <Option value="">All</Option>
-              <Option value="New">New</Option>
-              <Option value="Active">Active</Option>
-              <Option value="Inactive">Inactive</Option>
-            </Select> */}
-
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePaging(1);
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 100 }}
-              >
-                Filter
-              </Button>
-            </Space>
-          </div>
+        render={(value) => (
+          <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
         )}
+        filterDropdown={
+          <ColumnSelect
+            onSubmit={(value) => setSearchParams({ status: value })}
+            checkboxes={["All", "New", "Active", "Inactive"]}
+          />
+        }
       />
     </Table>
   );

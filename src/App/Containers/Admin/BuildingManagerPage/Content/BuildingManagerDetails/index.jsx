@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Input, Form, Upload, Select } from "antd";
+import { Row, Col, Input, Form } from "antd";
 import {
   postAccount,
   putAccount,
@@ -39,10 +39,9 @@ const BuildingManagerDetails = ({
         <Row justify="space-between">
           <Col span={11}>
             <Form.Item name="imageUrl">
-              <ImagePicker />
+              <ImagePicker disabled={disabled} />
             </Form.Item>
           </Col>
-
           <Col span={12}>
             <Form.Item
               name="name"
@@ -55,9 +54,11 @@ const BuildingManagerDetails = ({
                 },
               ]}
             >
-              <Input placeholder="Input name of store owner" />
+              <Input
+                placeholder="Input name of store owner"
+                disabled={disabled}
+              />
             </Form.Item>
-
             <Form.Item
               name="email"
               label="Email:"
@@ -72,9 +73,12 @@ const BuildingManagerDetails = ({
                 },
               ]}
             >
-              <Input placeholder="Input email for contact" type="email" />
+              <Input
+                placeholder="Input email for contact"
+                type="email"
+                disabled={disabled}
+              />
             </Form.Item>
-
             <Form.Item
               name="phone"
               label="Phone: "
@@ -90,6 +94,8 @@ const BuildingManagerDetails = ({
                 placeholder="Input phone number"
                 type="number"
                 maxLength={10}
+                minLength={10}
+                disabled={disabled}
               />
             </Form.Item>
           </Col>

@@ -7,6 +7,7 @@ const PickLocation = ({
   locationTypeId,
   initialValue,
   onChange,
+  disabled
 }) => {
   const [imgSrc, setImgSrc] = useState(null);
   const [isValuePresent, setIsValuePresent] = useState(false);
@@ -22,6 +23,7 @@ const PickLocation = ({
       src={imgSrc}
       floorPlanId={floorPlanId}
       initialValue={initialValue}
+      disabled={disabled}
       onChange={(value) => {
         if (value) {
           setIsValuePresent(true);

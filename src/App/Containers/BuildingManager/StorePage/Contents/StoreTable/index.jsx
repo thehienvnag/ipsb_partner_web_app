@@ -74,14 +74,14 @@ const StoreTable = ({ refresh, onRowSelect }) => {
           title="Floor Plan"
           key="floorPlan"
           render={(value) => (
-            <Typography.Text>Floor {value.floorPlan.floorCode}</Typography.Text>
+            <Typography.Text>Floor {value.floorPlan?.floorCode}</Typography.Text>
           )}
         />
         <Table.Column
           title="Store owner"
           key="storeOwner"
           render={(value) => {
-            return <Typography.Text>{value.account.name}</Typography.Text>;
+            return <Typography.Text>{value.account?.name}</Typography.Text>;
           }}
         />
         <Table.Column
