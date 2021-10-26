@@ -91,6 +91,12 @@ const BuildingManagerTable = ({ refresh, onRowSelect }) => {
         )}
         filterIcon={<SearchOutlined />}
       />
+      <Table.Column
+        title="Building"
+        dataIndex="building"
+        key="building"
+        render={(item) => <Typography.Text>{item?.name}</Typography.Text>}
+      />
 
       <Table.Column
         title="Status"

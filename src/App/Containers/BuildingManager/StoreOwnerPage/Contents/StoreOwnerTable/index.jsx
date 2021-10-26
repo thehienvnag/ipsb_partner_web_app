@@ -5,7 +5,10 @@ import { useQuery } from "App/Utils/hooks/useQuery";
 import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
 import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
 import { getAccountsStoreOwner } from "App/Services/account.service";
+import { useSelector } from "react-redux";
+import { selectBuildingId } from "App/Stores/auth.slice";
 const StoreOwnerTable = ({ refresh, onRowSelect }) => {
+  const buildingId = useSelector(selectBuildingId);
   const {
     data,
     loading,
@@ -16,6 +19,7 @@ const StoreOwnerTable = ({ refresh, onRowSelect }) => {
     setPageIndex,
   } = useQuery({
     apiCallback: getAccountsStoreOwner,
+    additionalParams: { buildingId },
     refresh,
   });
   return (
@@ -83,13 +87,19 @@ const StoreOwnerTable = ({ refresh, onRowSelect }) => {
         render={(item) => <Typography.Text>{item}</Typography.Text>}
         filterDropdown={({ clearFilters }) => (
           <ColumnSearch
-            placeholder="Search by address"
+            placeholder="Search by phone"
             clearFilters={clearFilters}
             onSubmit={(value) => setSearchParams({ phone: value })}
             onCancel={() => setSearchParams(null)}
           />
         )}
         filterIcon={<SearchOutlined />}
+      />
+      <Table.Column
+        title="Store"
+        dataIndex="store"
+        key="store"
+        render={(item) => <Typography.Text>{item?.name}</Typography.Text>}
       />
 
       <Table.Column

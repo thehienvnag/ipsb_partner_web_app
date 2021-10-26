@@ -64,6 +64,7 @@ export const getAccountsStoreOwner = async (
     pageSize = 5,
     role = "Store Owner",
     status = "Active",
+    buildingId,
     isAll = false,
   },
   searchParams = {}
@@ -72,6 +73,7 @@ export const getAccountsStoreOwner = async (
     pageIndex,
     pageSize,
     status,
+    buildingId,
     role,
     isAll,
     ...searchParams,
