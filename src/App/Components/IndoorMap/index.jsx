@@ -873,6 +873,7 @@ const PlaceMarker = ({
         return <DeleteMenu location={location} />;
     }
   };
+  const fixedRotate = rotate === -90 ? 90 : rotate === 90 ? -90 : rotate;
   if (
     ((!locationPicked || mode !== "pickLocation" || locationTypeId == 2) &&
       ((locationTypeId != 3 && locationTypeId != 4) ||
@@ -893,7 +894,7 @@ const PlaceMarker = ({
         placement="top"
       >
         <g
-          transform={`translate(${x - 10}, ${y - 10}) rotate(${rotate})`}
+          transform={`translate(${x - 10}, ${y - 10}) rotate(${fixedRotate})`}
           onClick={(evt) => onPathClick(location, evt)}
           onContextMenu={(evt) => onPathClick(location, evt)}
         >
@@ -996,7 +997,7 @@ const PlaceMarker = ({
         placement="top"
       >
         <g
-          transform={`translate(${x - 10}, ${y - 10})  rotate(${rotate})`}
+          transform={`translate(${x - 10}, ${y - 10})  rotate(${fixedRotate})`}
           onClick={(evt) => onPathClick(location, evt)}
           onContextMenu={(evt) => onPathClick(location, evt)}
         >
