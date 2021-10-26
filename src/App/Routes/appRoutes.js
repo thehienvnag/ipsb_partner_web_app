@@ -28,6 +28,12 @@ const appRoutes = [
         element: <RoleGuard />,
       },
       {
+        path: RouteNames.floorPlans + "/:page",
+        element: (
+          <RoleGuard role="Building Manager" component={<FloorPlanPage />} />
+        ),
+      },
+      {
         path: RouteNames.floorPlans,
         element: (
           <RoleGuard role="Building Manager" component={<FloorPlanPage />} />
