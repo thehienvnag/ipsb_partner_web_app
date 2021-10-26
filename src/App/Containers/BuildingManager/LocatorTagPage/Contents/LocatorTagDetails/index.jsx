@@ -53,12 +53,6 @@ const LocationDetails = ({
             <Form.Item
               name="locatorTagGroupId"
               label="Locator Tag Group: "
-              rules={[
-                {
-                  required: true,
-                  message: "Input locator tag group",
-                },
-              ]}
               tooltip="This is locator tag group"
             >
               <SelectLocatorTag

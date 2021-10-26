@@ -49,7 +49,9 @@ const FacilityDetails = ({
         layout="vertical"
         onValuesChange={(changed, { floorPlanId, locationTypeId }) => {
           setFloorPlanId(floorPlanId);
-          setLocationTypeId(locationTypeId);
+          if (locationTypeId) {
+            setLocationTypeId(locationTypeId);
+          }
         }}
       >
         <Row justify="space-between">

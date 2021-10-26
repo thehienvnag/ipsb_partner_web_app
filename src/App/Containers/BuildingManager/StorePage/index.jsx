@@ -4,7 +4,7 @@ import Header from "./Header/index";
 import { Card, Col } from "antd";
 import { PageWrapper, PageBody } from "App/Components/PageWrapper";
 
-import StoreTable from "./Contents/StoreTable/index";
+import StoreTable from "./Contents/StoreTable";
 import StoreDetails from "./Contents/StoreDetails";
 import { useRowDetails } from "App/Utils/hooks/useRowDetails";
 

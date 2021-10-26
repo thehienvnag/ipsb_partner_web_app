@@ -1,0 +1,16 @@
+.btn-map {
+  button {
+    display: flex;
+    align-items: center;
+  }
+  span {
+    display: flex;
+  }
+  .ant-upload-list {
+    width: 50%;
+    margin-left: 10px;
+    .ant-upload-span {
+      padding-top: 2px;
+    }
+  }
+}

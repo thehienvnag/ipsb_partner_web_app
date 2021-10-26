@@ -38,7 +38,7 @@ export const checkLogin = async ({ email, password }) => {
  */
 export const changePassword = async ({ accountId, password }) => {
   const data = { accountId, password };
-  return (await axiosClient.put(auth + "/change-password", data)).data;
+  return (await axiosClient.put(auth + "/change-password", data)).status;
 };
 
 /**

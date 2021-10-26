@@ -144,7 +144,7 @@ export const selectAuthPresentStatus = (state) =>
   state.auth.data ? true : false;
 export const selectAccount = (state) => state.auth.data;
 export const selectStoreId = (state) => state.auth.data?.store?.id;
-export const selectBuildingId = (state) => state.auth.data?.buildingManager?.id;
+export const selectBuildingId = (state) => state.auth.data?.building?.id;
 export const selectRole = (state) => state.auth.data?.role;
 export const selectLoading = (state) => state.auth.isLoading;
 export const selectIsLogginOut = (state) => state.auth.isLogginOut;

@@ -89,6 +89,19 @@ const BuildingDetails = ({
                 initialValue={model?.manager}
               />
             </Form.Item>
+            <Form.Item
+              name="environmentFactor"
+              label="Environment factor: "
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "Input environment factor",
+                },
+              ]}
+            >
+              <Input placeholder="Input environment factor" type="number" />
+            </Form.Item>
           </Col>
         </Row>
       </Form>

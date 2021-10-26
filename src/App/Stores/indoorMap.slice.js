@@ -31,7 +31,6 @@ const createLocation = createAsyncThunk(
     return {
       location: {
         ...rawLocation,
-        ...{ floorPlanId: floorPlan.currentFloorPlan.id },
       },
       edgeIntersect,
     };
@@ -58,12 +57,12 @@ const setSelectedFloorId = createAsyncThunk(
   "indoorMap/setSelectedFloorId",
   async (floorId, thunkAPI) => {
     if (floorId) {
-      const floorPlan = getById(floorId);
-      const locations = getByFloorIdForStairLift(floorId);
+      const floorPlan = await getById(floorId);
+      const locations = await getByFloorIdForStairLift(floorId);
       if (floorPlan) {
         return {
-          floorPlan: await floorPlan,
-          locations: (await locations)?.content,
+          floorPlan: floorPlan,
+          locations: locations?.content,
         };
       }
     }
@@ -165,8 +164,22 @@ const Slice = createSlice({
     facilityLocation: null,
     facilityName: null,
     facilityImg: null,
+    floorConnectMenuVisible: false,
   },
   reducers: {
+    changeFloorConnectMenuVisble: (state, { payload: { visible } }) => {
+      state.floorConnectMenuVisible = visible;
+    },
+    resetFloorPlan: (state, { payload }) => {
+      state.createdLocations = [];
+      state.removedLocationIds = [];
+      state.createdEdges = [];
+      state.removedEdgeIds = [];
+      state.selected = null;
+      state.floorConnectMenuVisible = false;
+      state.nextFloorMarkers = [];
+      state.nextFloorPlan = null;
+    },
     setSelected: (state, { payload: { location, openMenu } }) => {
       if (!location || LocationHelper.equal(state.selected, location)) {
         state.selected = null;
@@ -243,6 +256,10 @@ const Slice = createSlice({
           location
         );
       }
+      if (state.selected && LocationHelper.equal(location, state.selected)) {
+        state.selected = null;
+      }
+
       edgesRelated?.forEach((edge) => {
         if (edge.id) {
           state.removedEdgeIds.push(edge.id);
@@ -360,11 +377,18 @@ const selectFacilityLocation = ({ indoorMap }) => indoorMap.facilityLocation;
 const selectLocationName = ({ indoorMap }) => indoorMap.facilityName;
 const selectNextFloorPlan = ({ indoorMap }) => indoorMap.nextFloorPlan;
 const selectNextFloorMarkers = ({ indoorMap }) => indoorMap.nextFloorMarkers;
+const selectFloorConnectVisible = ({ indoorMap }) =>
+  indoorMap.floorConnectMenuVisible;
 //#endregion
 
 /// Export reducer
-const { setSelected, setFacilityLocation, removeFacilityLocation } =
-  Slice.actions;
+const {
+  setSelected,
+  setFacilityLocation,
+  removeFacilityLocation,
+  resetFloorPlan,
+  changeFloorConnectMenuVisble,
+} = Slice.actions;
 export {
   selectMarkers,
   selectEdges,
@@ -374,6 +398,9 @@ export {
   selectNextFloorMarkers,
   selectFacilityLocation,
   selectLocationName,
+  selectFloorConnectVisible,
+  changeFloorConnectMenuVisble,
+  resetFloorPlan,
   createLocation,
   removeLocation,
   createEdge,

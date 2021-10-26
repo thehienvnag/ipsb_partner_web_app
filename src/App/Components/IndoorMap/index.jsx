@@ -26,6 +26,7 @@ import {
   DeleteOutlined,
   SaveOutlined,
   LinkOutlined,
+  FullscreenExitOutlined,
 } from "@ant-design/icons";
 import "./index.scss";
 import {
@@ -51,9 +52,13 @@ import {
   setFacilityLocation,
   selectFacilityLocation,
   selectLocationName,
+  resetFloorPlan,
+  selectFloorConnectVisible,
+  changeFloorConnectMenuVisble,
 } from "App/Stores/indoorMap.slice";
 import { selectListFloorCode, loadAll } from "App/Stores/floorPlan.slice";
 import LocationHelper from "App/Utils/locationHelper";
+import { setNextFloorMarkers } from "App/Stores/map.slice";
 
 const FilterDropdown = ({ className }) => {
   const dispatch = useDispatch();
@@ -63,7 +68,9 @@ const FilterDropdown = ({ className }) => {
       className={className}
       allowClear
       onChange={(values) => dispatch(setTypesSelect(values))}
-      defaultValue={[locationType?.reduce((acc, { id }) => acc + "," + id, "")]}
+      defaultValue={[
+        locationType?.reduce((acc, { id }) => acc + "," + id, "") ?? "All",
+      ]}
       style={{ width: 260 }}
       placeholder="Elements to show on map"
       mode="multiple"
@@ -106,7 +113,9 @@ const IndoorMap = ({
   }, []);
   useEffect(() => {
     if (
-      (floorPlanId !== facilityLocation?.floorPlanId &&
+      (mode === "pickLocation" &&
+        floorPlanId !== facilityLocation?.floorPlanId &&
+        typeId !== facilityLocation?.locationTypeId &&
         initialValue?.status === "Active") ||
       initialValue?.locationName
     ) {
@@ -119,13 +128,20 @@ const IndoorMap = ({
     } else {
       dispatch(removeFacilityLocation({ init: true }));
     }
-
     setTypeSelect(typeId);
   }, [dispatch, initialValue, typeId]);
   useEffect(() => {
     if (floorPlanId !== facilityLocation?.floorPlanId) {
       dispatch(removeFacilityLocation({ init: true }));
     }
+    if (mode === "floorPlan" && floorPlanId) {
+      dispatch(resetFloorPlan());
+      dispatch(loadEdgesOnFloor({ floorPlanId }));
+      dispatch(loadLocationByFloor({ floorPlanId }));
+      dispatch(loadAll({ notFloorPlanId: floorPlanId }));
+    }
+    // if (mode === "chooseStairLift" && floorPlanId) {
+    // }
   }, [floorPlanId]);
 
   const handleChangeType = (type) => setTypeSelect(type);
@@ -138,12 +154,14 @@ const IndoorMap = ({
   }
   return (
     <div className="filter-wrapper">
-      {!disabledPreview && <FilterDropdown className="filter-select" />}
+      {!disabledPreview && floorPlanId && (
+        <FilterDropdown className="filter-select" />
+      )}
       <Wrapper
         initialValue={initialValue}
         disabledPreview={disabledPreview}
         mode={mode}
-        typeId={typeId}
+        typeId={typeSelect}
         src={src}
         markers={markers}
         edges={edges}
@@ -168,7 +186,7 @@ const IndoorMap = ({
               markers={markers}
               edges={edges}
               selected={selected}
-              typeId={typeId}
+              typeId={typeSelect}
               src={src}
               rotate={0}
             />
@@ -202,10 +220,6 @@ const Wrapper = ({
   const [scale, setScale] = useState(1);
   const [enableDrawMode, setEnableDrawMode] = useState(false);
   const [rotate, setRotate] = useState(0);
-  const [imgDimension, setImgDimension] = useState(null);
-  // useEffect(() => {
-  //   setImgDimension
-  // }, [imgDimension]);
 
   const onRotateLeft = () => {
     if (rotate === -180) return;
@@ -222,7 +236,7 @@ const Wrapper = ({
   const handleOk = async () => {
     if (mode === "floorPlan") {
       message.loading("Saving floor data in progress..");
-      await dispatch(saveLocationAndEdges());
+      dispatch(saveLocationAndEdges());
       message.success("Saved successfully!!");
     } else if (mode === "pickLocation") {
       if (facilityLocation) {
@@ -263,7 +277,7 @@ const Wrapper = ({
           </Col>
         </Row>
       )}
-      {!disabledPreview && src && (
+      {!disabledPreview && src && floorPlanId && (
         <Button
           className="full-screen-btn"
           onClick={() => setModalVisible(true)}
@@ -309,7 +323,7 @@ const Wrapper = ({
               <ImageRealSize
                 initialValue={initialValue}
                 src={src}
-                typeId={typeId}
+                typeId={typeSelect}
                 mode={mode}
                 scale={scale ?? 1}
                 enabled={enableDrawMode}
@@ -362,9 +376,9 @@ const ModalTitle = ({
             style={{ width: 180 }}
             onChange={(value) => handleChangeType(value)}
           >
-            <Select.Option value={2}>Điểm trên đường</Select.Option>
-            <Select.Option value={3}>Thang máy</Select.Option>
-            <Select.Option value={4}>Cầu thang</Select.Option>
+            <Select.Option value={2}>Point on route</Select.Option>
+            <Select.Option value={3}>Elevator</Select.Option>
+            <Select.Option value={4}>Stair</Select.Option>
           </Select>
         )}
       </Row>
@@ -427,7 +441,8 @@ const ImageRealSize = ({
         rotate,
         scale
       );
-      if (typeId === 2) {
+      const typeRoutes = [2, 3, 4];
+      if (typeRoutes.includes(typeId)) {
         dispatch(createLocation({ rawLocation }));
       } else if (!facilityLocation) {
         dispatch(
@@ -449,18 +464,10 @@ const ImageRealSize = ({
     if (
       type === "contextmenu" &&
       mode === "floorPlan" &&
-      location.locationTypeId === 2
+      location.locationTypeId == 2
     ) {
       dispatch(removeLocation(location));
     }
-
-    // if (
-    //   type === "contextmenu" &&
-    //   mode === "floorPlan" &&
-    //   location.locationTypeId !== 2
-    // ) {
-    //   dispatch(setSelected({ location, openMenu: true }));
-    // }
     if (
       location &&
       type === "click" &&
@@ -472,9 +479,7 @@ const ImageRealSize = ({
     }
 
     if (mode === "chooseStairLift") {
-      if (handleSelect) {
-        handleSelect(location);
-      }
+      dispatch(createEdge(location));
     }
   };
 
@@ -585,18 +590,12 @@ const StairLiftConnected = ({ location: { x, y }, rotate }) => {
         y - 15.3 + offset(rotate).y
       }) rotate(${-rotate})`}
     >
-      <Circle size={20} fill="#198754" cx={20} cy={-10}></Circle>
+      <Circle size={20} fill="#198754" cx={28} cy={-1}></Circle>
       <path
         fill="white"
-        transform="translate(12, -19) scale(0.017)"
+        transform="translate(19, -9) scale(0.017)"
         d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
       ></path>
-      {/* <rect fill="#198754" x="18" y="-8" height="14" width="30" rx="3" />
-      <path
-        fill="white"
-        transform="translate(, -7) scale(0.012)"
-        d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
-      ></path> */}
     </g>
   );
 };
@@ -693,18 +692,12 @@ const DeleteMenu = ({ location }) => {
   );
 };
 
-const StairLiftMenu = () => {
+const StairLiftMenu = ({ location }) => {
   const dispatch = useDispatch();
-  const location = useSelector(selectSelected);
+  const selected = useSelector(selectSelected);
   const floors = useSelector(selectListFloorCode);
   const selectedFloor = useSelector(selectNextFloorPlan);
-
-  useEffect(() => {
-    if (!floors) {
-      dispatch(loadAll());
-    }
-    handleChange(-1);
-  }, [dispatch]);
+  const floorConnectVisible = useSelector(selectFloorConnectVisible);
 
   const removeLoc = async (connectLoc) => {
     if (connectLoc) {
@@ -718,64 +711,82 @@ const StairLiftMenu = () => {
     }
   };
 
-  const onDelete = async () => {};
+  const onDelete = async () => {
+    dispatch(changeFloorConnectMenuVisble({ visible: false }));
+    dispatch(removeLocation(location));
+  };
+  const onSave = async () => {};
 
   return (
     <>
-      <Menu title="Options" selectedKeys={["3"]}>
-        <Menu.Item
-          key={"saveBtn"}
-          className="custom-menu-item"
-          icon={<SaveOutlined />}
+      <div style={{ width: 200 }}>
+        <div
+          style={{
+            marginBottom: 8,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
         >
-          Save
-        </Menu.Item>
-        <div>
           <Select
             placeholder="Connect to floor"
-            style={{ width: 180, margin: "0 16px", marginBottom: 8 }}
+            style={{ width: "100%" }}
             onChange={handleChange}
             tokenSeparators={[","]}
             defaultValue={-1}
             value={selectedFloor?.id ?? -1}
           >
-            <Select.Option value={-1}>Chọn tầng --</Select.Option>
+            <Select.Option value={-1}>Choose Floor --</Select.Option>
             {floors &&
               floors?.map((item) => (
-                <Select.Option value={item.id}>
-                  Tầng {item.floorCode}
-                </Select.Option>
+                <Select.Option value={item.id}>{item.floorCode}</Select.Option>
               ))}
           </Select>
-          <div style={{ marginLeft: 15 }}>
-            {location?.floorConnects &&
-              location.floorConnects.map((item) => (
-                <Tag key={item.id} closable onClose={() => removeLoc(item)}>
-                  <LinkOutlined /> Tầng {item.floorPlan.floorCode}
-                </Tag>
-              ))}
-          </div>
+          {!floorConnectVisible && (
+            <Button
+              style={{ marginLeft: 5 }}
+              onClick={() =>
+                dispatch(
+                  changeFloorConnectMenuVisble({
+                    visible: true,
+                  })
+                )
+              }
+              icon={<FullscreenOutlined />}
+            ></Button>
+          )}
         </div>
-
-        <Menu.Item
+        <div style={{ marginBottom: 5 }}>
+          {location?.floorConnects &&
+            location.floorConnects.map((item) => (
+              <Tag key={item.id} closable onClose={() => removeLoc(item)}>
+                <LinkOutlined /> {item.floorPlan.floorCode}
+              </Tag>
+            ))}
+        </div>
+        <Button
+          style={{ marginBottom: 8 }}
+          block
           onClick={onDelete}
-          className="custom-menu-item"
-          key="removeBtn"
           icon={<DeleteOutlined />}
         >
           Remove
-        </Menu.Item>
-      </Menu>
+        </Button>
+      </div>
     </>
   );
 };
 const ChooseStairLiftConnection = ({ handleSelect }) => {
+  const dispatch = useDispatch();
   const [scale, setScale] = useState(0.1);
   const floorPlan = useSelector(selectNextFloorPlan);
   const markers = useSelector(selectNextFloorMarkers);
   const [floorConnects, setFloorConnects] = useState([]);
   const selected = useSelector(selectSelected);
+  const floorConnectVisible = useSelector(selectFloorConnectVisible);
   useEffect(() => {
+    if (selected && floorPlan && selected.floorPlanId !== floorPlan.id) {
+      // dispatch(setSelectedFloorId(selected.floorPlanId));
+    }
     if (selected) {
       setFloorConnects(
         selected.floorConnects.filter(
@@ -787,9 +798,23 @@ const ChooseStairLiftConnection = ({ handleSelect }) => {
 
   return (
     <>
-      {floorPlan && selected && (
+      {floorPlan && floorConnectVisible && (
         <div className="choose-stair-lift-wrapper">
-          <h4>Choose floor connections</h4>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h4>Choose floor connections</h4>
+            <Button
+              style={{ marginLeft: 5 }}
+              onClick={() =>
+                dispatch(
+                  changeFloorConnectMenuVisble({
+                    visible: false,
+                  })
+                )
+              }
+              icon={<FullscreenExitOutlined />}
+            ></Button>
+          </div>
+
           <TransformWrapper
             pinch={{ disabled: true }}
             doubleClick={{ disabled: true }}
@@ -828,6 +853,7 @@ const PlaceMarker = ({
   rotate,
 }) => {
   const locationName = useSelector(selectLocationName);
+
   const {
     x,
     y,
@@ -838,6 +864,7 @@ const PlaceMarker = ({
     floorConnects,
     locationPicked,
   } = location;
+  const dispatch = useDispatch();
   const getMenu = () => {
     switch (locationTypeId) {
       case 3:
@@ -847,7 +874,12 @@ const PlaceMarker = ({
         return <DeleteMenu location={location} />;
     }
   };
-  if (!locationPicked || mode !== "pickLocation" || locationTypeId == 2) {
+  if (
+    ((!locationPicked || mode !== "pickLocation" || locationTypeId == 2) &&
+      ((locationTypeId != 3 && locationTypeId != 4) ||
+        mode === "pickLocation")) ||
+    mode === "chooseStairLift"
+  ) {
     return (
       <Tooltip
         title={
@@ -896,7 +928,7 @@ const PlaceMarker = ({
             height="21"
           />
 
-          {mode === "floorPlan" && floorConnects.length && (
+          {mode === "floorPlan" && floorConnects?.length && (
             <>
               <rect
                 className="img-red"
@@ -949,10 +981,8 @@ const PlaceMarker = ({
   }
   return (
     <Popover
-      // visible={locationPicked && mode === "pickLocation" && locationTypeId != 2}
       placement="rightTop"
       title="Menu"
-      on
       content={getMenu()}
       trigger="click"
     >
@@ -1001,7 +1031,7 @@ const PlaceMarker = ({
             height="21"
           />
 
-          {mode === "floorPlan" && floorConnects.length && (
+          {mode === "floorPlan" && floorConnects?.length && (
             <>
               <rect
                 className="img-red"
@@ -1054,119 +1084,112 @@ const PlaceMarker = ({
   );
 };
 
-const PlaceMarkerToolTip = (
-  src,
-  location,
-  selected,
-  onPathClick,
-  mode = "floorPlan",
-  rotate
-) => {
-  const locationName = useSelector(selectLocationName);
-  const {
-    x,
-    y,
-    store,
-    locatorTag,
-    floorConnects,
-    locationPicked,
-  } = location;
-  return (
-    <Tooltip
-      title={
-        locationPicked
-          ? locationName
-          : store
-          ? store.name
-          : locatorTag && locatorTag.uuid
-      }
-      placement="top"
-    >
-      <g
-        transform={`translate(${x - 10}, ${y - 10}) rotate(${rotate})`}
-        onClick={(evt) => onPathClick(location, evt)}
-        onContextMenu={(evt) => onPathClick(location, evt)}
-      >
-        <rect
-          width="28"
-          height="28"
-          fill="white"
-          rx="2"
-          strokeWidth="0.2"
-          stroke="grey"
-          transform="translate(-3.7, -4)"
-        ></rect>
+// const PlaceMarkerToolTip = (
+//   src,
+//   location,
+//   selected,
+//   onPathClick,
+//   mode = "floorPlan",
+//   rotate
+// ) => {
+//   const locationName = useSelector(selectLocationName);
+//   const { x, y, store, locatorTag, floorConnects, locationPicked } = location;
+//   return (
+//     <Tooltip
+//       title={
+//         locationPicked
+//           ? locationName
+//           : store
+//           ? store.name
+//           : locatorTag && locatorTag.uuid
+//       }
+//       placement="top"
+//     >
+//       <g
+//         transform={`translate(${x - 10}, ${y - 10}) rotate(${rotate})`}
+//         onClick={(evt) => onPathClick(location, evt)}
+//         onContextMenu={(evt) => onPathClick(location, evt)}
+//       >
+//         <rect
+//           width="28"
+//           height="28"
+//           fill="white"
+//           rx="2"
+//           strokeWidth="0.2"
+//           stroke="grey"
+//           transform="translate(-3.7, -4)"
+//         ></rect>
 
-        {LocationHelper.equal(location, selected) && (
-          <rect
-            width="28"
-            height="28"
-            fill="#333642"
-            rx="2"
-            strokeWidth="0.2"
-            stroke="grey"
-            transform="translate(-3.7, -4)"
-          ></rect>
-        )}
+//         {LocationHelper.equal(location, selected) && (
+//           <rect
+//             width="28"
+//             height="28"
+//             fill="#333642"
+//             rx="2"
+//             strokeWidth="0.2"
+//             stroke="grey"
+//             transform="translate(-3.7, -4)"
+//           ></rect>
+//         )}
 
-        <image
-          className={
-            LocationHelper.equal(location, selected) ? "img-white" : ""
-          }
-          href={src}
-          height="21"
-        />
+//         <image
+//           className={
+//             LocationHelper.equal(location, selected) ? "img-white" : ""
+//           }
+//           href={src}
+//           height="21"
+//         />
 
-        {mode === "floorPlan" && floorConnects.length && (
-          <>
-            <rect
-              className="img-red"
-              x="22"
-              y="-8"
-              height="14"
-              width="30"
-              rx="3"
-            />
-            <path
-              fill="white"
-              transform="translate(23, -7) scale(0.012)"
-              d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
-            ></path>
-            <text
-              x="62"
-              y="2.8"
-              transform="scale(0.7)"
-              textAnchor="middle"
-              fill="white"
-            >
-              {floorConnects.length}
-            </text>
-          </>
-        )}
-        {mode === "pickLocation" && location.locationPicked && (
-          <>
-            <rect
-              className="img-green"
-              x="19"
-              y="-7"
-              height="14"
-              width="15"
-              rx="3"
-            />
-            <text
-              x="19"
-              y="4.2"
-              transform="scale(1.4)"
-              textAnchor="middle"
-              fill="white"
-            >
-              +
-            </text>
-          </>
-        )}
-      </g>
-    </Tooltip>
-  );
-};
+//         {mode === "floorPlan" && floorConnects.length && (
+//           <>
+//             <rect
+//               className="img-red"
+//               x="22"
+//               y="-8"
+//               height="14"
+//               width="30"
+//               rx="3"
+//             />
+//             <path
+//               fill="white"
+//               transform="translate(23, -7) scale(0.012)"
+//               d="M574 665.4a8.03 8.03 0 00-11.3 0L446.5 781.6c-53.8 53.8-144.6 59.5-204 0-59.5-59.5-53.8-150.2 0-204l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3l-39.8-39.8a8.03 8.03 0 00-11.3 0L191.4 526.5c-84.6 84.6-84.6 221.5 0 306s221.5 84.6 306 0l116.2-116.2c3.1-3.1 3.1-8.2 0-11.3L574 665.4zm258.6-474c-84.6-84.6-221.5-84.6-306 0L410.3 307.6a8.03 8.03 0 000 11.3l39.7 39.7c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c53.8-53.8 144.6-59.5 204 0 59.5 59.5 53.8 150.2 0 204L665.3 562.6a8.03 8.03 0 000 11.3l39.8 39.8c3.1 3.1 8.2 3.1 11.3 0l116.2-116.2c84.5-84.6 84.5-221.5 0-306.1zM610.1 372.3a8.03 8.03 0 00-11.3 0L372.3 598.7a8.03 8.03 0 000 11.3l39.6 39.6c3.1 3.1 8.2 3.1 11.3 0l226.4-226.4c3.1-3.1 3.1-8.2 0-11.3l-39.5-39.6z"
+//             ></path>
+//             <text
+//               x="62"
+//               y="2.8"
+//               transform="scale(0.7)"
+//               textAnchor="middle"
+//               fill="white"
+//             >
+//               {floorConnects.length}
+//             </text>
+//           </>
+//         )}
+//         {mode === "pickLocation" && location.locationPicked && (
+//           <>
+//             <rect
+//               className="img-green"
+//               x="19"
+//               y="-7"
+//               height="14"
+//               width="15"
+//               rx="3"
+//             />
+//             <text
+//               x="19"
+//               y="4.2"
+//               transform="scale(1.4)"
+//               textAnchor="middle"
+//               fill="white"
+//             >
+//               +
+//             </text>
+//           </>
+//         )}
+//       </g>
+//     </Tooltip>
+//   );
+// };
 
 export default IndoorMap;
