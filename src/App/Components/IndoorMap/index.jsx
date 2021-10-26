@@ -235,7 +235,6 @@ const Wrapper = ({
   };
   const handleOk = async () => {
     if (mode === "floorPlan") {
-      message.loading("Saving floor data in progress..");
       dispatch(saveLocationAndEdges());
       message.success("Saved successfully!!");
     } else if (mode === "pickLocation") {
