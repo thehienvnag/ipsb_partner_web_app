@@ -15,7 +15,7 @@ const DrawRoute = ({
   const [fileList, setFileList] = useState(null);
   const [imageSrc, setImageSrc] = useState(null);
   useEffect(() => {
-    if (value) {
+    if (typeof value === "string") {
       setFileList([{ url: value, name: `Floor_${floorCode}` }]);
       setImageSrc(value);
     }
@@ -31,6 +31,7 @@ const DrawRoute = ({
       setFileList([file]);
     } else {
       setFileList([]);
+      setImageSrc(null);
     }
   };
 
