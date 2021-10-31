@@ -15,6 +15,7 @@ export default class RouteNames {
   static managerAccounts = "/manage-accounts";
   static locationTypes = "/location-types";
   static couponTypes = "/coupon-types";
+  static productCategory = "/product-categories";
   //#endregion
   //#region Store Owners
   static managerCoupons = "/manage-coupons";

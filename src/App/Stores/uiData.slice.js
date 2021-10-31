@@ -13,7 +13,11 @@ import { FaYandexInternational, FaCity } from "react-icons/fa";
 
 //#region Menu final data
 const adminItems = [
-  { icon: <BiBuildings />, title: "Buildings", path: RouteNames.buildings },
+  { 
+    icon: <BiBuildings />, 
+    title: "Buildings", 
+    path: RouteNames.buildings 
+  },
   {
     icon: <AiOutlineTeam />,
     title: "Building Managers",
@@ -28,6 +32,11 @@ const adminItems = [
     icon: <RiCoupon3Fill />,
     title: "Coupon Types",
     path: RouteNames.couponTypes,
+  },
+  {
+    icon: <FaYandexInternational />,
+    title: "Product Category",
+    path: RouteNames.productCategory,
   },
 ];
 const buildingManagerItems = [

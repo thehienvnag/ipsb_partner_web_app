@@ -18,6 +18,7 @@ import CouponTypePage from "App/Containers/Admin/CouponTypePage";
 import FacilityPage from "App/Containers/BuildingManager/FacilityPage";
 import ForgotPasswordPage from "App/Containers/Auth/ForgotPassword";
 import ForgotPasswordSuccessPage from "App/Containers/Auth/ForgotPasswordSuccess";
+import ProductCategoryPage from "App/Containers/Admin/ProductCategory";
 const appRoutes = [
   {
     path: "",
@@ -118,6 +119,10 @@ const appRoutes = [
       {
         path: RouteNames.couponTypes,
         element: <RoleGuard role="Admin" component={<CouponTypePage />} />,
+      },
+      {
+        path: RouteNames.productCategory,
+        element: <RoleGuard role="Admin" component={<ProductCategoryPage />} />,
       },
       {
         path: RouteNames.managerCoupons + "/:page",
