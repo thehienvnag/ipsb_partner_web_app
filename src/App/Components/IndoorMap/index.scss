@@ -5,7 +5,7 @@
     .ant-modal-body {
       height: 78vh !important;
 
-      background-color: rgb(243, 242, 242);
+      background-color: white;
       .react-transform-wrapper {
         height: 73vh !important;
       }
@@ -17,6 +17,9 @@
         }
         .image-wrapper {
           position: relative;
+          img{
+            max-width: none;
+          }
           svg {
             position: absolute;
             top: 0;

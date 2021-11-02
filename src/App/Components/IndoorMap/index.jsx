@@ -308,6 +308,7 @@ const Wrapper = ({
         <Row>
           <TransformWrapper
             pinch={{ disabled: true }}
+            limitToBounds={false}
             doubleClick={{ disabled: true }}
             minScale={0.3}
             maxScale={4}
