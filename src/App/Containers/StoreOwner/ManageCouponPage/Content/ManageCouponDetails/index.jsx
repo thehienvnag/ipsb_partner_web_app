@@ -121,20 +121,6 @@ const CouponDetails = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              name="name"
-              label="Name:"
-              rules={[
-                {
-                  required: true,
-                  message: "Input name of coupon",
-                  whitespace: false,
-                },
-              ]}
-            >
-              <Input placeholder="Name of coupon" disabled={disabled} />
-            </Form.Item>
-
-            <Form.Item
               name="code"
               label="Code:"
               rules={[
@@ -149,6 +135,20 @@ const CouponDetails = ({
                 disabled={disabled || model}
               />
             </Form.Item>
+            <Form.Item
+              name="name"
+              label="Name:"
+              rules={[
+                {
+                  required: true,
+                  message: "Input name of coupon",
+                  whitespace: false,
+                },
+              ]}
+            >
+              <Input placeholder="Name of coupon" disabled={disabled} />
+            </Form.Item>
+
             <Form.Item
               name="description"
               label="Description:"
@@ -183,36 +183,40 @@ const CouponDetails = ({
                 disabled={disabled || model}
               />
             </Form.Item>
-            {couponTypeId && (
-              <Form.Item
-                name="amount"
-                label="Amount: "
-                required
-                rules={[
-                  {
-                    required: true,
-                    message: "Input coupon amount",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Input coupon amount"
-                  type="number"
-                  disabled={disabled || model}
-                />
-              </Form.Item>
-            )}
+            {couponTypeId ||
+              (model && (
+                <Form.Item
+                  name="amount"
+                  label="Amount: "
+                  required
+                  rules={[
+                    {
+                      required: true,
+                      message: "Input coupon amount",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Input coupon amount"
+                    type="number"
+                    disabled={disabled || model}
+                  />
+                </Form.Item>
+              ))}
 
-            {couponTypeId && (
-              <Form.Item name="minSpend" label="Min spend: ">
-                <Input
-                  placeholder="Input min price"
-                  type="number"
-                  disabled={disabled || model}
-                />
-              </Form.Item>
-            )}
-            {couponTypeId && couponTypeId != couponTypeFixed && (
+            {couponTypeId ||
+              (model && (
+                <Form.Item name="minSpend" label="Min spend: ">
+                  <Input
+                    placeholder="Input min price"
+                    type="number"
+                    disabled={disabled || model}
+                  />
+                </Form.Item>
+              ))}
+            {((couponTypeId && couponTypeId != couponTypeFixed) ||
+              (model?.couponTypeId &&
+                model.couponTypeId != couponTypeFixed)) && (
               <Form.Item name="maxDiscount" label="Max discount: ">
                 <Input
                   placeholder="Input coupon max discount"
