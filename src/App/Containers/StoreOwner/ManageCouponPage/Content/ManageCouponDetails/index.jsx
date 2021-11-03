@@ -50,7 +50,11 @@ const CouponDetails = ({
         form={form}
         name="register"
         layout="vertical"
-        onValuesChange={({ couponTypeId }) => setCouponTypeId(couponTypeId)}
+        onValuesChange={({ couponTypeId }) => {
+          if (couponTypeId !== undefined) {
+            setCouponTypeId(couponTypeId);
+          }
+        }}
       >
         <Row justify="space-between">
           <Col span={11}>
@@ -183,37 +187,35 @@ const CouponDetails = ({
                 disabled={disabled || model}
               />
             </Form.Item>
-            {couponTypeId ||
-              (model && (
-                <Form.Item
-                  name="amount"
-                  label="Amount: "
-                  required
-                  rules={[
-                    {
-                      required: true,
-                      message: "Input coupon amount",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Input coupon amount"
-                    type="number"
-                    disabled={disabled || model}
-                  />
-                </Form.Item>
-              ))}
+            {(couponTypeId || model) && (
+              <Form.Item
+                name="amount"
+                label="Amount: "
+                required
+                rules={[
+                  {
+                    required: true,
+                    message: "Input coupon amount",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Input coupon amount"
+                  type="number"
+                  disabled={disabled || model}
+                />
+              </Form.Item>
+            )}
 
-            {couponTypeId ||
-              (model && (
-                <Form.Item name="minSpend" label="Min spend: ">
-                  <Input
-                    placeholder="Input min price"
-                    type="number"
-                    disabled={disabled || model}
-                  />
-                </Form.Item>
-              ))}
+            {(couponTypeId || model) && (
+              <Form.Item name="minSpend" label="Min spend: ">
+                <Input
+                  placeholder="Input min price"
+                  type="number"
+                  disabled={disabled || model}
+                />
+              </Form.Item>
+            )}
             {((couponTypeId && couponTypeId != couponTypeFixed) ||
               (model?.couponTypeId &&
                 model.couponTypeId != couponTypeFixed)) && (

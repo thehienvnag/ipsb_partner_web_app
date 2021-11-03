@@ -18,6 +18,7 @@ const ImagePicker = ({ disabled, value, onChange }) => {
   return (
     <Upload
       disabled={disabled}
+      accept=".jpg,.svg,.png,.jpeg"
       // className={fileList.length === 0 && "margin-bt-34"}
       listType="picture-card"
       fileList={fileList}
