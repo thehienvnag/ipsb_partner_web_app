@@ -66,12 +66,12 @@ const ChangePasswordPage = () => {
 
       dispatch(checkChangePassword(data)).then((values) => {
         if (values.type !== checkChangePassword.rejected.toString()) {
-          let path = "";
-          if (account.role === "Admin") {
-            path = "../../";
-          } else if (account.role === "Building Manager") {
-            path = "../../";
-          }
+          let path = "../../";
+          // if (account.role === "Admin") {
+          //   path = "../../";
+          // } else if (account.role === "Building Manager") {
+          //   path = "../../";
+          // }
           onSuccessLogin(path);
         } else {
           // const msg = values.payload;
@@ -135,11 +135,6 @@ const ChangePasswordPage = () => {
                       Enter your new password to continue.
                     </h4>
                   </Col>
-                  {/* <Form.Item
-                    name="accountId"
-                    style={{ display: "none" }}
-                    initialValue={accountId}
-                  ></Form.Item> */}
                   <Form.Item
                     name="password"
                     label="Password"
