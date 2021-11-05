@@ -38,9 +38,9 @@ const ProductCategoryDetails = ({
       <Form form={form} layout="vertical">
         <Row justify="space-between">
           <Col span={15}>
-            {/* <Form.Item name="imageUrl" required>
+            <Form.Item name="imageUrl" required>
               <ImagePicker disabled={disabled} />
-            </Form.Item> */}
+            </Form.Item>
             <Form.Item
               name="name"
               label="Name: "
