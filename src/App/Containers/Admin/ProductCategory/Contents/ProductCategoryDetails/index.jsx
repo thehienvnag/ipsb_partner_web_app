@@ -3,10 +3,10 @@ import { Row, Col, Input, Form } from "antd";
 import DetailCard from "App/Components/DetailCard";
 import { useDetailForm } from "App/Utils/hooks/useDetailForm";
 import ImagePicker from "App/Components/CustomImagePicker/ImagePicker";
-import { 
-  deleteProductCategory, 
-  postProductCategory, 
-  putProductCategory 
+import {
+  deleteProductCategory,
+  postProductCategory,
+  putProductCategory,
 } from "App/Services/productCategory.service";
 
 const ProductCategoryDetails = ({
@@ -37,10 +37,12 @@ const ProductCategoryDetails = ({
     >
       <Form form={form} layout="vertical">
         <Row justify="space-between">
-          <Col span={15}>
-            <Form.Item name="imageUrl" required>
+          <Col span={11}>
+            <Form.Item label="Image:" name="imageUrl" required>
               <ImagePicker disabled={disabled} />
             </Form.Item>
+          </Col>
+          <Col span={11}>
             <Form.Item
               name="name"
               label="Name: "

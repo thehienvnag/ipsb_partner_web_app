@@ -38,7 +38,7 @@ const BuildingManagerDetails = ({
       <Form form={form} name="register" layout="vertical" scrollToFirstError>
         <Row justify="space-between">
           <Col span={11}>
-            <Form.Item name="imageUrl">
+            <Form.Item label="Image:" name="imageUrl">
               <ImagePicker disabled={disabled} />
             </Form.Item>
           </Col>

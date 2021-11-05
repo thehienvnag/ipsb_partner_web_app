@@ -39,7 +39,7 @@ const LocationTypeDetails = ({
       <Form form={form} layout="vertical">
         <Row justify="space-between">
           <Col span={10}>
-            <Form.Item name="imageUrl" required>
+            <Form.Item label="Image:" name="imageUrl" required>
               <ImagePicker disabled={disabled} />
             </Form.Item>
           </Col>
