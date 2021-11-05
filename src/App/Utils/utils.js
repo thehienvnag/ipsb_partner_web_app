@@ -5,6 +5,20 @@ export function getBase64(file, callback) {
   reader.readAsDataURL(file);
 }
 
+export function debounce(callback, timeout = 200) {
+  let timer;
+  return (...args) =>
+    new Promise((resolve, reject) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        callback
+          .call(this, args)
+          .then((data) => resolve(data))
+          .catch((err) => reject(err));
+      }, timeout);
+    });
+}
+
 export const isObject = (obj) => {
   return typeof obj === "object" && !Array.isArray(obj) && obj !== null;
 };

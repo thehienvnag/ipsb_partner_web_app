@@ -2,8 +2,6 @@ import axios from "axios";
 import queryString from "query-string";
 import axiosRetry from "axios-retry";
 import { refreshToken } from "App/Services/auth.service";
-import { logout, setAuthInfo } from "App/Stores/auth.slice";
-import { Store } from "App/Stores/store";
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,

@@ -9,8 +9,8 @@ import DetailCard from "App/Components/DetailCard";
 import SelectAccount from "App/Components/CustomSelect/SelectAccount";
 import ImagePicker from "App/Components/CustomImagePicker/ImagePicker";
 import { useDetailForm } from "App/Utils/hooks/useDetailForm";
+import AddressPicker from "App/Components/AddressPicker";
 
-const { TextArea } = Input;
 const BuildingDetails = ({
   visible,
   onCancel,
@@ -23,6 +23,7 @@ const BuildingDetails = ({
     createCallback: postBuilding,
     updateCallback: putBuilding,
     deleteCallback: deleteBuilding,
+    paramsKeyToStringify: ["addressJson"],
     handleRefresh,
     handleCancel,
   });
@@ -34,13 +35,13 @@ const BuildingDetails = ({
       onCancel={onCancel}
       onSave={onSave}
       onRemove={onDelete}
-      span={9}
+      span={11}
     >
       <Form form={form} layout="vertical">
         <Row justify="space-between">
-          <Col span={10}>
-            <Form.Item name="imageUrl" label="Add image:" required>
-              <ImagePicker />
+          <Col span={11}>
+            <Form.Item name="imageUrl" label="Image:" required>
+              <ImagePicker disabled={disabled} />
             </Form.Item>
           </Col>
 
@@ -57,22 +58,7 @@ const BuildingDetails = ({
                 },
               ]}
             >
-              <Input placeholder="Input building name" />
-            </Form.Item>
-
-            <Form.Item
-              name="address"
-              label="Address:"
-              required
-              rules={[
-                {
-                  required: true,
-                  message: "Input address of building",
-                  whitespace: true,
-                },
-              ]}
-            >
-              <TextArea rows={3} placeholder="Input address of building" />
+              <Input placeholder="Input building name" disabled={disabled} />
             </Form.Item>
             <Form.Item
               name="managerId"
@@ -87,20 +73,24 @@ const BuildingDetails = ({
               <SelectAccount
                 role="Building Manager"
                 initialValue={model?.manager}
+                disabled={disabled}
               />
             </Form.Item>
             <Form.Item
-              name="environmentFactor"
-              label="Environment factor: "
+              name="addressJson"
+              label="Address:"
               required
               rules={[
                 {
                   required: true,
-                  message: "Input environment factor",
+                  message: "Input address of building",
                 },
               ]}
             >
-              <Input placeholder="Input environment factor" type="number" />
+              <AddressPicker
+                initialValue={model?.address}
+                disabled={disabled}
+              />
             </Form.Item>
           </Col>
         </Row>
