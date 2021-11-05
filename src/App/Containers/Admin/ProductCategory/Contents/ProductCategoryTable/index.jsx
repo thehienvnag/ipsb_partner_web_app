@@ -40,12 +40,12 @@ const ProductCategoryTable = ({ refresh, onRowSelect }) => {
         key="productCategoryIndex"
         render={(item, record, index) => <Tag>{index + 1}</Tag>}
       />
-      {/* <Table.Column
+      <Table.Column
         title="Image"
         dataIndex="imageUrl"
         key="imageUrl"
         render={(item) => <Avatar src={item} size={40} />}
-      /> */}
+      />
       <Table.Column
         title="Name"
         dataIndex="name"
