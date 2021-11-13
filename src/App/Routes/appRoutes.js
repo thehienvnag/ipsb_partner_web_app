@@ -121,6 +121,10 @@ const appRoutes = [
         element: <RoleGuard role="Admin" component={<CouponTypePage />} />,
       },
       {
+        path: RouteNames.productCategory + "/:page",
+        element: <RoleGuard role="Admin" component={<ProductCategoryPage />} />,
+      },
+      {
         path: RouteNames.productCategory,
         element: <RoleGuard role="Admin" component={<ProductCategoryPage />} />,
       },

@@ -17,7 +17,7 @@
         }
         .image-wrapper {
           position: relative;
-          img{
+          img {
             max-width: none;
           }
           svg {
@@ -44,6 +44,10 @@
   }
 }
 
+// .ant-popover-placement-leftTop {
+//   display: none;
+// }
+
 .modal-wrapper0 {
   @include modal-wrapper-rotate(0deg);
 }
@@ -59,8 +63,6 @@
 .modal-wrapper-180 {
   @include modal-wrapper-rotate(180deg);
 }
-
-
 
 .preview-wrapper {
   height: 340px;

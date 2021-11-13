@@ -5,7 +5,6 @@ import buildingReducer from "./building.slice"
 import edgeReducer from "./edge.slice";
 import locationReducer from "./location.slice";
 import accountReducer from "./account.slice";
-import mapReducer from "./map.slice";
 import indoorMapReducer from "./indoorMap.slice";
 import authReducer from "./auth.slice";
 import uiDataReducer from "./uiData.slice";
@@ -26,7 +25,6 @@ export const Store = configureStore({
     account: accountReducer,
     locatorTag: locatorTagReducer,
     indoorMap: indoorMapReducer,
-    map: mapReducer,
     uiData: uiDataReducer,
     coupon: couponReducer,
     product: productReducer,
