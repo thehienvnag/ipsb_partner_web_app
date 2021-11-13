@@ -25,7 +25,7 @@ const createLocation = createAsyncThunk(
       return rejectWithValue(duplicate);
     }
     const edgeIntersect = EdgeHelper.findIntersects(
-      [...(edge.list?.content ?? []), ...(indoorMap.createdEdges ?? [])],
+      EdgeHelper.display(edge.list, indoorMap.createdEdges, indoorMap.removedEdgeIds),
       rawLocation
     );
     return {

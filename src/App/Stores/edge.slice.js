@@ -1,14 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getByFloorPlan } from "App/Services/edge.service";
-import { setEdges } from "App/Stores/map.slice";
 //#region Async thunks floor plans
 const loadEdgesOnFloor = createAsyncThunk(
   "edge/loadEdgesOnFloor",
   async (params = {}, { dispatch }) => {
     const data = await getByFloorPlan(params);
-    if (data) {
-      dispatch(setEdges(data.content));
-    }
     return data;
   }
 );

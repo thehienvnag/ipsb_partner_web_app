@@ -55,15 +55,22 @@ export const useDetailForm = ({
   const update = async (values) => {
     try {
       setBtnState({ saveLoading: true });
-      const data = await updateCallback(model.id, values);
-      if (data?.id !== null) {
+      const res = await updateCallback(model.id, values);
+      if (res) {
         handleRefresh();
         message.success("Update success", 3);
-      } else {
-        message.error("Update Failed", 3);
       }
     } catch (error) {
-      message.error("Update Failed", 3);
+      let msg;
+      if (error?.response?.status === 403) {
+        msg = error.response.data;
+      } else {
+        msg = error.response.data.message;
+      }
+      message.error({
+        content: msg,
+        style: { top: "12vh", right: "10vw", position: "absolute" },
+      });
     }
     setBtnState({ saveLoading: false });
   };
@@ -76,8 +83,6 @@ export const useDetailForm = ({
         handleRefresh();
         handleCancel();
         message.success("Delete success!", 3);
-      } else {
-        message.error("Delete fail!", 3);
       }
     } catch (error) {
       message.error("Delete Failed", 3);

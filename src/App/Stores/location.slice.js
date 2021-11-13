@@ -1,14 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getByFloorPlan, postLocations } from "App/Services/location.service";
-import { setMarkers } from "App/Stores/map.slice";
+import { getByFloorPlan } from "App/Services/location.service";
 //#region Async thunks floor plans
 const loadLocationByFloor = createAsyncThunk(
   "location/loadLocationOfBeaconType",
   async (params, { dispatch }) => {
     const data = await getByFloorPlan(params);
-    if (data) {
-      dispatch(setMarkers(data.content));
-    }
     return data;
   }
 );

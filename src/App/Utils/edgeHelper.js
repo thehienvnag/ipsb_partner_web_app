@@ -13,13 +13,14 @@ export default class EdgeHelper {
     list.findIndex((e) => this.equal(e, edge)) !== -1;
   static find = (edges, edgeToFind) =>
     edges.find((edge) => this.equal(edgeToFind, edge));
-  static isFloorConnect = (from, to) =>{
-    const result = stairLiftIds.includes(from.locationTypeId) &&
-    stairLiftIds.includes(to.locationTypeId) &&
-    from.floorPlanId !== to.floorPlanId;
+  static isFloorConnect = (from, to) => {
+    const result =
+      stairLiftIds.includes(from.locationTypeId) &&
+      stairLiftIds.includes(to.locationTypeId) &&
+      from.floorPlanId !== to.floorPlanId;
     return result;
-  }
-    
+  };
+
   static getFloorConnectEdges = (edges) =>
     edges.filter(({ fromLocation, toLocation }) =>
       this.isFloorConnect(fromLocation, toLocation)
@@ -81,4 +82,5 @@ export default class EdgeHelper {
       };
     });
   };
+ 
 }
