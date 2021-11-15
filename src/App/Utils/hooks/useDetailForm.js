@@ -44,11 +44,18 @@ export const useDetailForm = ({
       if (data?.id) {
         handleRefresh();
         message.success("Create success", 3);
-      } else {
-        message.error("Create Failed", 3);
       }
     } catch (error) {
-      message.error("Create Failed", 3);
+      let msg = "Create failed: ";
+      if (error?.response?.status === 403) {
+        msg += error.response.data;
+      } else {
+        msg += error.response.data.message;
+      }
+      message.error({
+        content: msg,
+        style: { top: "12vh", right: "10vw", position: "absolute" },
+      });
     }
     setBtnState({ saveLoading: false });
   };
@@ -61,11 +68,11 @@ export const useDetailForm = ({
         message.success("Update success", 3);
       }
     } catch (error) {
-      let msg;
+      let msg = "Update failed: " ;
       if (error?.response?.status === 403) {
-        msg = error.response.data;
+        msg += error.response.data;
       } else {
-        msg = error.response.data.message;
+        msg += error.response.data.message;
       }
       message.error({
         content: msg,
@@ -85,7 +92,16 @@ export const useDetailForm = ({
         message.success("Delete success!", 3);
       }
     } catch (error) {
-      message.error("Delete Failed", 3);
+      let msg = "Delete Failed: ";
+      if (error?.response?.status === 403) {
+        msg += error.response.data;
+      } else {
+        msg += error.response.data.message;
+      }
+      message.error({
+        content: msg,
+        style: { top: "12vh", right: "10vw", position: "absolute" },
+      });
     }
     setBtnState({ removeLoading: false });
   };
