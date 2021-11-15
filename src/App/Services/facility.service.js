@@ -7,10 +7,17 @@ import { facilities } from "../Utils/Constants/endpoints";
  * @param {number} [params.pageSize] current page size of get request
  */
 export const getAllFacility = async (
-  { pageIndex = 1, pageSize = 5, isAll = false, status = "Active" },
+  { pageIndex = 1, pageSize = 5, isAll = false, status = "Active", buildingId },
   searchObject = {}
 ) => {
-  const params = { pageIndex, pageSize, isAll, status, ...searchObject };
+  const params = {
+    pageIndex,
+    pageSize,
+    isAll,
+    status,
+    buildingId,
+    ...searchObject,
+  };
   return (await axiosClient.get(facilities, { params })).data;
 };
 
@@ -28,14 +35,13 @@ export const postFacility = async (data) => {
  * @param {object} [data] values to put
  */
 export const putFacility = async (id, data) => {
-  return (await axiosClient.put(facilities + "/" + id, data)).data;
+  return (await axiosClient.put(facilities + "/" + id, data)).status === 204;
 };
-
 
 /**
  * Delete facility
  * @param {number} [id] facility id
  */
- export const deleteFacility = async (id) => {
+export const deleteFacility = async (id) => {
   return (await axiosClient.delete(facilities + "/" + id)).status === 204;
 };

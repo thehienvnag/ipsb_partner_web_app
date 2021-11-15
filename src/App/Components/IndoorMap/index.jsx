@@ -911,7 +911,10 @@ const PlaceMarker = ({
     <Popover
       placement="rightTop"
       title="Menu"
-      visible={LocationHelper.equal(selected, location) && mode === "floorPlan"}
+      visible={
+        LocationHelper.equal(selected, location) &&
+        (mode === "floorPlan" || mode === "pickLocation")
+      }
       content={getMenu()}
       trigger="click"
     >

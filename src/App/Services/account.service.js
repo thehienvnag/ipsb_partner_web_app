@@ -93,7 +93,7 @@ export const postAccount = async (data) => {
  * @param {object} [data] values to put
  */
 export const putAccount = async (id, data) => {
-  return (await putFormData(accounts + "/" + id, data)).data;
+  return (await putFormData(accounts + "/" + id, data)).status === 204;
 };
 
 /**

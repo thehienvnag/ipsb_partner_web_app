@@ -10,6 +10,8 @@ import { useDetailForm } from "App/Utils/hooks/useDetailForm";
 import SelectFloorPlan from "App/Components/CustomSelect/SelectFloorPlan";
 import PickLocation from "App/Components/PickLocation/PickLocation";
 import SelectLocationType from "App/Components/CustomSelect/SelectLocationType";
+import { useSelector } from "react-redux";
+import { selectBuildingId } from "App/Stores/auth.slice";
 const { TextArea } = Input;
 const FacilityDetails = ({
   visible,
@@ -18,6 +20,7 @@ const FacilityDetails = ({
   handleCancel,
   model,
 }) => {
+  const buildingId = useSelector(selectBuildingId);
   const [floorPlanId, setFloorPlanId] = useState(null);
   const [locationTypeId, setLocationTypeId] = useState(null);
   const { form, btnState, onSave, onDelete } = useDetailForm({
@@ -26,6 +29,7 @@ const FacilityDetails = ({
     updateCallback: putFacility,
     deleteCallback: deleteFacility,
     paramsKeyToStringify: ["locationJson"],
+    createParams: { buildingId },
     handleRefresh,
     handleCancel,
     effectCallback: () => {

@@ -43,7 +43,7 @@ export const postBuilding = async (data) => {
  * @param {object} [data] building data to update
  */
 export const putBuilding = async (id, data) => {
-  return (await putFormData(buildings + "/" + id, data)).data;
+  return (await putFormData(buildings + "/" + id, data)).status === 204;
 };
 
 /**
