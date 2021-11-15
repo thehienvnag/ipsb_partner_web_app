@@ -36,14 +36,6 @@ const ForgotPasswordPage = () => {
     } catch (e) {
       onErrorCheck();
     }
-
-    // if (data != 404) {
-    //   onSuccessLogin("../forgot-password-success/" + values);
-    //   // navigate("../forgot-password-success/" + values);
-    // } else {
-    //   console.log("ON ERROR CHECK");
-    //   onErrorCheck();
-    // }
   };
 
   const onFinish = (values) => {

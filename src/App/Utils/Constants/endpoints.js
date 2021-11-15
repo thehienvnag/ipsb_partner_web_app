@@ -11,7 +11,6 @@ export const productGroups = "/product-groups";
 export const coupons = "/coupons";
 export const products = "/products";
 export const couponInUses = "/coupon-in-uses";
-export const visitPoint = "/visit-points";
 export const locationTypes = "/location-types";
 export const couponTypes = "/coupon-types";
 export const facilities = "/facilities";

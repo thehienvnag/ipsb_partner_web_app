@@ -27,6 +27,32 @@ export const getAll = async (
   };
   return (await axiosClient.get(floorPlans, { params })).data;
 };
+
+/**
+ * Count floor plans
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.buildingId] building id which contains floor plans
+ * @param {number} [params.isAll] whether get all floor plans
+ */
+export const countFloorPlan = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  buildingId,
+  status = "Active",
+  isAll,
+}) => {
+  const params = {
+    pageIndex,
+    pageSize,
+    buildingId,
+    status,
+    isAll,
+  };
+  return (await axiosClient.get(floorPlans + "/count", { params })).data;
+};
+
 /**
  * Get floor plan by id
  * @param {number} [id] Floor plan id

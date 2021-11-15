@@ -67,11 +67,6 @@ const ChangePasswordPage = () => {
       dispatch(checkChangePassword(data)).then((values) => {
         if (values.type !== checkChangePassword.rejected.toString()) {
           let path = "../../";
-          // if (account.role === "Admin") {
-          //   path = "../../";
-          // } else if (account.role === "Building Manager") {
-          //   path = "../../";
-          // }
           onSuccessLogin(path);
         } else {
           // const msg = values.payload;

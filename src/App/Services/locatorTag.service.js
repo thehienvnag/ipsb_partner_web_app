@@ -23,6 +23,31 @@ export const getLocatorTags = async (
 };
 
 /**
+ * Count locator tags
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.buildingId] building id which contains floor plans
+ * @param {number} [params.isAll] whether get all locator tags
+ */
+export const countLocatorTags = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  status = "Active",
+  buildingId,
+  isAll,
+}) => {
+  const params = {
+    pageIndex,
+    pageSize,
+    status,
+    buildingId,
+    isAll,
+  };
+  return (await axiosClient.get(locatorTags + "/count", { params })).data;
+};
+
+/**
  * Create locator
  * @param {object} [data] values to create
  */

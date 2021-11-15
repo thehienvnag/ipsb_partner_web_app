@@ -6,6 +6,8 @@ import { couponInUses } from "../Utils/Constants/endpoints";
  * @param {number} [params.pageIndex] current page of get request
  * @param {number} [params.pageSize] current page size of get request
  * @param {number} [params.storeId] store id which contains couponInUses
+ * @param {number} [params.lowerApplyDate] lower bound of apply date
+ * @param {number} [params.upperApplyDate] upper bound of apply date
  */
 export const getAllCouponInUse = async ({
   pageIndex = 1,
@@ -13,8 +15,17 @@ export const getAllCouponInUse = async ({
   isAll = true,
   status = "Used",
   storeId,
+  lowerApplyDate,
+  upperApplyDate,
 }) => {
-  const params = { pageIndex, pageSize, status, storeId, isAll };
+  const params = {
+    pageIndex,
+    pageSize,
+    status,
+    storeId,
+    isAll,
+    lowerApplyDate,
+    upperApplyDate,
+  };
   return (await axiosClient.get(couponInUses, { params })).data;
 };
-

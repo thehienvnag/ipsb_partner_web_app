@@ -16,6 +16,25 @@ export const getAllProduct = async (
   return (await axiosClient.get(products, { params })).data;
 };
 
+/**
+ * Get products
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.storeId] store id which contains products
+ * @param {number} [params.isAll] whether get all products
+ */
+export const countProduct = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  status = "Active",
+  storeId,
+  isAll,
+}) => {
+  const params = { pageIndex, pageSize, status, storeId, isAll };
+  return (await axiosClient.get(products + "/count", { params })).data;
+};
+
 export const getAllProductOfStore = async ({
   status = "Active",
   storeId,

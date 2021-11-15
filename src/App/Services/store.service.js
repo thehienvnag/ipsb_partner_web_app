@@ -15,6 +15,25 @@ export const getAllStore = async (
   return (await axiosClient.get(stores, { params })).data;
 };
 
+/**
+ * Count stores
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.buildingId] building id which contains floor plans
+ * @param {number} [params.isAll] whether get all stores
+ */
+export const countStore = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  buildingId,
+  status = "Active",
+  isAll,
+}) => {
+  const params = { pageIndex, pageSize, buildingId, status, isAll };
+  return (await axiosClient.get(stores + "/count", { params })).data;
+};
+
 export const getStoreByBuildingId = async ({
   pageIndex = 1,
   pageSize = 5,
