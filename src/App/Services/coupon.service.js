@@ -16,6 +16,25 @@ export const getAllCoupon = async (
 };
 
 /**
+ * Count coupons
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.storeId] store id which contains coupons
+ * @param {number} [params.isAll] whether get all coupons
+ */
+export const countCoupon = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  status = "Active",
+  storeId,
+  isAll,
+}) => {
+  const params = { pageIndex, pageSize, status, storeId, isAll };
+  return (await axiosClient.get(coupons + "/count", { params })).data;
+};
+
+/**
  * Create coupon
  * @param {object} [data] values to post
  */

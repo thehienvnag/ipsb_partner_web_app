@@ -1,35 +1,134 @@
 import React, { createElement, useState, useEffect } from "react";
-import { PageHeader } from "antd";
+import { Empty } from "antd";
 import { PageBody, PageWrapper } from "App/Components/PageWrapper";
 import "./index.scss";
-import { Pie, defaults, Bar, Doughnut } from 'react-chartjs-2';
-import { Row, Col, DatePicker, Comment, Tooltip, Avatar, Card ,Button } from 'antd';
+import { Bar } from "react-chartjs-2";
+import {
+  Row,
+  Col,
+  DatePicker,
+  Comment,
+  Tooltip,
+  Avatar,
+  Card,
+  Button,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { getStoreByBuildingId } from "App/Services/store.service";
+import { countStore, getStoreByBuildingId } from "App/Services/store.service";
 import { getAllCouponInUse } from "App/Services/couponInUse.service";
-import { getVisitPointByBuildingId } from "App/Services/visitPoint.service";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { BiStoreAlt, BiMapAlt, BiMapPin } from "react-icons/bi";
 import { RiSignalTowerFill } from "react-icons/ri";
-import { DislikeFilled, LikeFilled } from '@ant-design/icons';
-import moment from 'moment';
+import { DislikeFilled, LikeFilled } from "@ant-design/icons";
+import moment from "moment";
+import { selectBuildingId } from "App/Stores/auth.slice";
+import { countFloorPlan } from "App/Services/floorPlan.service";
+import { countLocatorTags } from "App/Services/locatorTag.service";
+import { countFacility } from "App/Services/facility.service";
 
 const { RangePicker } = DatePicker;
-
 
 const BmHomePage = () => {
   const dispatch = useDispatch();
 
-  // for pie chart
-  const [labels, setLabel] = useState([]);
-  const [dataPieLabels, setDataPieLabels] = useState([]);
-  // end pie chart
+  // Building Id
+  const buildingId = useSelector(selectBuildingId);
 
-  // for bar chart
+  // for top bar chart
   const [labelBars, setLabelBar] = useState([]);
-  const [dataSetBarLabels, setDataBarLabels] = useState([]);
   const [dataNumberOfUseBar, setNumberOfUseBarLabels] = useState([]);
-  // end bar chart
+  // end top bar chart
+
+  // for bottom bar chart
+  const [bottomLabelBars, setBottomLabelBar] = useState([]);
+  const [bottomDataAverageScoreLabels, setBottomAverageScoreLabels] = useState(
+    []
+  );
+  const [bottomDataNumberOfUseBar, setBottomNumberOfUseBarLabels] = useState(
+    []
+  );
+  // end bottom bar chart
+
+  // Count stores
+  const [dataCountStore, setCountStore] = useState();
+
+  // Count floor plans
+  const [dataCountFloorPlan, setCountFloorPlan] = useState();
+
+  // Count floor plans
+  const [dataCountFacility, setCountFacility] = useState();
+
+  // Count floor plans
+  const [dataCountBeacon, setCountBeacon] = useState();
+
+  const getDataByDate = async (startDate, endDate) => {
+    getAllStoreByBuildingId()
+      .then((value) => getReturnArray(value, startDate, endDate))
+      .then((value) => getBottomReturnArray(value))
+      .catch((e) => console.log(e));
+  };
+
+  const getCountStore = async () => {
+    const data = await countStore({ buildingId: buildingId, isAll: true });
+    return data;
+  };
+
+  const getCountFloorPlan = async () => {
+    const data = await countFloorPlan({ buildingId: buildingId, isAll: true });
+    return data;
+  };
+
+  const getCountFacility = async () => {
+    const data = await countFacility({ buildingId: buildingId, isAll: true });
+    return data;
+  };
+
+  const getCountBeacon = async () => {
+    const data = await countLocatorTags({
+      buildingId: buildingId,
+      isAll: true,
+    });
+    return data;
+  };
+
+  const getAllStoreByBuildingId = async () => {
+    const data = await getStoreByBuildingId({
+      buildingId: buildingId,
+    });
+    return data.content;
+  };
+
+  const getCouponInUse = async (storeId, storeName, startDate, endDate) => {
+    const data = await getAllCouponInUse({
+      storeId: storeId,
+      lowerApplyDate: startDate,
+      upperApplyDate: endDate,
+    });
+    var averageRateScore = 0;
+
+    var newDataCoupon = data.content;
+    if (newDataCoupon.length) {
+      var lengCoupon = newDataCoupon.length;
+      newDataCoupon.forEach((element) => {
+        averageRateScore += element.rateScore;
+      });
+      averageRateScore /= lengCoupon;
+
+      if (!averageRateScore) {
+        averageRateScore = 0;
+      } else {
+        averageRateScore = averageRateScore.toFixed(2);
+      }
+
+      return {
+        name: storeName,
+        numberOfUses: lengCoupon,
+        averageRateScore: averageRateScore,
+      };
+    } else {
+      return null;
+    }
+  };
 
   const dataLabels = (data) => {
     setLabelBar(data);
@@ -39,352 +138,290 @@ const BmHomePage = () => {
     setNumberOfUseBarLabels(data);
   };
 
-  const getdataPieLabels = (data) => {
-    setLabel(data);
-  }
-
-  const getdataSetPieLabels = (data) => {
-    setDataPieLabels(data);
-  }
-
-  const getAllStoreByBuildingId = async () => {
-    const data = await getStoreByBuildingId({
-      buildingId: 12,
-    });
-    return data.content;
+  const bottomDataLabels = (data) => {
+    setBottomLabelBar(data);
   };
 
-  const getCouponInUse = async (storeId, storeName) => {
-    const data = await getAllCouponInUse({
-      storeId: storeId,
-    });
-    var newDataCoupon = data.content;
-    var lengCoupon = newDataCoupon.length;
-
-    return { name: storeName, numberOfUses: lengCoupon };
+  const bottomAverageScoreLabels = (data) => {
+    setBottomAverageScoreLabels(data);
   };
 
-  const getAllVisitPoinByBuildingIdAndLocationType = async () => {
-    const data = await getVisitPointByBuildingId({
-      buildingId: 12,
-      locationTypeId: 1
-    });
-    return data.content;
+  const bottomDataSetLabels = (data) => {
+    setBottomNumberOfUseBarLabels(data);
   };
 
-  const getVisitPointArray = async (dataStore) => {
-    var key = "locationId";
-    var returnArray = [];
-    var newArray = [];
-
-    const data = [...new Map(dataStore.map(item => [item[key], item])).values()];
-    data.forEach(element => {
-      returnArray = dataStore.filter((obj) => obj.locationId === element.locationId);
-      var count = returnArray.length;
-      newArray.push({ name: element.location?.store?.name, numberOfAppearance: count });
+  const getReturnArray = async (dataStore, startDate, endDate) => {
+    var data = await Promise.all(
+      dataStore.map((element) => {
+        const coupon = getCouponInUse(
+          element.id,
+          element.name,
+          startDate,
+          endDate
+        );
+        if (coupon) {
+          return coupon;
+        }
+      })
+    );
+    data = data.filter(function (e) {
+      return e != null;
     });
-
-    newArray.sort((a, b) => a.numberOfAppearance < b.numberOfAppearance ? 1 : -1);
-    const newData = newArray.slice(0, 10);
-    getdataPieLabels(newData.map(_ => _.name));
-    getdataSetPieLabels(newData.map(_ => _.numberOfAppearance));
-  }
-
-  const getReturnArray = async (dataStore) => {
-    const data = await Promise.all(dataStore.map(element => getCouponInUse(element.id, element.name)));
-    data.sort((a, b) => a.numberOfUses < b.numberOfUses ? 1 : -1);
+    data.sort((a, b) => (a.numberOfUses < b.numberOfUses ? 1 : -1));
     const newData = data.slice(0, 10);
-    dataLabels(newData.map(element => element.name));
-    dataSetLabels(newData.map(element => element.numberOfUses));
-  }
+    dataLabels(
+      newData.map((element) => {
+        return element.name;
+      })
+    );
+    dataSetLabels(newData.map((element) => element.numberOfUses));
+    return data;
+  };
+
+  const getBottomReturnArray = async (data) => {
+    data.sort((a, b) => (a.averageRateScore < b.averageRateScore ? 1 : -1));
+    const newData = data.slice(0, 10);
+    bottomDataLabels(
+      newData.map((element) => {
+        return element.name;
+      })
+    );
+    bottomDataSetLabels(newData.map((element) => element.numberOfUses));
+    bottomAverageScoreLabels(
+      newData.map((element) => element.averageRateScore)
+    );
+  };
 
   useEffect(() => {
-    getAllStoreByBuildingId().then((value) => getReturnArray(value)).catch((e) => console.log(e));
-    getAllVisitPoinByBuildingIdAndLocationType()
-      .then((value) => getVisitPointArray(value)).catch((e) => console.log(e));
-    dataLabels();
-    dataSetLabels();
-    getCouponInUseByID();
+    getAllStoreByBuildingId()
+      .then((value) => getReturnArray(value))
+      .then((value) => getBottomReturnArray(value))
+      .catch((e) => console.log(e));
+
+    getCountStore()
+      .then((value) => setCountStore(value))
+      .catch((e) => console.log(e));
+
+    getCountFloorPlan()
+      .then((value) => setCountFloorPlan(value))
+      .catch((e) => console.log(e));
+
+    getCountFacility()
+      .then((value) => setCountFacility(value))
+      .catch((e) => console.log(e));
+
+    getCountBeacon()
+      .then((value) => setCountBeacon(value))
+      .catch((e) => console.log(e));
+
+    // if (dataStartDate) {
+    //   getDataByDate();
+    // }
+    // dataLabels();
+    // dataSetLabels();
   }, [dispatch]);
-
-
-  const [dataFeedback, setDataFeedback] = useState([]);
-
-  const getCouponInUseByID = async () => {
-    const data = await getAllCouponInUse({
-      storeId: 8,
-    });
-    setDataFeedback(data.content);
-  };
-  // for view feedback
-  const [likes, setLikes] = useState(0);
-  const [dislikes, setDislikes] = useState(0);
-  const [action, setAction] = useState(null);
-
-  const like = () => {
-    setLikes(1);
-    setDislikes(0);
-    setAction('liked');
-  };
-
-  const dislike = () => {
-    setLikes(0);
-    setDislikes(1);
-    setAction('disliked');
-  };
-
-  const actions = [
-    <Tooltip key="comment-basic-like" title="Like">
-      <span onClick={like}>
-        {createElement(LikeFilled)}
-        <span className="comment-action">{likes}</span>
-      </span>
-    </Tooltip>,
-    <Tooltip key="comment-basic-dislike" title="Dislike">
-      <span onClick={dislike}>
-        {React.createElement(DislikeFilled)}
-        <span className="comment-action">{dislikes}</span>
-      </span>
-    </Tooltip>,
-    <span key="comment-basic-reply-to">View reply </span>,
-  ];
-  //end feedback
-  function ShowListFeedback() {
-    var newArray = dataFeedback;
-    newArray.sort((a, b) => a.feedbackDate < b.feedbackDate ? 1 : -1);
-    const newData = newArray.slice(0, 3);
-    const listFeedbacks = newData.map((element) =>
-      <Comment
-        actions={actions}
-        author={<h5 style={{fontWeight: 'bold'}}>{element.visitor.name}</h5>}
-        datetime={<span>{moment(element.feedbackDate).format("DD-MM-YYYY (hh:mm)")}</span>}
-        avatar={<Avatar shape="square" size="large" src={element.visitor.imageUrl} />}
-        content={
-          <p>{element.feedbackContent}</p>
-        }
-      />
-    );
-    return (
-      <div>
-        {listFeedbacks}
-        <hr/>
-        <div style={{float: 'right'}}>
-          <Button color={{color: 'gray'}} style={{color: 'black'}}>View more feedback</Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <PageWrapper>
       {/* <PageHeader title="Overview" subTitle="Building Manager"/> */}
       <PageBody>
-        <Card className="col-md-12" style={{ backgroundColor: '#eef0f4', }}>
+        <Card className="col-md-12" style={{ backgroundColor: "#eef0f4" }}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Card style={{ backgroundColor: '#5b69bc', flex: '1', height: "130px", borderRadius: '15px', color: "gray", }} >
-              <p style={{ fontWeight: "bold", fontSize: 18, color: 'white' }}>Total Stores </p>
-              <Row>
-                <BiStoreAlt size={35} style={{ color: 'white' }} />
-                <h4 style={{ marginLeft: '55%', fontSize: 25, color: 'white' }}>42</h4>
-              </Row>
+            <Card
+              className="coupon-building-manager"
+              style={{
+                backgroundColor: "#5b69bc",
+                flex: "1",
+                height: "130px",
+                borderRadius: "5px",
+                color: "gray",
+              }}
+            >
+              <div>
+                <Row className="justify-content-between">
+                  <Col>
+                    <h4 style={{ fontSize: 25, color: "white" }}>
+                      {dataCountStore}
+                    </h4>
+                    {/* <p
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: 18,
+                        color: "white",
+                      }}
+                    > */}
+                    <p
+                      className="col"
+                      style={{
+                        fontFamily: "unset",
+                        fontSize: "16px",
+                        justifyContent: "space-between",
+                        color: "white",
+                      }}
+                    >
+                      Total Stores{" "}
+                    </p>
+                  </Col>
+
+                  <BiStoreAlt
+                    className="mt-2"
+                    size={45}
+                    style={{ color: "white" }}
+                  />
+                </Row>
+              </div>
             </Card>
-            <Card style={{ backgroundColor: '#558b2f', flex: '1', height: "130px", marginLeft: 15, borderRadius: '15px', color: "gray" }} >
-              <p style={{ fontWeight: "bold", fontSize: 16, color: 'white' }}>Total Floor Plans </p>
-              <Row>
-                <BiMapAlt size={35} style={{ color: 'white' }} />
-                <h4 style={{ marginLeft: '55%', fontSize: 25, color: 'white' }}>42</h4>
-              </Row>
+            <Card
+              className="product-building-manager"
+              style={{
+                flex: "1",
+                height: "130px",
+                marginLeft: 15,
+                borderRadius: "5px",
+              }}
+            >
+              <div>
+                <Row className="justify-content-between">
+                  <Col>
+                    <h4 style={{ fontSize: 25, color: "white" }}>
+                      {dataCountFloorPlan}
+                    </h4>
+                    <p
+                      className="col"
+                      style={{
+                        fontFamily: "unset",
+                        fontSize: "16px",
+                        justifyContent: "space-between",
+                        color: "white",
+                      }}
+                    >
+                      Total Floor Plans{" "}
+                    </p>
+                  </Col>
+
+                  <BiMapAlt
+                    className="mt-2"
+                    size={45}
+                    style={{ color: "white" }}
+                  />
+                </Row>
+              </div>
             </Card>
-            <Card style={{ backgroundColor: '#e5343d', flex: '1', height: "130px", marginLeft: 15, borderRadius: '15px', color: "gray" }} >
-              <p style={{ fontWeight: "bold", fontSize: 16, color: 'white' }}>Total Places </p>
-              <Row>
-                <BiMapPin size={35} style={{ color: 'white' }} />
-                <h4 style={{ marginLeft: '55%', fontSize: 25, color: 'white' }}>42</h4>
-              </Row>
+            <Card
+              className="place-building-manager"
+              style={{
+                flex: "1",
+                height: "130px",
+                marginLeft: 15,
+                borderRadius: "5px",
+              }}
+            >
+              <div>
+                <Row className="justify-content-between">
+                  <Col>
+                    <h4 style={{ fontSize: 25, color: "white" }}>
+                      {dataCountFacility}
+                    </h4>
+                    <p
+                      className="col"
+                      style={{
+                        fontFamily: "unset",
+                        fontSize: "16px",
+                        justifyContent: "space-between",
+                        color: "white",
+                      }}
+                    >
+                      Total Facilities{" "}
+                    </p>
+                  </Col>
+
+                  <BiMapPin
+                    className="mt-2"
+                    size={45}
+                    style={{ color: "white" }}
+                  />
+                </Row>
+              </div>
             </Card>
-            <Card style={{ backgroundColor: '#ef6c00', flex: '1', height: "130px", marginLeft: 15, borderRadius: '15px', color: "gray" }} >
-              <p style={{ fontWeight: "bold", fontSize: 16, color: 'white' }}>Total IBeacons </p>
-              <Row>
-                <RiSignalTowerFill size={35} style={{ color: 'white' }} />
-                <h4 style={{ marginLeft: '55%', fontSize: 25, color: 'white' }}>42</h4>
-              </Row>
+            <Card
+              className="iBeacon-building-manager"
+              style={{
+                flex: "1",
+                height: "130px",
+                marginLeft: 15,
+                borderRadius: "5px",
+              }}
+            >
+              <div>
+                <Row className="justify-content-between">
+                  <Col>
+                    <h4 style={{ fontSize: 25, color: "white" }}>
+                      {dataCountBeacon}
+                    </h4>
+                    <p
+                      className="col"
+                      style={{
+                        fontFamily: "unset",
+                        fontSize: "16px",
+                        justifyContent: "space-between",
+                        color: "white",
+                      }}
+                    >
+                      Total IBeacons{" "}
+                    </p>
+                  </Col>
+                  <RiSignalTowerFill
+                    className="mt-2"
+                    size={45}
+                    style={{ color: "white" }}
+                  />
+                </Row>
+              </div>
             </Card>
           </div>
-          <Card className="col-md-12 mt-4" style={{ borderRadius: '15px' }}>
-            <Row >
-              <Col span={24}>
-                <Row>
-                  <h3 className='font-weight-bold'>Most Of Store Used Coupons</h3>
-                  <RangePicker style={{ marginLeft: '40%' }}
-                    dateRender={current => {
-                      const style = {};
-                      if (current.date() === 1) {
-                        style.border = '1px solid #1890ff';
-                        style.borderRadius = '50%';
-                      }
-                      return (
-                        <div className="ant-picker-cell-inner" style={style}>
-                          {current.date()}
-                        </div>
-                      );
-                    }}
-                  />,
-                </Row>
-                <Bar
-                  height={120}
-                  // width={300}
-                  data={{
-                    labels: labelBars,
-                    datasets: [
-                      {
-                        label: 'Times of use',
-                        borderColor: '#e37b4c',
-                        backgroundColor: [
-                          '#0175d8'
-                        ],
-                        data: dataNumberOfUseBar,
-                        fill: false,
-                        yAxisID: 'y',
-                      },
-                    ],
-                    backgroundColor: "rgba(0,123,255,0.1)",
-                    borderColor: "rgba(0,123,255,1)",
-                    pointBackgroundColor: "#ffffff",
-                    pointHoverBackgroundColor: "rgb(0,123,255)",
-                    borderWidth: 1.5,
-                    pointRadius: 0,
-                    pointHoverRadius: 3
+
+          <Col>
+            <div className="col-md-12 mt-4" style={{ borderRadius: "5px" }}>
+              {/* <Card> */}
+              <div
+                className="col-sm-4 d-flex flex-row d-inline-block justify-content-between rounded"
+                style={{
+                  background: "linear-gradient(#ce7ffe, #ad62fd)",
+                }}
+              >
+                <p
+                  className="pt-2 mb-2"
+                  style={{
+                    color: "white",
+                    paddingLeft: "10px",
+                    fontWeight: "bold",
+                    fontFamily: "unset",
+                    fontSize: "14px",
+                    // marginBottom: "-5px",
                   }}
-                  plugins={[ChartDataLabels]}
-                  options={
-                    {
-                      indexAxis: 'y',
-                      responsive: true,
-                      interaction: {
-                        mode: 'index',
-                        intersect: false,
-                      },
-                      scales: {
-                        xAxes: [{
-                          ticks: {
-                            fontColor: "black",
-                            fontSize: 18,
-                            stepSize: 1,
-                            beginAtZero: true
-                          }
-                        }],
-                      },
-                      plugins: {
-                        // title: {
-                        //   display: true,
-                        //   text: 'Most of store used coupons',
-                        //   // position: 'left'
-                        // },
-                        datalabels: {
-                          color: 'white',
-                          font: {
-                            weight: 'bold',
-                            size: 11
-                          }
-                        }
-                      },
-
+                >
+                  Date Filter
+                </p>
+                <RangePicker
+                  className="shadow bg-white rounded w-75"
+                  // style={{ borderRadius: "10px" }}
+                  onChange={(value) => {
+                    if (value) {
+                      const startDate = value[0].format("YYYY-MM-DD");
+                      const endDate = value[1].format("YYYY-MM-DD");
+                      getDataByDate(startDate, endDate);
+                    } else {
+                      getAllStoreByBuildingId()
+                        .then((value) => getReturnArray(value))
+                        .then((value) => getBottomReturnArray(value))
+                        .catch((e) => console.log(e));
                     }
-                  }
-
-                />
-              </Col>
-            </Row>
-          </Card>
-          <Row>
-            <Card className="col-md-5 mt-4" style={{ borderRadius: '15px' }}>
-              <Col >
-                <h3 className='font-weight-bold'>Store customers go through most</h3>
-                <hr/>
-                <Doughnut
-                  data={{
-                    labels: labels,
-                    datasets: [
-                      {
-                        data: dataPieLabels,
-                        label: '# of votes',
-                        backgroundColor: [
-                          'rgba(221, 56, 56, 1)',
-                          'rgba(55, 161, 222, 0.66)',
-                          'rgba(244, 244, 56, 1)',
-                          'rgba(27, 245, 43, 0.66)',
-                          'rgba(245, 27, 188, 0.66)',
-                        ],
-                        borderColor: [
-                          'rgba(221, 56, 56, 1)',
-                          'rgba(55, 161, 222, 0.66)',
-                          'rgba(244, 244, 56, 1)',
-                          'rgba(27, 245, 43, 0.66)',
-                          'rgba(245, 27, 188, 0.66)',
-                        ],
-                        borderWidth: 1,
-                        hoverBorderWidth: 1,
-                        hoverBorderColor: '#000'
-                      },
-                    ],
-                  }
-                  }
-                  plugins={[ChartDataLabels]}
-                  options={
-                    {
-                      tooltips: {
-                        enabled: false
-                      },
-                      maintainAspectRatio: true,
-                      plugins: {
-                        // title: {
-                        //   display: true,
-                        //   text: "Store customers go through most",
-                        //   position: "top"
-                        // },
-                        legend: {
-                          display: true,
-                          position: 'right',
-                        },
-                        datalabels: {
-                          formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => {
-                              sum += data;
-                            });
-                            let percentage = (value * 100 / sum).toFixed(2) + "%";
-                            return percentage;
-                          },
-                          color: 'black',
-                          font: {
-                            weight: 'bold',
-                            size: 11
-                          }
-                        }
-                      },
-                      // scales: { // vẽ ra mấy cái đánh số từ 0 --> 1
-                      //   x:{
-                      //     stacked: true,
-                      //   },
-                      //   yAxes: [
-                      //     {
-                      //       stacked : true,
-                      //       ticks: {
-                      //         beginAtZero: true,
-                      //       },
-                      //     },
-                      //   ],
-                      // },
-                    }
-                  }
-                />
-                <RangePicker style={{ marginLeft: '10%' }}
-                  dateRender={current => {
+                  }}
+                  dateRender={(current) => {
                     const style = {};
                     if (current.date() === 1) {
-                      style.border = '1px solid #1890ff';
-                      style.borderRadius = '50%';
+                      style.border = "1px solid #1890ff";
+                      style.borderRadius = "50%";
                     }
                     return (
                       <div className="ant-picker-cell-inner" style={style}>
@@ -392,19 +429,189 @@ const BmHomePage = () => {
                       </div>
                     );
                   }}
-                />,
-              </Col>
-            </Card>
-            <Card className="col-md-1 mt-4" style={{ backgroundColor: '#eef0f4', }} />
-            {/* <div style={{width: '30px'}}> </div> */}
-            <Card className="col-md-6 mt-4" style={{ borderRadius: '15px' }}>
-              <Col>
-                <h3 className='font-weight-bold'>New Custommer Feedbacks</h3>
-                <hr/>
-                <ShowListFeedback/>
-              </Col>
-            </Card>
-          </Row>
+                />
+              </div>
+
+              {/* </Card> */}
+              <div
+                className="h-5 mt-2 bg-white"
+                style={{ borderRadius: "5px" }}
+              >
+                {/* <Row> */}
+                <p
+                  className="p-3"
+                  style={{
+                    fontWeight: "bold",
+                    fontFamily: "unset",
+                    fontSize: "18px",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  Most Of Store Used Coupons
+                </p>
+                {/* </Row> */}
+              </div>
+              {!!bottomLabelBars.length && (
+                <Card className="mt-1" style={{ borderRadius: "5px" }}>
+                  <Bar
+                    height={100}
+                    data={{
+                      labels: labelBars,
+                      datasets: [
+                        {
+                          label: "Times of use",
+                          borderColor: "#e37b4c",
+                          backgroundColor: ["#0175d8"],
+                          data: dataNumberOfUseBar,
+                          fill: false,
+                          yAxisID: "y",
+                        },
+                      ],
+                      backgroundColor: "rgba(0,123,255,0.1)",
+                      borderColor: "rgba(0,123,255,1)",
+                      pointBackgroundColor: "#ffffff",
+                      pointHoverBackgroundColor: "rgb(0,123,255)",
+                      borderWidth: 1.5,
+                      pointRadius: 0,
+                      pointHoverRadius: 3,
+                    }}
+                    plugins={[ChartDataLabels]}
+                    options={{
+                      indexAxis: "y",
+                      responsive: true,
+                      interaction: {
+                        mode: "index",
+                        intersect: false,
+                      },
+
+                      plugins: {
+                        datalabels: {
+                          color: "white",
+                          font: {
+                            weight: "bold",
+                            size: 11,
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </Card>
+              )}
+              {!bottomLabelBars.length && (
+                <Card className="col-sm-12" style={{ minHeight: "20vh" }}>
+                  <Empty
+                    style={{ fontWeight: "bold" }}
+                    imageStyle={{ minHeight: "20vh" }}
+                  ></Empty>
+                </Card>
+              )}
+            </div>
+
+            <div>
+              <div
+                className="h-5 mt-4 bg-white"
+                style={{ borderRadius: "5px" }}
+              >
+                <p
+                  className="p-3"
+                  style={{
+                    fontWeight: "bold",
+                    fontFamily: "unset",
+                    fontSize: "18px",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  Highest Rated Stores
+                </p>
+              </div>
+              {!!bottomLabelBars.length && (
+                <Card
+                  className="col-sm-12 mt-1"
+                  style={{ borderRadius: "5px" }}
+                >
+                  <Bar
+                    height={150}
+                    data={{
+                      labels: bottomLabelBars,
+                      datasets: [
+                        {
+                          label: "Rate Score",
+                          borderColor: "rgba(54, 162, 235, 0.6)",
+                          backgroundColor: ["#ffb455"],
+                          data: bottomDataAverageScoreLabels,
+                          xAxisID: "x1",
+                        },
+                        {
+                          label: "Times of use",
+                          borderColor: "rgba(255, 99, 132, 0.6)",
+                          backgroundColor: ["#51d8af"],
+                          data: bottomDataNumberOfUseBar,
+                          xAxisID: "x2",
+                        },
+                      ],
+                      backgroundColor: "rgba(0,123,255,0.1)",
+                      borderColor: "rgba(0,123,255,1)",
+                      pointBackgroundColor: "#ffffff",
+                      pointHoverBackgroundColor: "rgb(0,123,255)",
+                      borderWidth: 1.5,
+                      pointRadius: 0,
+                      pointHoverRadius: 3,
+                    }}
+                    plugins={[ChartDataLabels]}
+                    options={{
+                      indexAxis: "y",
+                      responsive: true,
+                      interaction: {
+                        mode: "index",
+                        intersect: false,
+                      },
+
+                      interaction: {
+                        mode: "index",
+                        intersect: false,
+                      },
+                      plugins: {
+                        datalabels: {
+                          color: "black",
+                          font: {
+                            weight: "bold",
+                            size: 11,
+                          },
+                        },
+                      },
+                      scales: {
+                        x1: {
+                          type: "linear",
+                          display: true,
+                          position: "top",
+                          grid: {
+                            borderColor: "#ffb455",
+                          },
+                        },
+                        x2: {
+                          type: "linear",
+                          display: true,
+                          position: "bottom",
+                          grid: {
+                            borderColor: "#51d8af",
+                            drawOnChartArea: false,
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </Card>
+              )}
+              {!bottomLabelBars.length && (
+                <Card className="col-sm-12" style={{ minHeight: "20vh" }}>
+                  <Empty
+                    style={{ fontWeight: "bold" }}
+                    imageStyle={{ minHeight: "20vh" }}
+                  ></Empty>
+                </Card>
+              )}
+            </div>
+          </Col>
         </Card>
       </PageBody>
     </PageWrapper>

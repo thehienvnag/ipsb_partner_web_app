@@ -22,6 +22,25 @@ export const getAllFacility = async (
 };
 
 /**
+ * Count facilities
+ * @param {object} [params] parameters for get request
+ * @param {number} [params.pageIndex] current page of get request
+ * @param {number} [params.pageSize] current page size of get request
+ * @param {number} [params.buildingId] id of building that facility belongs to
+ * @param {number} [params.isAll] whether get all facilities
+ */
+export const countFacility = async ({
+  pageIndex = 1,
+  pageSize = 5,
+  buildingId,
+  isAll,
+  status = "Active",
+}) => {
+  const params = { pageIndex, pageSize, buildingId, isAll, status };
+  return (await axiosClient.get(facilities + "/count", { params })).data;
+};
+
+/**
  * Create facility
  * @param {object} [data] values to post
  */
