@@ -46,7 +46,7 @@ export const getAllProductCategories = async () => {
  * @param {object} [data] values to update
  */
 export const putProductCategory = async (id, data) => {
-  return (await axiosClient.put(productCategories + "/" + id, data)).data;
+  return (await axiosClient.put(productCategories + "/" + id, data)).status === 204;
 };
 
 /**

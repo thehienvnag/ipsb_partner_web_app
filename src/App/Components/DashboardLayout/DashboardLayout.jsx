@@ -7,7 +7,7 @@ import { Layout } from "antd";
 import { useAuthInit } from "App/Utils/hooks/useAuthInit";
 import DashboardFooter from "./DashboardFooter";
 
-const { Footer, Content } = Layout;
+const {  Content } = Layout;
 
 const DashboardLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);

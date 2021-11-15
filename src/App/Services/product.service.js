@@ -39,7 +39,7 @@ export const postProduct = async (data) => {
  * @param {object} [data] data to update
  */
 export const putProduct = async (id, data) => {
-  return (await putFormData(products + "/" + id, data)).data;
+  return (await putFormData(products + "/" + id, data)).status === 204;
 };
 
 /**

@@ -41,7 +41,7 @@ export const postLocationType = async (data) => {
  * @param {object} [data] values to update
  */
 export const putLocationType = async (id, data) => {
-  return (await putFormData(locationTypes + "/" + id, data)).data;
+  return (await putFormData(locationTypes + "/" + id, data)).status === 204;
 };
 
 /**

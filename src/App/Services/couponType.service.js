@@ -28,7 +28,7 @@ export const postCouponType = async (data) => {
  * @param {object} [data] values to update
  */
 export const putCouponType = async (id, data) => {
-  return (await axiosClient.put(couponTypes + "/" + id, data)).data;
+  return (await axiosClient.put(couponTypes + "/" + id, data)).status === 204;
 };
 
 /**

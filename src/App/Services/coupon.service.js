@@ -29,7 +29,7 @@ export const postCoupon = async (data) => {
  * @param {number} [id] Coupon id
  */
 export const putCoupon = async (id, data) => {
-  return (await putFormData(coupons + "/" + id, data)).data;
+  return (await putFormData(coupons + "/" + id, data)).status === 204;
 };
 
 /**

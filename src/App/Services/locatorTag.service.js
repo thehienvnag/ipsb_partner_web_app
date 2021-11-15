@@ -35,7 +35,7 @@ export const postLocatorTag = async (data) => {
  * @param {object} [data] building locator tag to update
  */
 export const putLocatorTag = async (id, data) => {
-  return (await axiosClient.put(locatorTags + "/" + id, data)).data;
+  return (await axiosClient.put(locatorTags + "/" + id, data)).status === 204;
 };
 
 /**
