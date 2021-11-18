@@ -68,7 +68,6 @@ const StoreOwnerTable = ({ refresh, onRowSelect }) => {
         title="Email"
         dataIndex="email"
         key="email"
-        width={290}
         render={(item) => <Typography.Text>{item}</Typography.Text>}
         filterDropdown={({ clearFilters }) => (
           <ColumnSearch
