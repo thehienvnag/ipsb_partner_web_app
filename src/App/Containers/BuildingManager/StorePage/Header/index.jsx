@@ -34,12 +34,6 @@ const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
         icon={<PlusOutlined />}
         onClick={handleCreate}
       ></Button>,
-      <Button
-        key="3"
-        danger
-        icon={<DeleteOutlined />}
-        onClick={handleDelete}
-      ></Button>,
     ]}
   ></PageHeader>
 );
