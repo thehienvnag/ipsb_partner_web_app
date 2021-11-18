@@ -9,7 +9,7 @@ const SelectLocationType = ({
   onChange,
   notLocationTypeIds,
 }) => {
-  const fetchCategories = (searchParams) =>
+  const fetchLocationTypes = (searchParams) =>
     getAllLocationType({ isAll: true, notLocationTypeIds }, searchParams).then(
       (data) => data.content
     );
@@ -22,7 +22,7 @@ const SelectLocationType = ({
       keyIndex="id"
       labelIndex="name"
       onChange={onChange}
-      loadData={fetchCategories}
+      loadData={fetchLocationTypes}
     />
   );
 };

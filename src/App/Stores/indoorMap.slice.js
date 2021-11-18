@@ -8,6 +8,8 @@ import {
 import { deleteEdges, postEdges } from "App/Services/edge.service";
 import LocationHelper from "App/Utils/locationHelper";
 import EdgeHelper from "App/Utils/edgeHelper";
+import { loadLocationByFloor } from "./location.slice";
+import { loadEdgesOnFloor } from "./edge.slice";
 //#region Async thunks floor plans
 const createLocation = createAsyncThunk(
   "indoorMap/createLocation",
@@ -25,7 +27,11 @@ const createLocation = createAsyncThunk(
       return rejectWithValue(duplicate);
     }
     const edgeIntersect = EdgeHelper.findIntersects(
-      EdgeHelper.display(edge.list, indoorMap.createdEdges, indoorMap.removedEdgeIds),
+      EdgeHelper.display(
+        edge.list,
+        indoorMap.createdEdges,
+        indoorMap.removedEdgeIds
+      ),
       rawLocation
     );
     return {
@@ -124,7 +130,7 @@ const removeEdge = createAsyncThunk(
 
 const saveLocationAndEdges = createAsyncThunk(
   "indoorMap/saveLocationAndEdges",
-  async (payload, { getState, rejectWithValue }) => {
+  async ({ floorPlanId }, { getState, rejectWithValue, dispatch }) => {
     const {
       indoorMap: {
         createdEdges,
@@ -133,17 +139,19 @@ const saveLocationAndEdges = createAsyncThunk(
         removedLocationIds,
       },
     } = getState();
-
+    dispatch(startSaveLoading());
     await deleteEdges(removedEdgeIds);
-
     await deleteLocations(removedLocationIds);
-
     const locations = await postLocations(createdLocations);
     const edgesToCreate = EdgeHelper.mapLocationsWithId(
       locations,
       createdEdges
     );
     await postEdges(edgesToCreate);
+
+    dispatch(clearAll());
+    dispatch(loadLocationByFloor({ floorPlanId }));
+    dispatch(loadEdgesOnFloor({ floorPlanId }));
   }
 );
 //#endregion
@@ -155,6 +163,7 @@ const Slice = createSlice({
     removedLocationIds: [],
     createdEdges: [],
     removedEdgeIds: [],
+    saveLoading: false,
     markers: [],
     edges: [],
     selected: null,
@@ -167,6 +176,16 @@ const Slice = createSlice({
     floorConnectMenuVisible: false,
   },
   reducers: {
+    startSaveLoading: (state) => {
+      state.saveLoading = true;
+    },
+    clearAll: (state) => {
+      state.createdEdges = [];
+      state.createdLocations = [];
+      state.removedLocationIds = [];
+      state.removedEdgeIds = [];
+      state.saveLoading = false;
+    },
     changeFloorConnectMenuVisble: (state, { payload: { visible } }) => {
       state.floorConnectMenuVisible = visible;
     },
@@ -372,6 +391,7 @@ const selectSelected = ({
     ? LocationHelper.appendEdge(floorConnectEdges, selected)
     : null;
 };
+const selectSaveLoading = ({ indoorMap }) => indoorMap.saveLoading;
 const selectOpenMenu = ({ indoorMap }) => indoorMap.openMenu;
 const selectFacilityLocation = ({ indoorMap }) => indoorMap.facilityLocation;
 const selectLocationName = ({ indoorMap }) => indoorMap.facilityName;
@@ -388,6 +408,8 @@ const {
   removeFacilityLocation,
   resetFloorPlan,
   changeFloorConnectMenuVisble,
+  clearAll,
+  startSaveLoading,
 } = Slice.actions;
 export {
   selectMarkers,
@@ -399,6 +421,7 @@ export {
   selectFacilityLocation,
   selectLocationName,
   selectFloorConnectVisible,
+  selectSaveLoading,
   changeFloorConnectMenuVisble,
   resetFloorPlan,
   createLocation,
