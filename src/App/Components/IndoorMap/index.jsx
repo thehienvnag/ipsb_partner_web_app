@@ -55,6 +55,7 @@ import {
   resetFloorPlan,
   selectFloorConnectVisible,
   changeFloorConnectMenuVisble,
+  selectSaveLoading,
 } from "App/Stores/indoorMap.slice";
 import { selectListFloorCode, loadAll } from "App/Stores/floorPlan.slice";
 import LocationHelper from "App/Utils/locationHelper";
@@ -220,6 +221,14 @@ const Wrapper = ({
   const [scale, setScale] = useState(1);
   const [enableDrawMode, setEnableDrawMode] = useState(false);
   const [rotate, setRotate] = useState(0);
+  const [firstInit, setFirstInit] = useState(true);
+  const saveLoading = useSelector(selectSaveLoading);
+  useEffect(() => {
+    if (!saveLoading && !firstInit) {
+      message.success("Saved successfully!!");
+    }
+    setFirstInit(false);
+  }, [saveLoading]);
 
   const onRotateLeft = () => {
     if (rotate === -180) return;
@@ -235,8 +244,7 @@ const Wrapper = ({
   };
   const handleOk = async () => {
     if (mode === "floorPlan") {
-      dispatch(saveLocationAndEdges());
-      message.success("Saved successfully!!");
+      dispatch(saveLocationAndEdges({ floorPlanId }));
     } else if (mode === "pickLocation") {
       if (facilityLocation) {
         onChange(facilityLocation);
@@ -300,6 +308,7 @@ const Wrapper = ({
         visible={modalVisible}
         okText="Save"
         onOk={handleOk}
+        confirmLoading={saveLoading}
         onCancel={() => {
           dispatch(setSelected({}));
           setTimeout(() => setModalVisible(false), 100);
