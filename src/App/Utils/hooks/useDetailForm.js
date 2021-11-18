@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Form, message } from "antd";
 import { keyObjectStringify, nonNullKeyValue, pipe } from "../utils";
+const msgStyle = { top: "12vh", right: "10vw", position: "absolute" };
 export const useDetailForm = ({
   model,
   createCallback,
@@ -37,25 +38,34 @@ export const useDetailForm = ({
     }
   };
 
+  const showError = (err, type) => {
+    let msg = `${type} failed: `;
+    if (err?.response?.status === 403) {
+      msg += err?.response?.data ?? "";
+    } else {
+      msg += err?.response?.data?.message ?? "";
+    }
+    message.error({
+      content: msg,
+      style: msgStyle,
+      duration: 3,
+    });
+  };
+
   const create = async (values) => {
     try {
       setBtnState({ saveLoading: true });
       const data = await createCallback({ ...values, ...createParams });
       if (data?.id) {
         handleRefresh();
-        message.success("Create success", 3);
+        message.success({
+          content: "Create success",
+          style: msgStyle,
+          duration: 3,
+        });
       }
     } catch (error) {
-      let msg = "Create failed: ";
-      if (error?.response?.status === 403) {
-        msg += error.response.data;
-      } else {
-        msg += error.response.data.message;
-      }
-      message.error({
-        content: msg,
-        style: { top: "12vh", right: "10vw", position: "absolute" },
-      });
+      showError(error, "Create");
     }
     setBtnState({ saveLoading: false });
   };
@@ -65,19 +75,14 @@ export const useDetailForm = ({
       const res = await updateCallback(model.id, values);
       if (res) {
         handleRefresh();
-        message.success("Update success", 3);
+        message.success({
+          content: "Update success",
+          style: msgStyle,
+          duration: 3,
+        });
       }
     } catch (error) {
-      let msg = "Update failed: " ;
-      if (error?.response?.status === 403) {
-        msg += error.response.data;
-      } else {
-        msg += error.response.data.message;
-      }
-      message.error({
-        content: msg,
-        style: { top: "12vh", right: "10vw", position: "absolute" },
-      });
+      showError(error, "Update");
     }
     setBtnState({ saveLoading: false });
   };
@@ -89,19 +94,14 @@ export const useDetailForm = ({
       if (result) {
         handleRefresh();
         handleCancel();
-        message.success("Delete success!", 3);
+        message.success({
+          content: "Delete success",
+          style: msgStyle,
+          duration: 3,
+        });
       }
     } catch (error) {
-      let msg = "Delete Failed: ";
-      if (error?.response?.status === 403) {
-        msg += error.response.data;
-      } else {
-        msg += error.response.data.message;
-      }
-      message.error({
-        content: msg,
-        style: { top: "12vh", right: "10vw", position: "absolute" },
-      });
+      showError(error, "Delete");
     }
     setBtnState({ removeLoading: false });
   };
