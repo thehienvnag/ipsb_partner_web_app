@@ -9,6 +9,8 @@ import {
   postAccount,
   putAccount,
 } from "App/Services/account.service";
+import { useSelector } from "react-redux";
+import { selectBuildingId } from "App/Stores/auth.slice";
 
 const StoreOwnerDetails = ({
   visible,
@@ -17,9 +19,10 @@ const StoreOwnerDetails = ({
   handleCancel,
   model,
 }) => {
+  const buildingId = useSelector(selectBuildingId);
   const { form, btnState, onSave, onDelete } = useDetailForm({
     model,
-    createParams: { role: "Store Owner" },
+    createParams: { role: "Store Owner", buildingId },
     createCallback: postAccount,
     updateCallback: putAccount,
     deleteCallback: deleteAccount,

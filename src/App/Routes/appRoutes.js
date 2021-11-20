@@ -19,6 +19,7 @@ import FacilityPage from "App/Containers/BuildingManager/FacilityPage";
 import ForgotPasswordPage from "App/Containers/Auth/ForgotPassword";
 import ForgotPasswordSuccessPage from "App/Containers/Auth/ForgotPasswordSuccess";
 import ProductCategoryPage from "App/Containers/Admin/ProductCategory";
+import NotAllow from "App/Containers/Auth/NotAllow";
 const appRoutes = [
   {
     path: "",
@@ -153,6 +154,10 @@ const appRoutes = [
         ),
       },
     ],
+  },
+  {
+    path: "not-allow",
+    element: <LoggedIn component={<NotAllow />} />,
   },
   {
     path: "login",

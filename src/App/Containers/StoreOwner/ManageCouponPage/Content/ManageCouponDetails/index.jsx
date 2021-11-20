@@ -197,6 +197,28 @@ const CouponDetails = ({
                     required: true,
                     message: "Input coupon amount",
                   },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (couponTypeId == 3 && value > 100) {
+                        return Promise.reject(
+                          new Error(
+                            "Can only input amount between [0-100] (%)!"
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (value < 0) {
+                        return Promise.reject(
+                          new Error("Amount must be positive number!")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
               >
                 <Input
@@ -208,7 +230,22 @@ const CouponDetails = ({
             )}
 
             {(couponTypeId || model) && (
-              <Form.Item name="minSpend" label="Min spend: ">
+              <Form.Item
+                name="minSpend"
+                label="Min spend: "
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (value < 0) {
+                        return Promise.reject(
+                          new Error("Min spend must be positive number!")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
                 <Input
                   placeholder="Input min price"
                   type="number"
@@ -219,7 +256,22 @@ const CouponDetails = ({
             {((couponTypeId && couponTypeId != couponTypeFixed) ||
               (model?.couponTypeId &&
                 model.couponTypeId != couponTypeFixed)) && (
-              <Form.Item name="maxDiscount" label="Max discount: ">
+              <Form.Item
+                name="maxDiscount"
+                label="Max discount: "
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (value < 0) {
+                        return Promise.reject(
+                          new Error("Max Spend must be positive number!")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
                 <Input
                   placeholder="Input coupon max discount"
                   type="number"

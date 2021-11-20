@@ -9,6 +9,7 @@ import { useQuery } from "App/Utils/hooks/useQuery";
 import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
 import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
 import { getAllCoupon } from "App/Services/coupon.service";
+import { inVnd } from "App/Utils/utils";
 
 const ManageCouponTable = ({ refresh, onRowSelect }) => {
   const storeId = useSelector(selectStoreId);
@@ -83,37 +84,21 @@ const ManageCouponTable = ({ refresh, onRowSelect }) => {
         filterIcon={<SearchOutlined />}
       />
       <Table.Column
+        title="Type"
+        dataIndex="couponType"
+        key="couponType"
+        render={(item) => <Typography.Text>{item.name}</Typography.Text>}
+      />
+      <Table.Column
         title="Amount"
         dataIndex="amount"
         key="amount"
-        render={(item) => <Typography.Text>{item}</Typography.Text>}
-      />
-      {/* <Table.Column
-        title="Limit"
-        dataIndex="limit"
-        key="limit"
-        render={(item) => <Typography.Text>{item}</Typography.Text>}
-      /> */}
-      {/* <Table.Column
-        title="PublishDate"
-        dataIndex="publishDate"
-        key="publishDate"
-        render={(item) => (
-          <Typography.Text>
-            {Moment(item).format("DD-MM-YYYY (hh:mm)")}
-          </Typography.Text>
+        render={(item, { couponTypeId }) => (
+          <Typography.Text>{`- ${couponTypeId == 2 ? inVnd(item) : item} ${
+            couponTypeId == 2 ? " đ" : " %"
+          }`}</Typography.Text>
         )}
       />
-      <Table.Column
-        title="ExpireDate"
-        dataIndex="expireDate"
-        key="expireDate"
-        render={(item) => (
-          <Typography.Text>
-            {Moment(item).format("DD-MM-YYYY (hh:mm)")}
-          </Typography.Text>
-        )}
-      /> */}
 
       <Table.Column
         title="Status"

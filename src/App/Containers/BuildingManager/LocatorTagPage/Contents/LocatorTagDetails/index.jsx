@@ -31,7 +31,7 @@ const LocationDetails = ({
     effectCallback: () => setFloorPlanId(model?.floorPlanId),
   });
 
-  const disabled = model && model.status !== "Active";
+  const disabled = model && model.status === "Inactive";
   return (
     <DetailCard
       span={8}

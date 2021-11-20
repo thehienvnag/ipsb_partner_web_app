@@ -72,7 +72,7 @@ const LocatorTagTable = ({ refresh, onRowSelect }) => {
           title="Floor Plan"
           key="floorPlanCode"
           render={(item) => (
-            <Typography> Floor {item.floorPlan.floorCode} </Typography>
+            <Typography> Floor {item.floorPlan?.floorCode} </Typography>
           )}
         />
         <Table.Column
