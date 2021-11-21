@@ -11,7 +11,7 @@ const RatioMaskInput = ({ onChange, value }) => {
       }
     }
   };
-  return <Input value={`1 : ${value}`} onChange={handleChange} />;
+  return <Input value={`1 : ${value ?? ""}`} onChange={handleChange} />;
 };
 
 export default RatioMaskInput;
