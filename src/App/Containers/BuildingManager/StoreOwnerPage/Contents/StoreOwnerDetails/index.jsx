@@ -22,7 +22,7 @@ const StoreOwnerDetails = ({
   const buildingId = useSelector(selectBuildingId);
   const { form, btnState, onSave, onDelete } = useDetailForm({
     model,
-    createParams: { role: "Store Owner", buildingId },
+    createParams: { role: "Store Owner", storeOwnerBuildingId: buildingId },
     createCallback: postAccount,
     updateCallback: putAccount,
     deleteCallback: deleteAccount,
