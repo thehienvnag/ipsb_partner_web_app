@@ -94,7 +94,7 @@ const LocationDetails = ({
               rules={[
                 {
                   required: true,
-                  message: "Input TxPower",
+                  message: "Input floor plan",
                 },
               ]}
               tooltip="This is the locator tag's floor plan"

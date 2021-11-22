@@ -7,11 +7,13 @@ const PickLocation = ({
   locationTypeId,
   initialValue,
   onChange,
-  disabled
+  disabled,
 }) => {
   const [imgSrc, setImgSrc] = useState(null);
   const [isValuePresent, setIsValuePresent] = useState(false);
   useEffect(() => {
+    const { locationName, init, ...location } = initialValue;
+    onChange(location);
     getFloorPlanById(floorPlanId).then(({ imageUrl }) => setImgSrc(imageUrl));
   }, [floorPlanId]);
 
