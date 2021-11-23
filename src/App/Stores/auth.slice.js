@@ -25,10 +25,7 @@ const checkWebLogin = createAsyncThunk(
 const logout = createAsyncThunk(
   "auth/logout",
   async (params = {}, thunkAPI) => {
-    const statusCode = await logUserOut();
-    if (statusCode !== 204) {
-      thunkAPI.rejectWithValue();
-    }
+    logUserOut();
   }
 );
 //#endregion

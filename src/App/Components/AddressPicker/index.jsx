@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Select } from "antd";
 import { debounce } from "App/Utils/utils";
 const geoCoding = process.env.REACT_APP_GEO_CODING;
@@ -8,8 +8,13 @@ const searchAddress = debounce(
   async (search) => (await axios.get(`${geoCoding}&address=${search}`)).data
 );
 
-const AddressPicker = ({ initialValue, onChange, disabled }) => {
+const AddressPicker = ({ initialValue, lat, lng, onChange, disabled }) => {
   const [addressList, setAddressList] = useState([]);
+  useEffect(() => {
+    if (initialValue && lat && lng) {
+      onChange({ address: initialValue, lat, lng });
+    }
+  }, [initialValue]);
 
   const handleSearch = async (search) => {
     const addresses = await searchAddress(search);

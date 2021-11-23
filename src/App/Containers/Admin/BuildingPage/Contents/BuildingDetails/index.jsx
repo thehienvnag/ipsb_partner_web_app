@@ -89,6 +89,8 @@ const BuildingDetails = ({
             >
               <AddressPicker
                 initialValue={model?.address}
+                lat={model?.lat}
+                lng={model?.lng}
                 disabled={disabled}
               />
             </Form.Item>

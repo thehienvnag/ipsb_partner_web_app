@@ -49,13 +49,13 @@ const BuildingManagerDetails = ({
               rules={[
                 {
                   required: true,
-                  message: "Input name of store owner",
+                  message: "Input name of building manager",
                   whitespace: false,
                 },
               ]}
             >
               <Input
-                placeholder="Input name of store owner"
+                placeholder="Input name of building manager"
                 disabled={disabled}
               />
             </Form.Item>
