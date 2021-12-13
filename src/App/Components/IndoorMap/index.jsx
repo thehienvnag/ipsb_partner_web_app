@@ -469,6 +469,7 @@ const ImageRealSize = ({
   const onPathClick = async (location, evt) => {
     evt?.preventDefault && evt.preventDefault();
     const { type, shiftKey } = evt;
+    console.log(location);
     if (
       type === "contextmenu" &&
       mode === "floorPlan" &&
@@ -514,6 +515,7 @@ const ImageRealSize = ({
           );
           return;
         }
+        
         dispatch(createEdge(location));
       }
     }
@@ -862,6 +864,8 @@ const ChooseStairLiftConnection = ({ handleSelect }) => {
               const { scale } = value.state;
               setScale(scale);
             }}
+            limitToBounds={false}
+
           >
             <TransformComponent>
               <ImageRealSize

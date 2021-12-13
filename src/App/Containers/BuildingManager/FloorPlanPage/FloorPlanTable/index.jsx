@@ -52,9 +52,7 @@ const FloorPlanTable = ({ refresh, onRowSelect }) => {
         <Table.Column
           title="Floor code"
           key="floorCode"
-          render={(item) => (
-            <Typography.Text>{item.floorCode}</Typography.Text>
-          )}
+          render={(item) => <Typography.Text>{item.floorCode}</Typography.Text>}
         />
         <Table.Column
           title="Map scale"
@@ -75,6 +73,11 @@ const FloorPlanTable = ({ refresh, onRowSelect }) => {
           render={(value) => (
             <Tag color={value === "Active" ? "blue" : "red"}>{value}</Tag>
           )}
+          filterDropdown={
+            <ColumnSelect
+              onSubmit={(value) => setSearchParams({ status: value })}
+            />
+          }
         />
       </Table>
     </>

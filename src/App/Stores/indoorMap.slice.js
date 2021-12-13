@@ -20,12 +20,14 @@ const createLocation = createAsyncThunk(
       [
         ...(location.list?.content ?? []),
         ...(indoorMap.createdLocations ?? []),
-      ],
+      ].filter((e) => e?.locationTypeId != 5),
       indoorMap.removedLocationIds
     );
+    
     if (duplicate) {
       return rejectWithValue(duplicate);
     }
+    
     const edgeIntersect = EdgeHelper.findIntersects(
       EdgeHelper.display(
         edge.list,

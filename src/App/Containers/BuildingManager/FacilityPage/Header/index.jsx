@@ -17,7 +17,7 @@ import "./index.scss";
  */
 const Header = ({ handleCreate, handleDelete, handleRefresh }) => (
   <PageHeader
-    title="FACILITYS"
+    title="FACILITIES"
     className="site-page-header"
     // subTitle="Manages store owner inside your building"
     extra={[

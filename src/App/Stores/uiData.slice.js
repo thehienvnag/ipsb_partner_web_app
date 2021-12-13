@@ -58,7 +58,7 @@ const storeOwnerItems = [
   { icon: <BiGift />, title: "Coupons", path: RouteNames.managerCoupons },
   {
     icon: <FaYandexInternational />,
-    title: "Product",
+    title: "Products",
     path: RouteNames.managerProducts,
   },
 ];

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const useRowDetails = () => {
+export const useRowDetails = ({rowSelectEffect} = {}) => {
   const [visible, setVisible] = useState(false);
   const [item, setItem] = useState(null);
   const [refresh, setRefresh] = useState(0);
@@ -15,6 +15,10 @@ export const useRowDetails = () => {
   const onRowSelect = (value) => {
     setVisible(true);
     setItem(value);
+    if(rowSelectEffect){
+      rowSelectEffect();
+    }
+    
   };
 
   return {
@@ -24,7 +28,6 @@ export const useRowDetails = () => {
     handleRefresh,
     handleCreate,
     handleCancel,
-    onRowSelect,
-    
+    onRowSelect
   };
 };

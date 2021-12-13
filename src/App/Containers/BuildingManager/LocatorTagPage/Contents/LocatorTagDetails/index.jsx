@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Row, Col, Input } from "antd";
+import { Form, Row, Col, Input, Tooltip } from "antd";
 
 import DetailCard from "App/Components/DetailCard";
 import { useDetailForm } from "App/Utils/hooks/useDetailForm";
@@ -11,6 +11,7 @@ import {
 import SelectFloorPlan from "App/Components/CustomSelect/SelectFloorPlan";
 import PickLocation from "App/Components/PickLocation/PickLocation";
 import SelectLocatorTag from "App/Components/CustomSelect/SelectLocatorTag";
+import { shortenUuid } from "App/Utils/utils";
 
 const LocationDetails = ({
   visible,
@@ -60,19 +61,21 @@ const LocationDetails = ({
                 placeholder="Input locator tag group"
               />
             </Form.Item>
-            <Form.Item
-              name="uuid"
-              label="UUID: "
-              rules={[
-                {
-                  required: true,
-                  message: "Input UUID",
-                },
-              ]}
-              tooltip="This is Uuid of locator tag"
-            >
-              <Input placeholder="Input UUID" disabled={model?.uuid} />
-            </Form.Item>
+            <Tooltip placement="top" title={model?.uuid}>
+              <Form.Item
+                name="uuid"
+                label="UUID: "
+                rules={[
+                  {
+                    required: true,
+                    message: "Input UUID",
+                  },
+                ]}
+                tooltip="This is Uuid of locator tag"
+              >
+                <Input placeholder="Input UUID" disabled={disabled && !model} />
+              </Form.Item>
+            </Tooltip>
           </Col>
           <Col span={11}>
             <Form.Item

@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Tag, Typography } from "antd";
+import { Table, Tag, Tooltip, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Moment from "moment";
 
@@ -9,6 +9,7 @@ import ColumnSearch from "App/Components/TableUtils/ColumnSearch";
 import ColumnSelect from "App/Components/TableUtils/ColumnSelect";
 import { selectBuildingId } from "App/Stores/auth.slice";
 import { getLocatorTags } from "App/Services/locatorTag.service";
+import { shortenUuid } from "App/Utils/utils";
 
 const LocatorTagTable = ({ refresh, onRowSelect }) => {
   const buildingId = useSelector(selectBuildingId);
@@ -51,12 +52,18 @@ const LocatorTagTable = ({ refresh, onRowSelect }) => {
         <Table.Column
           title="UUID"
           key="uuid"
-          render={(item) => <Typography.Link> {item.uuid} </Typography.Link>}
+          render={(item) => (
+            <Typography.Link>
+              <Tooltip title={item?.uuid} placement="top">
+                {shortenUuid(item?.uuid)}
+              </Tooltip>
+            </Typography.Link>
+          )}
           filterDropdown={({ clearFilters }) => (
             <ColumnSearch
-              placeholder="Search by name"
+              placeholder="Search by uuid"
               clearFilters={clearFilters}
-              onSubmit={(value) => setSearchParams({ name: value })}
+              onSubmit={(value) => setSearchParams({ uuid: value })}
               onCancel={() => setSearchParams(null)}
             />
           )}
@@ -66,7 +73,15 @@ const LocatorTagTable = ({ refresh, onRowSelect }) => {
           title="Vertical Group"
           key="locatorTagGroup"
           dataIndex="locatorTagGroup"
-          render={(item) => item && <Tag>{item?.uuid}</Tag>}
+          render={(item) =>
+            item && (
+              <Tag>
+                <Tooltip title={item?.uuid} placement="top">
+                  {shortenUuid(item?.uuid)}
+                </Tooltip>
+              </Tag>
+            )
+          }
         />
         <Table.Column
           title="Floor Plan"
@@ -75,14 +90,22 @@ const LocatorTagTable = ({ refresh, onRowSelect }) => {
             <Typography> Floor {item.floorPlan?.floorCode} </Typography>
           )}
         />
-        <Table.Column
+         <Table.Column
+          title="Tx Power"
+          dataIndex="txPower"
+          key="txPower"
+          render={(value) => (
+            <Typography.Text>{value?.toFixed(2)}</Typography.Text>
+          )}
+        />
+        {/* <Table.Column
           title="Update date"
           dataIndex="updateTime"
           key="updateTime"
           render={(value) => (
             <Typography.Text>{Moment(value).format("lll")}</Typography.Text>
           )}
-        />
+        /> */}
         <Table.Column
           title="Status"
           dataIndex="status"

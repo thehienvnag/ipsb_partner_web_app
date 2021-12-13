@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Select } from "antd";
+import { Select, Tooltip } from "antd";
 import "./SelectWrapper.scss";
+import { shortenUuid } from "App/Utils/utils";
 const SelectWrapper = ({
   mode = "single",
   disabled,
@@ -30,12 +31,21 @@ const SelectWrapper = ({
   useEffect(() => {
     if (initialValue) {
       if (mode === "single") {
-        setInnerValue([
-          {
-            key: initialValue[keyIndex],
-            label: initialValue[labelIndex],
-          },
-        ]);
+        if (labelIndex == "uuid") {
+          setInnerValue([
+            {
+              key: initialValue[keyIndex],
+              label: initialValue[labelIndex],
+            },
+          ]);
+        } else {
+          setInnerValue([
+            {
+              key: initialValue[keyIndex],
+              label: initialValue[labelIndex],
+            },
+          ]);
+        }
       } else if (mode === "multiple") {
         const innerData = initialValue
           .split(",")
@@ -91,7 +101,11 @@ const SelectWrapper = ({
         data.map((item) => {
           return (
             <Select.Option key={item[keyIndex]}>
-              {item[labelIndex]}
+              <Tooltip placement="top" title={item[labelIndex]}>
+                {labelIndex == "uuid"
+                  ? shortenUuid(item[labelIndex])
+                  : item[labelIndex]}
+              </Tooltip>
             </Select.Option>
           );
         })}

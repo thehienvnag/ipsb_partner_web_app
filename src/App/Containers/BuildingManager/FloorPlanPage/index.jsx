@@ -7,8 +7,11 @@ import Header from "./Header";
 import FloorPlanTable from "./FloorPlanTable";
 import FloorPlanDetail from "./FloorPlanDetail";
 import { useRowDetails } from "App/Utils/hooks/useRowDetails";
+import { useDispatch } from "react-redux";
+import { resetFloorPlan } from "App/Stores/indoorMap.slice";
 
 const FloorPlanPage = () => {
+  const dispatch = useDispatch();
   const {
     refresh,
     visible,
@@ -17,7 +20,9 @@ const FloorPlanPage = () => {
     handleCreate,
     onRowSelect,
     handleCancel,
-  } = useRowDetails();
+  } = useRowDetails({rowSelectEffect: () => {
+    dispatch(resetFloorPlan());
+  }});
   return (
     <PageWrapper>
       <PageBody>

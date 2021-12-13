@@ -4,6 +4,9 @@ export function getBase64(file, callback) {
   reader.addEventListener("load", () => callback(reader.result));
   reader.readAsDataURL(file);
 }
+export const shortenUuid = (uuid = "") => {
+  return `****${uuid.substr(uuid.length - 3, 3)}`;
+}
 
 export function debounce(callback, timeout = 200) {
   let timer;
