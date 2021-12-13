@@ -138,6 +138,7 @@ const StoreDetails = ({
               >
                 <SelectAccount
                   role="Store Owner"
+                  storeOwnerBuildingId={buildingId}
                   initialValue={model?.account}
                   disabled={disabled}
                 />

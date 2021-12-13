@@ -5,6 +5,7 @@ import SelectWrapper from "./SelectWrapper";
 const SelectAccount = ({
   disabled,
   role = "Building Manager" || "Store Owner",
+  storeOwnerBuildingId,
   initialValue,
   onChange,
 }) => {
@@ -13,7 +14,7 @@ const SelectAccount = ({
       role === "Building Manager"
         ? { notManageBuilding: true }
         : role === "Store Owner"
-        ? { notManageStore: true }
+        ? { notManageStore: true, storeOwnerBuildingId }
         : null;
 
     return getAccounts({ pageSize: 10, role }, notMange, searchParams).then(
