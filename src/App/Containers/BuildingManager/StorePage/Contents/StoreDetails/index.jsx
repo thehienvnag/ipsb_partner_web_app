@@ -37,7 +37,7 @@ const StoreDetails = ({
   return (
     <>
       <DetailCard
-        span={9}
+        span={10}
         btnState={btnState}
         visible={visible}
         onCancel={onCancel}

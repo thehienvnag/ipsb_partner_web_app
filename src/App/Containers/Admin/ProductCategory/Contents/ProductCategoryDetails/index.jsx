@@ -28,7 +28,7 @@ const ProductCategoryDetails = ({
   const disabled = model && model.status !== "Active";
   return (
     <DetailCard
-      span={8}
+      span={10}
       btnState={btnState}
       visible={visible}
       onCancel={onCancel}

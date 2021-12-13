@@ -64,13 +64,12 @@ const BuildingManagerTable = ({ refresh, onRowSelect }) => {
         title="Email"
         dataIndex="email"
         key="email"
-        width={290}
         render={(item) => <Typography.Text>{item}</Typography.Text>}
         filterDropdown={({ clearFilters }) => (
           <ColumnSearch
-            placeholder="Search by address"
+            placeholder="Search by email"
             clearFilters={clearFilters}
-            onSubmit={(value) => setSearchParams({ address: value })}
+            onSubmit={(value) => setSearchParams({ email: value })}
             onCancel={() => setSearchParams(null)}
           />
         )}
@@ -83,9 +82,9 @@ const BuildingManagerTable = ({ refresh, onRowSelect }) => {
         render={(item) => <Typography.Text>{item}</Typography.Text>}
         filterDropdown={({ clearFilters }) => (
           <ColumnSearch
-            placeholder="Search by address"
+            placeholder="Search by phone"
             clearFilters={clearFilters}
-            onSubmit={(value) => setSearchParams({ address: value })}
+            onSubmit={(value) => setSearchParams({ phone: value })}
             onCancel={() => setSearchParams(null)}
           />
         )}
